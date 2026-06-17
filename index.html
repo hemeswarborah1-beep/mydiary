@@ -87,9 +87,27 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 </div>
 
 <div class="main">
+  <!-- LOGIN / SIGNUP SCREEN -->
   <div class="screen active" id="screen-login">
     <div class="card" id="login-card">
       <div class="card-title" id="auth-title">Officer Login</div>
+      
+      <!-- New Signup Fields (Hidden during Login) -->
+      <div id="signup-fields" style="display:none;">
+        <div class="field" style="margin-bottom:10px">
+          <label>Full Name</label>
+          <input type="text" id="auth-name" placeholder="e.g. John Doe">
+        </div>
+        <div class="field" style="margin-bottom:10px">
+          <label>Designation</label>
+          <input type="text" id="auth-designation" placeholder="e.g. Inspector">
+        </div>
+        <div class="field" style="margin-bottom:10px">
+          <label>Mobile Number</label>
+          <input type="tel" id="auth-mobile" placeholder="e.g. 9876543210">
+        </div>
+      </div>
+
       <div class="field" style="margin-bottom:10px">
         <label>Email</label>
         <input type="email" id="login-email" placeholder="officer@example.com">
@@ -98,10 +116,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
         <label>Password</label>
         <input type="password" id="login-password">
       </div>
+      
       <button class="btn btn-primary" id="btn-auth" onclick="window.processAuth()">Login securely</button>
       <a class="toggle-link" onclick="window.toggleAuthMode()">Need an account? Sign up here</a>
     </div>
 
+    <!-- PENDING APPROVAL SCREEN -->
     <div class="card" id="pending-card" style="display:none; text-align:center; padding: 30px 15px;">
        <h3 style="color: var(--blue); margin-bottom: 10px;">⏳ Account Pending</h3>
        <p style="color: var(--text2); font-size: 14px; line-height: 1.5;">Your account has been successfully created!<br><br>However, it requires Superadmin approval before you can access the Tour Diary system.</p>
@@ -109,6 +129,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     </div>
   </div>
 
+  <!-- ADMIN DASHBOARD SCREEN -->
   <div class="screen" id="screen-admin">
     <div class="card">
       <div class="card-title">User Management (Superadmin)</div>
@@ -119,6 +140,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     </div>
   </div>
 
+  <!-- ADD ENTRY SCREEN -->
   <div class="screen" id="screen-add">
     <div class="card">
       <div class="card-title">Journey Details</div>
@@ -156,7 +178,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       <div class="card-title">Travel & Claim</div>
       <div class="row">
         <div class="field">
-          <label>Distance (km)</label>
+          <label style="display: flex; justify-content: space-between; align-items: center;">
+            Distance (km)
+            <div style="display: flex; gap: 5px;">
+              <button type="button" id="btn-start-gps" onclick="window.startGPS()" style="background:var(--blue-bg); color:var(--blue); border:1px solid var(--blue-light); border-radius:4px; font-size:9px; padding:2px 6px; cursor:pointer; font-weight:700;">📍 START GPS</button>
+              <button type="button" id="btn-stop-gps" onclick="window.stopGPS()" style="background:var(--danger-bg); color:var(--danger); border:1px solid var(--danger); border-radius:4px; font-size:9px; padding:2px 6px; cursor:pointer; font-weight:700; display:none;">🛑 STOP & CALC</button>
+            </div>
+          </label>
           <input type="number" id="distance" placeholder="0" min="0" oninput="window.autoCalculate()">
         </div>
         <div class="field">
@@ -185,10 +213,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     <button class="btn btn-warning" id="btn-cancel-edit" onclick="window.cancelEdit()" style="display:none;">Cancel Edit</button>
   </div>
 
+  <!-- RECORDS SCREEN -->
   <div class="screen" id="screen-records">
     <div id="records-content">Loading...</div>
   </div>
 
+  <!-- REPORTS SCREEN -->
   <div class="screen" id="screen-summary">
     <div class="card">
       <div class="card-title">Filter & Search</div>
@@ -222,8 +252,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     <button class="export-btn" onclick="window.shareText()">📤 Share Summary</button>
   </div>
 
+  <!-- ALERTS SCREEN (PREMIUM) -->
   <div class="screen" id="screen-alerts">
     
+    <!-- Lock Screen for non-premium users -->
     <div id="premium-lock" style="display: none; text-align: center; padding: 40px 20px;">
       <div style="font-size: 50px; margin-bottom: 15px;">🔒</div>
       <h3 style="color: var(--blue); margin-bottom: 10px;">Premium Feature</h3>
@@ -231,6 +263,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       <p style="color: var(--text3); font-size: 13px; margin-top: 20px;">Please contact your Superadmin to upgrade your account.</p>
     </div>
 
+    <!-- Alert Management for Premium users -->
     <div id="premium-content" style="display: none;">
       <div class="card">
         <div class="card-title">Create New Alert</div>
@@ -256,6 +289,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     </div>
   </div>
 
+  <!-- SETTINGS SCREEN -->
   <div class="screen" id="screen-settings">
     <div class="card">
       <div class="card-title">Profile & Rules</div>
@@ -293,6 +327,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   <button class="nav-item" onclick="window.switchTab('admin')" id="nav-admin" style="display:none;"><div class="nav-icon">🛡️</div>Admin</button>
 </nav>
 
+<!-- Notification Modal for Alerts -->
 <div class="modal-overlay" id="notification-modal">
   <div class="modal-content">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
@@ -307,6 +342,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 
 <div class="toast" id="toast"></div>
 
+<!-- FIREBASE MODULAR SDK INTEGRATION -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -338,6 +374,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   let globalSettings = { name: "", designation: "", payLevel: "6", daRate: 500, fareRate: 12 };
   let tourEntries = [];
   let userAlerts = [];
+  let gpsStartCoords = null;
   const CPC_DA_RATES = { "14": 1000, "12": 900, "9": 800, "6": 500, "1": 500 };
 
   // --- UI UTILS ---
@@ -366,12 +403,61 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     if (tab === 'admin') window.loadAdminUsers();
   };
 
+  // --- GPS TRACKING ---
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371; 
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c; 
+  };
+
+  window.startGPS = () => {
+    if (!navigator.geolocation) return window.showToast("GPS is not supported.");
+    window.showToast("Acquiring GPS signal...");
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        gpsStartCoords = { lat: position.coords.latitude, lon: position.coords.longitude };
+        document.getElementById('btn-start-gps').style.display = 'none';
+        document.getElementById('btn-stop-gps').style.display = 'block';
+        window.showToast("📍 Start location saved!");
+      },
+      (error) => { window.showToast("⚠️ GPS Error: Enable Location Services."); },
+      { enableHighAccuracy: true }
+    );
+  };
+
+  window.stopGPS = () => {
+    if (!gpsStartCoords) return;
+    window.showToast("Calculating distance...");
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const endCoords = { lat: position.coords.latitude, lon: position.coords.longitude };
+        let dist = calculateDistance(gpsStartCoords.lat, gpsStartCoords.lon, endCoords.lat, endCoords.lon);
+        dist = dist * 1.20; // 20% road curve buffer
+        document.getElementById('distance').value = Math.round(dist);
+        window.autoCalculate();
+        
+        gpsStartCoords = null;
+        document.getElementById('btn-start-gps').style.display = 'block';
+        document.getElementById('btn-stop-gps').style.display = 'none';
+        window.showToast(`✅ GPS Distance Logged: ~${Math.round(dist)} km`);
+      },
+      (error) => { window.showToast("⚠️ GPS Error: Could not get end location."); },
+      { enableHighAccuracy: true }
+    );
+  };
+
   // --- AUTHENTICATION & APPROVAL ---
   window.toggleAuthMode = () => {
     authMode = authMode === 'login' ? 'signup' : 'login';
     document.getElementById('auth-title').textContent = authMode === 'login' ? 'Officer Login' : 'Create New Account';
     document.getElementById('btn-auth').textContent = authMode === 'login' ? 'Login securely' : 'Sign Up';
     document.querySelector('.toggle-link').textContent = authMode === 'login' ? 'Need an account? Sign up here' : 'Already have an account? Login';
+    document.getElementById('signup-fields').style.display = authMode === 'login' ? 'none' : 'block';
   };
 
   window.processAuth = async () => {
@@ -384,8 +470,35 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
         await signInWithEmailAndPassword(auth, e, p);
         window.showToast("Logging in...");
       } else {
+        const name = document.getElementById('auth-name').value;
+        const desig = document.getElementById('auth-designation').value;
+        const mob = document.getElementById('auth-mobile').value;
+
+        if(!name || !desig || !mob) return window.showToast("Please fill all signup fields.");
+
         const userCred = await createUserWithEmailAndPassword(auth, e, p);
-        await setDoc(doc(db, "profiles", userCred.user.uid), { email: e, status: 'pending', role: 'officer', premium: false });
+        
+        // Save full details to profiles
+        await setDoc(doc(db, "profiles", userCred.user.uid), { 
+            email: e, 
+            name: name,
+            designation: desig,
+            mobile: mob,
+            status: 'pending', 
+            role: 'officer', 
+            premium: false 
+        });
+
+        // Pre-fill settings so user doesn't have to type it again
+        await setDoc(doc(db, "settings", userCred.user.uid), {
+           name: name,
+           designation: desig,
+           address: "",
+           payLevel: "6",
+           daRate: 500,
+           fareRate: 12
+        });
+
         window.showToast("Account created! Awaiting admin approval.");
       }
     } catch(err) { window.showToast(err.message.replace('Firebase: ', '')); }
@@ -433,7 +546,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 
          window.loadSettings().then(() => {
            window.fetchEntries();
-           if(isPremiumUser) window.fetchAlerts(); // Only fetch alerts if premium
+           if(isPremiumUser) window.fetchAlerts(); 
            window.switchTab('add');
          });
       }
@@ -463,17 +576,22 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       
       let html = '';
       snapshot.docs.forEach(doc => {
-        const data = doc.data();
+        const d = doc.data();
         html += `<div class="pending-user-card">
-          <div class="pending-email"><span>👤 ${data.email}</span> 
-            ${data.premium ? '<span style="color:var(--premium);font-size:12px;">★ Premium</span>' : ''}
+          <div>
+            <div class="pending-email" style="display:block;">👤 ${d.name || d.email} ${d.premium ? '<span style="color:var(--premium);font-size:12px;float:right;">★ Premium</span>' : ''}</div>
+            <div style="font-size:11px; color:var(--text2); margin-top:6px;">
+               ${d.designation ? `💼 ${d.designation} <br>` : ''}
+               ${d.mobile ? `📱 ${d.mobile} <br>` : ''}
+               ✉️ ${d.email}
+            </div>
           </div>
-          <div class="admin-actions">`;
+          <div class="admin-actions" style="margin-top:8px;">`;
             
-        if(data.status === 'pending') {
+        if(d.status === 'pending') {
             html += `<button class="btn btn-primary btn-sm" onclick="window.updateUser('${doc.id}', 'status', 'approved')">Approve Access</button>`;
         } else {
-            if(!data.premium) {
+            if(!d.premium) {
                 html += `<button class="btn btn-premium btn-sm" onclick="window.updateUser('${doc.id}', 'premium', true)">Grant Premium</button>`;
             } else {
                 html += `<button class="btn btn-warning btn-sm" onclick="window.updateUser('${doc.id}', 'premium', false)">Revoke Premium</button>`;
@@ -560,7 +678,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
         const diffTime = alertDate - today;
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         
-        // If due within the next 3 days (or overdue/today = 0)
         if(diffDays >= 0 && diffDays <= 3) {
             upcoming.push(a);
         }
@@ -592,7 +709,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
         document.getElementById('set-da').value = globalSettings.daRate || 500;
         document.getElementById('set-fare').value = globalSettings.fareRate || 12;
         
-        document.getElementById('header-name').innerHTML = `📋 Tour Diary ${isPremiumUser ? '<span class="premium-badge">Premium</span>' : ''}`;
+        document.getElementById('header-name').innerHTML = `📋 Tour Diary ${isPremiumUser ? '<span class="premium-badge" style="display:inline-block">Premium</span>' : ''}`;
         document.getElementById('header-designation').textContent = globalSettings.designation || 'Journey Tracker';
       } else {
         window.switchTab('settings');
@@ -627,7 +744,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       
       tourEntries = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
       
-      // STRICT ASCENDING SORT BY DATE THEN TIME
       tourEntries.sort((a, b) => {
          if (a.date === b.date) {
             return (a.depTime || "").localeCompare(b.depTime || "");
