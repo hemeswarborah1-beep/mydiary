@@ -7,55 +7,183 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Tour Diary">
-<title>Tour Diary Cloud</title>
+<meta name="description" content="Tour Diary - Journey & DA Tracker for Government Officers">
+<title>Tour Diary</title>
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon.svg">
 <style>
-:root { --blue: #1565C0; --blue-light: #1E88E5; --blue-dark: #0D47A1; --blue-bg: #E3F2FD; --surface: #FFFFFF; --bg: #F5F7FA; --border: #E0E0E0; --text: #1A1A2E; --text2: #5C6B7A; --text3: #9AA5B1; --success: #2E7D32; --success-bg: #E8F5E9; --danger: #C62828; --danger-bg: #FFEBEE; --radius: 12px; --radius-sm: 8px; --shadow: 0 1px 4px rgba(0,0,0,0.10); }
+:root {
+  --blue: #1565C0;
+  --blue-light: #1E88E5;
+  --blue-dark: #0D47A1;
+  --blue-bg: #E3F2FD;
+  --surface: #FFFFFF;
+  --bg: #F5F7FA;
+  --border: #E0E0E0;
+  --text: #1A1A2E;
+  --text2: #5C6B7A;
+  --text3: #9AA5B1;
+  --success: #2E7D32;
+  --success-bg: #E8F5E9;
+  --danger: #C62828;
+  --danger-bg: #FFEBEE;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 1px 4px rgba(0,0,0,0.10);
+}
+
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; max-width: 480px; margin: 0 auto; position: relative; }
-.header { background: linear-gradient(135deg, var(--blue-dark), var(--blue-light)); color: #fff; padding: 16px 16px 20px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  max-width: 480px;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* Header */
+.header {
+  background: linear-gradient(135deg, var(--blue-dark), var(--blue-light));
+  color: #fff;
+  padding: 16px 16px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
 .header-top { display: flex; justify-content: space-between; align-items: flex-start; }
 .header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
 .header-sub { font-size: 13px; opacity: 0.85; margin-top: 2px; }
-.logout-btn { background: rgba(255,255,255,0.2); border: none; color: white; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; display: none; }
-.bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: var(--surface); border-top: 1px solid var(--border); display: none; z-index: 100; padding-bottom: env(safe-area-inset-bottom); }
-.nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 10px 2px 8px; cursor: pointer; color: var(--text3); font-size: 10px; gap: 3px; border: none; background: none; }
+
+/* Bottom Nav */
+.bottom-nav {
+  position: fixed;
+  bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 480px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  display: flex;
+  z-index: 100;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 4px 8px;
+  cursor: pointer;
+  color: var(--text3);
+  font-size: 11px;
+  gap: 3px;
+  transition: color .2s;
+  border: none;
+  background: none;
+}
 .nav-item.active { color: var(--blue); }
-.nav-icon { width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 18px;}
-.main { padding: 12px 12px 80px; min-height: calc(100vh - 140px); }
-.screen { display: none; } .screen.active { display: block; }
-.card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); padding: 14px; margin-bottom: 12px; box-shadow: var(--shadow); }
-.card-title { font-size: 13px; font-weight: 600; color: var(--text2); text-transform: uppercase; margin-bottom: 12px; }
+.nav-icon {
+  width: 24px; height: 24px;
+  display: flex; align-items: center; justify-content: center; font-size: 18px;
+}
+
+/* Main content */
+.main {
+  padding: 12px 12px 80px;
+  min-height: calc(100vh - 140px);
+}
+
+/* Screens */
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* Cards */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 14px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+}
+.card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+/* Form */
 .row { display: flex; gap: 10px; margin-bottom: 10px; }
 .field { flex: 1; display: flex; flex-direction: column; gap: 4px; }
 .field label { font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; }
-.field input, .field select, .field textarea { border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 9px 11px; font-size: 14px; width: 100%; }
+.field input, .field select, .field textarea {
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 9px 11px;
+  font-size: 14px;
+  color: var(--text);
+  background: var(--surface);
+  width: 100%;
+}
 .field textarea { resize: none; height: 60px; }
-.btn { width: 100%; padding: 13px; border: none; border-radius: var(--radius); font-size: 15px; font-weight: 600; cursor: pointer; }
+.btn {
+  width: 100%; padding: 13px; border: none; border-radius: var(--radius);
+  font-size: 15px; font-weight: 600; cursor: pointer;
+}
 .btn-primary { background: var(--blue); color: #fff; }
+.btn-warning { background: #FF9800; color: #fff; }
+
+/* Summary stats */
 .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
 .stat { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); padding: 12px; }
-.stat-label { font-size: 11px; color: var(--text2); }
+.stat-label { font-size: 11px; color: var(--text2); font-weight: 500; margin-bottom: 4px; }
 .stat-value { font-size: 22px; font-weight: 700; color: var(--text); }
-.stat-value.blue { color: var(--blue); } .stat-value.green { color: var(--success); }
-.entry-card { background: var(--surface); border-radius: var(--radius); padding: 12px; margin-bottom: 10px; border: 1px solid var(--border); }
-.entry-header { display: flex; justify-content: space-between; margin-bottom: 6px; }
+.stat-value.blue { color: var(--blue); }
+.stat-value.green { color: var(--success); }
+
+/* Entry list */
+.entry-card {
+  background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border);
+  padding: 12px 14px; margin-bottom: 10px; position: relative;
+}
+.entry-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
 .entry-date { font-size: 12px; font-weight: 700; color: var(--blue); }
-.entry-route { font-size: 15px; font-weight: 600; }
+.entry-route { font-size: 15px; font-weight: 600; color: var(--text); }
 .entry-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 7px; }
-.chip { font-size: 11px; padding: 3px 9px; border-radius: 20px; background: var(--bg); border: 1px solid var(--border); }
-.chip.blue { background: var(--blue-bg); color: var(--blue); }
-.chip.green { background: var(--success-bg); color: var(--success); }
+.chip { font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; border: 1px solid var(--border); }
+.chip.blue { background: var(--blue-bg); color: var(--blue); border-color: #BBDEFB; }
+.chip.green { background: var(--success-bg); color: var(--success); border-color: #C8E6C9; }
 .entry-purpose { font-size: 12px; color: var(--text2); margin-top: 6px; line-height: 1.4; }
-.delete-btn { background: none; border: none; cursor: pointer; }
+.delete-btn { background: none; border: none; font-size: 16px; cursor: pointer; }
+
+/* Report Table */
+.report-table-container {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 10px; margin-bottom: 15px; max-height: 350px; overflow-y: auto; font-size: 12px;
+}
+.report-table { width: 100%; border-collapse: collapse; }
+.report-table th { text-align: left; padding: 6px 5px; border-bottom: 1px solid var(--border); color: var(--text2); }
+.report-table td { padding: 8px 5px; border-bottom: 1px solid #f0f0f0; }
+
 .section-head { font-size: 11px; font-weight: 700; color: var(--text3); text-transform: uppercase; margin: 14px 0 8px; }
-.export-btn { width: 100%; padding: 13px; border: 1.5px solid var(--border); border-radius: var(--radius); background: var(--surface); font-size: 14px; margin-bottom: 10px; cursor: pointer; }
-.toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px); background: #263238; color: #fff; padding: 10px 20px; border-radius: 24px; font-size: 13px; opacity: 0; transition: all .25s; z-index: 300; pointer-events: none; }
+.export-btn {
+  padding: 13px; border-radius: var(--radius); border: 1.5px solid var(--border);
+  background: var(--surface); font-size: 14px; font-weight: 600; cursor: pointer; margin-bottom: 10px; width: 100%;
+}
+
+.toast {
+  position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
+  background: #263238; color: #fff; padding: 10px 20px; border-radius: 24px;
+  font-size: 13px; opacity: 0; transition: all .25s; z-index: 300; pointer-events: none;
+}
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-.toggle-link { color: var(--blue); cursor: pointer; text-decoration: underline; font-size: 13px; text-align: center; margin-top: 15px; display: block; font-weight: 500; }
-.pending-user-card { border: 1.5px solid var(--border); padding: 12px; border-radius: var(--radius-sm); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-.pending-email { font-size: 14px; font-weight: 600; color: var(--text); }
 </style>
 </head>
 <body>
@@ -64,572 +192,506 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   <div class="header-top">
     <div>
       <h1 id="header-name">📋 Tour Diary</h1>
-      <div class="header-sub" id="header-designation">Authentication required</div>
+      <div class="header-sub" id="header-designation">Journey & DA Tracker</div>
     </div>
-    <button class="logout-btn" id="btn-logout" onclick="window.logoutUser()">Logout</button>
   </div>
 </div>
 
 <div class="main">
-  <div class="screen active" id="screen-login">
-    <div class="card" id="login-card">
-      <div class="card-title" id="auth-title">Officer Login</div>
-      <div class="field" style="margin-bottom:10px">
-        <label>Email</label>
-        <input type="email" id="login-email" placeholder="officer@example.com">
-      </div>
-      <div class="field" style="margin-bottom:20px">
-        <label>Password</label>
-        <input type="password" id="login-password">
-      </div>
-      <button class="btn btn-primary" id="btn-auth" onclick="window.processAuth()">Login securely</button>
-      <a class="toggle-link" onclick="window.toggleAuthMode()">Need an account? Sign up here</a>
-    </div>
 
-    <div class="card" id="pending-card" style="display:none; text-align:center; padding: 30px 15px;">
-       <h3 style="color: var(--blue); margin-bottom: 10px;">⏳ Account Pending</h3>
-       <p style="color: var(--text2); font-size: 14px; line-height: 1.5;">Your account has been successfully created!<br><br>However, it requires Superadmin approval before you can access the Tour Diary system.</p>
-       <p style="color: var(--text3); font-size: 13px; margin-top: 20px;">Please wait for your administrator to activate your account.</p>
-    </div>
-  </div>
-
-  <div class="screen" id="screen-admin">
+  <div class="screen active" id="screen-add">
     <div class="card">
-      <div class="card-title">Pending Approvals</div>
-      <p style="font-size: 12px; color: var(--text2); margin-bottom: 15px;">Approve new officers below to grant them access to the app.</p>
-      <div id="admin-content">
-         <p style="text-align:center; color: var(--text3); font-size: 13px;">Loading pending users...</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="screen" id="screen-add">
-    <div class="card">
-      <div class="card-title">Journey Details</div>
+      <div class="card-title">Departure</div>
       <div class="row">
         <div class="field">
-          <label>Dep. Date</label>
-          <input type="date" id="dep-date" onchange="window.autoCalculate()">
+          <label>Date</label>
+          <input type="date" id="dep-date" onchange="autoCalculate()">
         </div>
         <div class="field">
-          <label>Dep. Time</label>
-          <input type="time" id="dep-time" value="09:00" onchange="window.autoCalculate()">
+          <label>Time (24 Hr)</label>
+          <input type="time" id="dep-time" value="09:00" onchange="autoCalculate()">
         </div>
       </div>
-      <div class="field" style="margin-bottom:10px">
+      <div class="field" style="margin-bottom:0">
         <label>From</label>
-        <input type="text" id="from" value="Headquarter">
+        <input type="text" id="from" value="Headquarter" list="places-list">
       </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Arrival</div>
       <div class="row">
         <div class="field">
-          <label>Arr. Date</label>
-          <input type="date" id="arr-date" onchange="window.autoCalculate()">
+          <label>Date</label>
+          <input type="date" id="arr-date" onchange="autoCalculate()">
         </div>
         <div class="field">
-          <label>Arr. Time</label>
-          <input type="time" id="arr-time" value="09:30" onchange="window.autoCalculate()">
+          <label>Time (24 Hr)</label>
+          <input type="time" id="arr-time" value="09:30" onchange="autoCalculate()">
         </div>
       </div>
       <div class="field" style="margin-bottom:0">
         <label>Destination</label>
-        <input type="text" id="destination" placeholder="e.g. Branch Office">
+        <input type="text" id="destination" placeholder="e.g. Arangmow B.O" list="places-list">
       </div>
     </div>
 
+    <datalist id="places-list"></datalist>
+
     <div class="card">
-      <div class="card-title">Travel & Claim</div>
+      <div class="card-title">Travel details</div>
       <div class="row">
         <div class="field">
           <label>Distance (km)</label>
-          <input type="number" id="distance" placeholder="0" min="0" oninput="window.autoCalculate()">
+          <input type="number" id="distance" placeholder="0" min="0" oninput="autoCalculate()">
         </div>
         <div class="field">
-          <label>Mode</label>
-          <select id="mode">
-            <option>Car</option><option>Bus</option><option>Train</option><option>Two-wheeler</option>
-          </select>
+          <label>Fare paid (₹)</label>
+          <input type="number" id="fare" placeholder="0" min="0">
         </div>
       </div>
       <div class="row">
         <div class="field">
-          <label>Fare (₹)</label>
-          <input type="number" id="fare" placeholder="0" readonly>
+          <label>Mode of travel</label>
+          <select id="mode">
+            <option>Car</option><option>Bus</option><option>Train</option>
+            <option>Two-wheeler</option><option>Auto</option><option>On foot</option>
+          </select>
         </div>
         <div class="field">
-          <label>DA (₹)</label>
-          <input type="number" id="da" placeholder="0" readonly>
+          <label>DA claimed (₹)</label>
+          <input type="number" id="da" placeholder="0" min="0">
         </div>
       </div>
-      <div class="field" style="margin-top:10px">
-        <label>Purpose of Journey</label>
-        <textarea id="purpose" placeholder="e.g. Annual Inspection, Audit, etc."></textarea>
+      <div class="field" style="margin-bottom:0">
+        <label>Purpose of journey</label>
+        <textarea id="purpose" placeholder="e.g. Annual Inspection"></textarea>
       </div>
     </div>
-    <button class="btn btn-primary" onclick="window.saveEntry()">Save & Continue</button>
+
+    <button class="btn btn-primary" id="btn-save-entry" onclick="saveEntry()">Save entry</button>
+    <button class="btn btn-warning" id="btn-cancel-edit" onclick="cancelEdit()" style="display:none; margin-top:10px;">Cancel Edit</button>
   </div>
 
   <div class="screen" id="screen-records">
-    <div id="records-content">Loading...</div>
+    <div id="records-content"></div>
   </div>
 
   <div class="screen" id="screen-summary">
     <div class="card">
-      <div class="card-title">Export Report</div>
+      <div class="card-title">Report Date Range</div>
       <div class="row">
         <div class="field">
           <label>From Date</label>
-          <input type="date" id="report-from" onchange="window.renderSummary()">
+          <input type="date" id="report-from" onchange="renderSummary()">
         </div>
         <div class="field">
           <label>To Date</label>
-          <input type="date" id="report-to" onchange="window.renderSummary()">
+          <input type="date" id="report-to" onchange="renderSummary()">
         </div>
       </div>
     </div>
 
     <div class="stats-grid">
-      <div class="stat"><div class="stat-label">Total Journeys</div><div class="stat-value blue" id="s-count">0</div></div>
-      <div class="stat"><div class="stat-label">Distance (km)</div><div class="stat-value" id="s-km">0</div></div>
-      <div class="stat"><div class="stat-label">Fare Paid</div><div class="stat-value" id="s-fare">₹0</div></div>
-      <div class="stat"><div class="stat-label">DA Claimed</div><div class="stat-value green" id="s-da">₹0</div></div>
+      <div class="stat"><div class="stat-label">Total journeys</div><div class="stat-value blue" id="s-count">0</div></div>
+      <div class="stat"><div class="stat-label">Total distance</div><div class="stat-value" id="s-km">0 <span style="font-size:14px;color:var(--text2)">km</span></div></div>
+      <div class="stat"><div class="stat-label">Fare paid</div><div class="stat-value" id="s-fare">₹0</div></div>
+      <div class="stat"><div class="stat-label">DA claimed</div><div class="stat-value green" id="s-da">₹0</div></div>
     </div>
 
-    <button class="btn export-btn" style="border: 2px solid var(--blue); color: var(--blue);" onclick="window.exportCSV()">⬇️ Download CSV / Excel</button>
+    <div class="section-head">Detailed View & Edit</div>
+    <div class="report-table-container" id="report-details">
+      </div>
+
+    <div class="section-head">Export & share</div>
+    <button class="export-btn" onclick="exportCSV()">⬇️ Download Report (CSV/Excel)</button>
+    <button class="export-btn" onclick="shareText()">📤 Share Summary</button>
   </div>
 
   <div class="screen" id="screen-settings">
     <div class="card">
-      <div class="card-title">Profile & Rules</div>
+      <div class="card-title">User Details</div>
       <div class="field" style="margin-bottom:10px"><label>Name</label><input type="text" id="set-name"></div>
       <div class="field" style="margin-bottom:10px"><label>Designation</label><input type="text" id="set-designation"></div>
       <div class="field" style="margin-bottom:10px"><label>Address</label><input type="text" id="set-address"></div>
-      
       <div class="row">
-        <div class="field">
-          <label>Pay Level</label>
-          <select id="set-paylevel" onchange="window.updateAutoDA()">
-            <option value="14">Level 14 & Above</option>
-            <option value="12">Level 12 to 13</option>
-            <option value="9">Level 9 to 11</option>
-            <option value="6">Level 6 to 8</option>
-            <option value="1">Level 5 & Below</option>
-          </select>
-        </div>
         <div class="field"><label>DA Rate (₹)</label><input type="number" id="set-da"></div>
-      </div>
-      <div class="field" style="margin-top:10px">
-        <label>Fare Rate / km (₹)</label><input type="number" id="set-fare">
+        <div class="field"><label>Fare Rate / km (₹)</label><input type="number" id="set-fare"></div>
       </div>
     </div>
-    <button class="btn btn-primary" onclick="window.saveSettings()">Save Profile</button>
+    <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
   </div>
+
 </div>
 
 <nav class="bottom-nav">
-  <button class="nav-item active" onclick="window.switchTab('add')" id="nav-add"><div class="nav-icon">➕</div>Add</button>
-  <button class="nav-item" onclick="window.switchTab('records')" id="nav-records"><div class="nav-icon">📋</div>Records</button>
-  <button class="nav-item" onclick="window.switchTab('summary')" id="nav-summary"><div class="nav-icon">📊</div>Reports</button>
-  <button class="nav-item" onclick="window.switchTab('settings')" id="nav-settings"><div class="nav-icon">⚙️</div>Settings</button>
-  <button class="nav-item" onclick="window.switchTab('admin')" id="nav-admin" style="display:none;"><div class="nav-icon">🛡️</div>Admin</button>
+  <button class="nav-item active" onclick="switchTab('add')" id="nav-add"><div class="nav-icon">➕</div>Add</button>
+  <button class="nav-item" onclick="switchTab('records')" id="nav-records"><div class="nav-icon">📋</div>Records</button>
+  <button class="nav-item" onclick="switchTab('summary')" id="nav-summary"><div class="nav-icon">📊</div>Reports</button>
+  <button class="nav-item" onclick="switchTab('settings')" id="nav-settings"><div class="nav-icon">⚙️</div>Settings</button>
 </nav>
 
 <div class="toast" id="toast"></div>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-  import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, setDoc, getDoc, updateDoc, query, where } 
-    from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+<script>
+// --- GLOBAL STATE ---
+let editingId = null;
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyB91XxgwSK7WSa2d8iwt3G5mMBwHyEk0YA",
-    authDomain: "my-diary-ad59b.firebaseapp.com",
-    projectId: "my-diary-ad59b",
-    storageBucket: "my-diary-ad59b.firebasestorage.app",
-    messagingSenderId: "222761664690",
-    appId: "1:222761664690:web:341fffd7d573d7a55149ab"
-  };
+// --- UTILITIES & STORAGE ---
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+function formatDDMMYYYY(isoDate) {
+  if (!isoDate) return '';
+  const parts = isoDate.split('-');
+  if (parts.length !== 3) return isoDate;
+  return `${parts[2]}-${parts[1]}-${parts[0]}`;
+}
 
-  // Global State
-  let currentUser = null;
-  let isAdminUser = false;
-  let authMode = 'login';
-  let globalSettings = { name: "", designation: "", payLevel: "6", daRate: 500, fareRate: 12 };
-  let tourEntries = [];
-  let isReturnMode = false;
-  let outwardData = null;
-  const CPC_DA_RATES = { "14": 1000, "12": 900, "9": 800, "6": 500, "1": 500 };
-
-  // --- UI UTILS ---
-  window.showToast = (msg) => {
-    const t = document.getElementById('toast');
-    t.textContent = msg; t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 3000);
-  };
-
-  window.switchTab = (tab) => {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    document.getElementById('screen-' + tab).classList.add('active');
-    
-    const navBtn = document.getElementById('nav-' + tab);
-    if(navBtn) navBtn.classList.add('active');
-    
-    if (tab === 'summary') window.renderSummary();
-    if (tab === 'admin') window.loadPendingUsers();
-  };
-
-  // --- AUTHENTICATION & APPROVAL ---
-  window.toggleAuthMode = () => {
-    authMode = authMode === 'login' ? 'signup' : 'login';
-    document.getElementById('auth-title').textContent = authMode === 'login' ? 'Officer Login' : 'Create New Account';
-    document.getElementById('btn-auth').textContent = authMode === 'login' ? 'Login securely' : 'Sign Up';
-    document.querySelector('.toggle-link').textContent = authMode === 'login' ? 'Need an account? Sign up here' : 'Already have an account? Login';
-  };
-
-  window.processAuth = async () => {
-    const e = document.getElementById('login-email').value;
-    const p = document.getElementById('login-password').value;
-    
-    if(!e || !p) return window.showToast("Please enter email and password.");
-    
-    try {
-      if(authMode === 'login') {
-        await signInWithEmailAndPassword(auth, e, p);
-        window.showToast("Logging in...");
-      } else {
-        const userCred = await createUserWithEmailAndPassword(auth, e, p);
-        // Create pending profile
-        await setDoc(doc(db, "profiles", userCred.user.uid), { 
-            email: e, 
-            status: 'pending',
-            role: 'officer' // Default role
-        });
-        window.showToast("Account created! Awaiting admin approval.");
+// Global Entries Access - Enforces STRICT Ascending Sorting by Date and Time
+function getAllEntries() {
+  try {
+    const data = JSON.parse(localStorage.getItem('tour_entries')) || [];
+    return data.sort((a, b) => {
+      // First sort by date
+      if (a.depDate === b.depDate) {
+          // If dates match, sort by time
+          return (a.depTime || "").localeCompare(b.depTime || "");
       }
-    } catch(err) {
-      window.showToast(err.message.replace('Firebase: ', ''));
-    }
-  };
-
-  window.logoutUser = async () => {
-    await signOut(auth);
-    document.getElementById('login-email').value = '';
-    document.getElementById('login-password').value = '';
-    window.showToast("Logged out successfully");
-  };
-
-  onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      currentUser = user;
-      
-      // Check user approval status and role
-      const profileSnap = await getDoc(doc(db, "profiles", user.uid));
-      let status = 'approved'; 
-      isAdminUser = false;
-      
-      if (profileSnap.exists()) {
-         status = profileSnap.data().status;
-         isAdminUser = profileSnap.data().role === 'admin';
-      }
-
-      if (status === 'pending') {
-         // Block access
-         document.getElementById('login-card').style.display = 'none';
-         document.getElementById('pending-card').style.display = 'block';
-         document.querySelector('.bottom-nav').style.display = 'none';
-         document.getElementById('btn-logout').style.display = 'block';
-         document.getElementById('header-designation').textContent = 'Approval Required';
-         window.switchTab('login');
-      } else {
-         // Grant access
-         document.getElementById('login-card').style.display = 'block';
-         document.getElementById('pending-card').style.display = 'none';
-         document.querySelector('.bottom-nav').style.display = 'flex';
-         document.getElementById('btn-logout').style.display = 'block';
-         
-         // Show admin tab if they have the role
-         if (isAdminUser) {
-             document.getElementById('nav-admin').style.display = 'flex';
-         } else {
-             document.getElementById('nav-admin').style.display = 'none';
-         }
-
-         window.loadSettings().then(() => {
-           window.fetchEntries();
-           window.switchTab('add');
-         });
-      }
-    } else {
-      currentUser = null;
-      isAdminUser = false;
-      document.getElementById('login-card').style.display = 'block';
-      document.getElementById('pending-card').style.display = 'none';
-      document.querySelector('.bottom-nav').style.display = 'none';
-      document.getElementById('nav-admin').style.display = 'none';
-      document.getElementById('btn-logout').style.display = 'none';
-      document.getElementById('header-name').textContent = '📋 Tour Diary';
-      document.getElementById('header-designation').textContent = 'Authentication Required';
-      window.switchTab('login');
-    }
-  });
-
-  // --- ADMIN DASHBOARD LOGIC ---
-  window.loadPendingUsers = async () => {
-    if(!isAdminUser) return;
-    
-    const el = document.getElementById('admin-content');
-    el.innerHTML = '<p style="text-align:center; color:var(--text3); font-size:13px;">Checking for new signups...</p>';
-    
-    try {
-      const q = query(collection(db, "profiles"), where("status", "==", "pending"));
-      const snapshot = await getDocs(q);
-      
-      if(snapshot.empty) {
-        el.innerHTML = '<p style="text-align:center; color:var(--success); font-weight:500; padding:20px;">✅ All caught up! No pending approvals.</p>';
-        return;
-      }
-      
-      el.innerHTML = snapshot.docs.map(doc => `
-        <div class="pending-user-card">
-          <div class="pending-email">👤 ${doc.data().email}</div>
-          <button class="btn btn-primary" style="width: auto; padding: 6px 14px; font-size: 13px;" onclick="window.approveUser('${doc.id}')">Approve</button>
-        </div>
-      `).join('');
-    } catch(e) {
-      el.innerHTML = '<p style="text-align:center; color:var(--danger);">Error loading users.</p>';
-    }
-  };
-
-  window.approveUser = async (uid) => {
-    if(!isAdminUser) return;
-    try {
-      await updateDoc(doc(db, "profiles", uid), { status: 'approved' });
-      window.showToast('✅ Officer Approved!');
-      window.loadPendingUsers(); // Refresh list
-    } catch(e) {
-      window.showToast('❌ Error approving user.');
-    }
-  };
-
-  // --- FIREBASE DATA SYNC (ISOLATED BY USER) ---
-  window.loadSettings = async () => {
-    if(!currentUser) return;
-    try {
-      const snap = await getDoc(doc(db, "settings", currentUser.uid));
-      if (snap.exists()) {
-        globalSettings = snap.data();
-        document.getElementById('set-name').value = globalSettings.name || '';
-        document.getElementById('set-designation').value = globalSettings.designation || '';
-        document.getElementById('set-address').value = globalSettings.address || '';
-        document.getElementById('set-paylevel').value = globalSettings.payLevel || '6';
-        document.getElementById('set-da').value = globalSettings.daRate || 500;
-        document.getElementById('set-fare').value = globalSettings.fareRate || 12;
-        
-        document.getElementById('header-name').textContent = globalSettings.name || '📋 Tour Diary';
-        document.getElementById('header-designation').textContent = globalSettings.designation || 'Journey Tracker';
-      } else {
-        window.switchTab('settings');
-        window.showToast('Welcome! Please setup your profile first.');
-      }
-    } catch(e) { console.error("Error loading settings", e); }
-  };
-
-  window.saveSettings = async () => {
-    if(!currentUser) return;
-    const s = {
-      name: document.getElementById('set-name').value,
-      designation: document.getElementById('set-designation').value,
-      address: document.getElementById('set-address').value,
-      payLevel: document.getElementById('set-paylevel').value,
-      daRate: Number(document.getElementById('set-da').value),
-      fareRate: Number(document.getElementById('set-fare').value)
-    };
-    try {
-      await setDoc(doc(db, "settings", currentUser.uid), s);
-      globalSettings = s;
-      window.showToast('Profile Saved!');
-      window.loadSettings();
-    } catch(e) { window.showToast('Error saving to cloud'); }
-  };
-
-  window.fetchEntries = async () => {
-    if(!currentUser) return;
-    try {
-      const q = query(collection(db, "entries"), where("uid", "==", currentUser.uid));
-      const snapshot = await getDocs(q);
-      
-      tourEntries = snapshot.docs.map(d => ({ id: d.id, ...d.data() }))
-                                 .sort((a,b) => b.timestamp - a.timestamp);
-      
-      window.renderRecords();
-      window.renderSummary();
-    } catch(e) { console.error(e); }
-  };
-
-  window.deleteEntry = async (id) => {
-    if(confirm('Delete this record?')) {
-      await deleteDoc(doc(db, "entries", id));
-      window.fetchEntries();
-      window.showToast('Deleted');
-    }
-  };
-
-  // --- LOGIC ---
-  window.updateAutoDA = () => {
-    const lvl = document.getElementById('set-paylevel').value;
-    document.getElementById('set-da').value = CPC_DA_RATES[lvl] || 500;
-  };
-
-  window.autoCalculate = () => {
-    const dist = Number(document.getElementById('distance').value) || 0;
-    document.getElementById('fare').value = Math.round(dist * globalSettings.fareRate);
-  };
-
-  window.saveEntry = async () => {
-    const depDate = document.getElementById('dep-date').value;
-    const arrDate = document.getElementById('arr-date').value || depDate;
-    const dest = document.getElementById('destination').value;
-    
-    if(!depDate || !dest) return window.showToast('Fill departure date and destination');
-
-    const entry = {
-      uid: currentUser.uid, 
-      timestamp: Date.now(),
-      date: depDate,
-      arrDate: arrDate,
-      depTime: document.getElementById('dep-time').value,
-      arrTime: document.getElementById('arr-time').value,
-      from: document.getElementById('from').value,
-      destination: dest,
-      distance: Number(document.getElementById('distance').value),
-      fare: Number(document.getElementById('fare').value),
-      mode: document.getElementById('mode').value,
-      purpose: document.getElementById('purpose').value.trim(),
-      da: 0
-    };
-
-    if(!isReturnMode) {
-      outwardData = entry;
-      isReturnMode = true;
-      document.getElementById('from').value = dest;
-      document.getElementById('destination').value = 'Headquarter';
-      document.getElementById('dep-date').value = arrDate;
-      document.getElementById('arr-date').value = arrDate;
-      document.getElementById('dep-time').value = entry.arrTime;
-      document.querySelector('#screen-add .btn-primary').textContent = "Save Return & Calc DA";
-      window.showToast('Outward saved. Enter return journey.');
-    } else {
-      const totalDist = outwardData.distance + entry.distance;
-      
-      const start = new Date(`${outwardData.date}T${outwardData.depTime}`);
-      const end = new Date(`${entry.arrDate}T${entry.arrTime}`);
-      const hours = (end - start) / (1000 * 60 * 60);
-      
-      let finalDA = 0;
-      if(totalDist >= 8 && hours > 0) {
-        const days = Math.floor(hours / 24);
-        const rem = hours % 24;
-        finalDA += (days * globalSettings.daRate);
-        if(rem > 12) finalDA += globalSettings.daRate;
-        else if(rem >= 6) finalDA += (globalSettings.daRate * 0.7);
-        else if(rem > 0) finalDA += (globalSettings.daRate * 0.3);
-      }
-      entry.da = Math.round(finalDA);
-
-      try {
-        await addDoc(collection(db, "entries"), outwardData);
-        await addDoc(collection(db, "entries"), entry);
-        window.showToast(`Journey Complete! DA: ₹${entry.da}`);
-        isReturnMode = false;
-        document.querySelector('#screen-add .btn-primary').textContent = "Save & Continue";
-        document.getElementById('distance').value = '';
-        document.getElementById('purpose').value = '';
-        window.fetchEntries();
-      } catch(e) { window.showToast('Database error'); }
-    }
-  };
-
-  window.renderRecords = () => {
-    const el = document.getElementById('records-content');
-    if(!tourEntries.length) return el.innerHTML = '<p style="text-align:center; padding: 20px;">No records yet.</p>';
-    
-    el.innerHTML = tourEntries.map(e => `
-      <div class="entry-card">
-        <div class="entry-header">
-          <div class="entry-date">${e.date} (${e.depTime}) to ${e.arrDate} (${e.arrTime})</div>
-          <button class="delete-btn" onclick="window.deleteEntry('${e.id}')">🗑️</button>
-        </div>
-        <div class="entry-route">${e.from} → ${e.destination}</div>
-        <div class="entry-chips">
-          <span class="chip">${e.distance} km</span>
-          <span class="chip blue">₹${e.fare}</span>
-          <span class="chip green">DA ₹${e.da}</span>
-        </div>
-        ${e.purpose ? `<div class="entry-purpose">📝 ${e.purpose}</div>` : ''}
-      </div>
-    `).join('');
-  };
-
-  // --- REPORTS & EXPORT LOGIC ---
-  window.renderSummary = () => {
-    const from = document.getElementById('report-from').value;
-    const to = document.getElementById('report-to').value;
-    if (!from || !to) return;
-
-    const filtered = tourEntries.filter(e => e.date >= from && e.date <= to);
-    
-    document.getElementById('s-count').textContent = filtered.length;
-    document.getElementById('s-km').textContent = filtered.reduce((sum, e) => sum + (e.distance || 0), 0);
-    document.getElementById('s-fare').textContent = '₹' + filtered.reduce((sum, e) => sum + (e.fare || 0), 0);
-    document.getElementById('s-da').textContent = '₹' + filtered.reduce((sum, e) => sum + (e.da || 0), 0);
-  };
-
-  window.exportCSV = () => {
-    const from = document.getElementById('report-from').value;
-    const to = document.getElementById('report-to').value;
-    const filtered = tourEntries.filter(e => e.date >= from && e.date <= to);
-    
-    if(!filtered.length) return window.showToast('No data for this date range!');
-
-    let csv = `Tour Report (${from} to ${to})\n`;
-    csv += `Officer Name,${globalSettings.name || 'N/A'}\n`;
-    csv += `Designation,${globalSettings.designation || 'N/A'}\n\n`;
-    csv += 'Dep. Date,Dep. Time,From,Arr. Date,Arr. Time,Destination,Distance (km),Mode,Fare (Rs),DA (Rs),Purpose\n';
-    
-    filtered.forEach(e => {
-      const purposeText = e.purpose ? `"${e.purpose}"` : '';
-      csv += `${e.date},${e.depTime},${e.from},${e.arrDate},${e.arrTime},${e.destination},${e.distance},${e.mode || 'N/A'},${e.fare},${e.da},${purposeText}\n`;
+      return (a.depDate || "").localeCompare(b.depDate || "");
     });
+  } catch(e) { return []; }
+}
 
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `Tour_Report_${from}_to_${to}.csv`;
-    a.click();
+function saveAllEntries(entries) {
+  localStorage.setItem('tour_entries', JSON.stringify(entries));
+  updateDynamicDropdowns();
+}
+
+// --- SETTINGS ---
+function loadSettings() {
+  const def = { name: "Mridul Kumar Kalita", designation: "Inspector of Post Offices", address: "Nalbari East Sub Division", daRate: 700, fareRate: 12 };
+  return JSON.parse(localStorage.getItem('tour_settings')) || def;
+}
+
+function saveSettings() {
+  const settings = {
+    name: document.getElementById('set-name').value,
+    designation: document.getElementById('set-designation').value,
+    address: document.getElementById('set-address').value,
+    daRate: parseFloat(document.getElementById('set-da').value) || 0,
+    fareRate: parseFloat(document.getElementById('set-fare').value) || 0
   };
+  localStorage.setItem('tour_settings', JSON.stringify(settings));
+  applySettingsToHeader();
+  showToast('Settings Saved!');
+}
 
-  // Init Dates
-  const todayDate = new Date().toISOString().split('T')[0];
-  const firstDay = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+function applySettingsToHeader() {
+  const s = loadSettings();
+  document.getElementById('set-name').value = s.name;
+  document.getElementById('set-designation').value = s.designation;
+  document.getElementById('set-address').value = s.address;
+  document.getElementById('set-da').value = s.daRate;
+  document.getElementById('set-fare').value = s.fareRate;
+
+  if (s.name) document.getElementById('header-name').textContent = s.name;
+  if (s.designation) document.getElementById('header-designation').textContent = s.designation;
+}
+
+// --- AUTO CALCULATIONS & DYNAMIC UI ---
+function updateDynamicDropdowns() {
+  const entries = getAllEntries();
+  const places = new Set(['Headquarter']); 
+  entries.forEach(e => {
+    if(e.from) places.add(e.from);
+    if(e.destination) places.add(e.destination);
+  });
   
-  document.getElementById('dep-date').value = todayDate;
-  document.getElementById('arr-date').value = todayDate;
-  if(document.getElementById('report-from')) {
-    document.getElementById('report-from').value = firstDay;
-    document.getElementById('report-to').value = todayDate;
+  const datalist = document.getElementById('places-list');
+  datalist.innerHTML = '';
+  places.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p;
+    datalist.appendChild(opt);
+  });
+}
+
+function autoCalculate() {
+  const distance = parseFloat(document.getElementById('distance').value) || 0;
+  const s = loadSettings();
+  const daRate = parseFloat(s.daRate) || 0;
+  const fareRate = parseFloat(s.fareRate) || 0;
+
+  document.getElementById('fare').value = Math.round(distance * fareRate);
+
+  if (distance <= 0) {
+    document.getElementById('da').value = 0;
+    return;
   }
+
+  const depDate = document.getElementById('dep-date').value;
+  const depTime = document.getElementById('dep-time').value;
+  const arrDate = document.getElementById('arr-date').value;
+  const arrTime = document.getElementById('arr-time').value;
+
+  if (distance < 8) {
+    document.getElementById('da').value = 0;
+  } else if (depDate && depTime && arrDate && arrTime) {
+    const start = new Date(`${depDate}T${depTime}`);
+    const end = new Date(`${arrDate}T${arrTime}`);
+    const diffHours = (end - start) / (1000 * 60 * 60);
+
+    if (diffHours > 0) {
+      if (diffHours < 12) {
+        document.getElementById('da').value = Math.round(daRate * 0.70);
+      } else {
+        document.getElementById('da').value = Math.round(daRate * 1.00);
+      }
+    }
+  }
+}
+
+// --- CORE FUNCTIONS ---
+function switchTab(tab) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('screen-' + tab).classList.add('active');
+  document.getElementById('nav-' + tab).classList.add('active');
+  if (tab === 'records') renderRecords();
+  if (tab === 'summary') renderSummary();
+}
+
+function initDates() {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('dep-date').value = today;
+  document.getElementById('arr-date').value = today;
+  
+  const firstDay = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+  document.getElementById('report-from').value = firstDay;
+  document.getElementById('report-to').value = today;
+}
+
+// Save or Update Entry
+function saveEntry() {
+  const depDate = document.getElementById('dep-date').value;
+  const destination = document.getElementById('destination').value.trim();
+  if (!depDate || !destination) {
+    showToast('Please fill date and destination');
+    return;
+  }
+  
+  const entry = {
+    depDate,
+    depTime: document.getElementById('dep-time').value,
+    from: document.getElementById('from').value.trim() || 'Headquarter',
+    arrDate: document.getElementById('arr-date').value || depDate,
+    arrTime: document.getElementById('arr-time').value,
+    destination,
+    distance: +document.getElementById('distance').value || 0,
+    fare: +document.getElementById('fare').value || 0,
+    mode: document.getElementById('mode').value,
+    da: +document.getElementById('da').value || 0,
+    purpose: document.getElementById('purpose').value.trim()
+  };
+  
+  if (editingId) {
+    // Update existing
+    entry.id = editingId;
+    const entries = getAllEntries().map(e => e.id === editingId ? entry : e);
+    saveAllEntries(entries);
+    showToast('Entry updated successfully!');
+    cancelEdit();
+  } else {
+    // Create new
+    entry.id = Date.now();
+    const entries = getAllEntries();
+    entries.push(entry); 
+    saveAllEntries(entries); 
+    
+    // Clear form for new entry
+    ['destination','distance','fare','da','purpose'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('from').value = 'Headquarter';
+    showToast('Entry saved!');
+  }
+}
+
+// Edit Mode Logic
+function editEntry(id) {
+  const entry = getAllEntries().find(e => e.id === id);
+  if(!entry) return;
+  
+  document.getElementById('dep-date').value = entry.depDate;
+  document.getElementById('dep-time').value = entry.depTime;
+  document.getElementById('from').value = entry.from;
+  document.getElementById('arr-date').value = entry.arrDate;
+  document.getElementById('arr-time').value = entry.arrTime;
+  document.getElementById('destination').value = entry.destination;
+  document.getElementById('distance').value = entry.distance;
+  document.getElementById('fare').value = entry.fare;
+  document.getElementById('mode').value = entry.mode;
+  document.getElementById('da').value = entry.da;
+  document.getElementById('purpose').value = entry.purpose;
+
+  editingId = id;
+  document.getElementById('btn-save-entry').textContent = "Update Entry";
+  document.getElementById('btn-cancel-edit').style.display = "block";
+  switchTab('add');
+  window.scrollTo(0, 0);
+}
+
+function cancelEdit() {
+  editingId = null;
+  document.getElementById('btn-save-entry').textContent = "Save entry";
+  document.getElementById('btn-cancel-edit').style.display = "none";
+  ['destination','distance','fare','da','purpose'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('from').value = 'Headquarter';
+  initDates();
+}
+
+function deleteEntry(id) {
+  if (!confirm('Delete this entry?')) return;
+  const entries = getAllEntries().filter(e => e.id !== id);
+  saveAllEntries(entries);
+  renderRecords();
+  renderSummary();
+  showToast('Entry deleted');
+}
+
+// Share Single Entry
+async function shareSingleEntry(id) {
+  const e = getAllEntries().find(x => x.id === id);
+  if(!e) return;
+  
+  const text = `📋 Tour Details:\nDate: ${formatDDMMYYYY(e.depDate)}\nFrom: ${e.from} (${e.depTime})\nTo: ${e.destination} (${e.arrTime})\nDistance: ${e.distance}km\nMode: ${e.mode}\nFare: ₹${e.fare}\nDA Claimed: ₹${e.da}\nPurpose: ${e.purpose}`;
+  
+  if (navigator.share) {
+    try { await navigator.share({ title: 'Tour Detail', text }); return; } catch(err) {}
+  }
+  await navigator.clipboard.writeText(text);
+  showToast('Record copied to clipboard!');
+}
+
+function renderRecords() {
+  const entries = getAllEntries();
+  const el = document.getElementById('records-content');
+  if (!entries.length) {
+    el.innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--text2)"><h3>No entries yet</h3></div>`;
+    return;
+  }
+  el.innerHTML = entries.map(e => `
+    <div class="entry-card">
+      <div class="entry-header">
+        <div class="entry-date">${formatDDMMYYYY(e.depDate)} &nbsp;${e.depTime}–${e.arrTime}</div>
+        <div>
+           <button class="delete-btn" onclick="editEntry(${e.id})" style="color:var(--blue);margin-right:10px;">✏️</button>
+           <button class="delete-btn" onclick="deleteEntry(${e.id})">🗑️</button>
+        </div>
+      </div>
+      <div class="entry-route">${e.from} → ${e.destination}</div>
+      <div class="entry-chips">
+        <span class="chip">${e.distance} km</span>
+        <span class="chip blue">₹${e.fare}</span>
+        <span class="chip green">DA ₹${e.da}</span>
+      </div>
+      ${e.purpose ? `<div class="entry-purpose">📝 ${e.purpose}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+function getFilteredEntries() {
+  const fromD = document.getElementById('report-from').value;
+  const toD = document.getElementById('report-to').value;
+  return getAllEntries().filter(e => e.depDate >= fromD && e.depDate <= toD);
+}
+
+function renderSummary() {
+  const entries = getFilteredEntries();
+  const totalKm = entries.reduce((a, e) => a + e.distance, 0);
+  const totalFare = entries.reduce((a, e) => a + e.fare, 0);
+  const totalDA = entries.reduce((a, e) => a + e.da, 0);
+  
+  // Update Stats
+  document.getElementById('s-count').textContent = entries.length;
+  document.getElementById('s-km').innerHTML = `${totalKm} <span style="font-size:14px;color:var(--text2)">km</span>`;
+  document.getElementById('s-fare').textContent = '₹' + totalFare;
+  document.getElementById('s-da').textContent = '₹' + totalDA;
+
+  // Render Detailed Report Table
+  const tableContainer = document.getElementById('report-details');
+  if (!entries.length) {
+    tableContainer.innerHTML = '<p style="text-align:center; color:var(--text3); padding:10px;">No records found for this period.</p>';
+  } else {
+    let html = '<table class="report-table">';
+    html += '<tr><th>Date</th><th>Route</th><th>DA</th><th style="text-align:center;">Action</th></tr>';
+    
+    entries.forEach(e => {
+      html += `<tr>
+        <td><b>${formatDDMMYYYY(e.depDate)}</b><br><span style="color:var(--text3);font-size:10px;">${e.depTime}</span></td>
+        <td>${e.from}<br>↓<br>${e.destination}</td>
+        <td><b>₹${e.da}</b></td>
+        <td style="text-align:center; min-width: 60px;">
+          <button onclick="editEntry(${e.id})" style="background:none;border:none;cursor:pointer;font-size:16px;margin-bottom:6px;">✏️</button><br>
+          <button onclick="shareSingleEntry(${e.id})" style="background:none;border:none;cursor:pointer;font-size:16px;">📤</button>
+        </td>
+      </tr>`;
+    });
+    
+    html += '</table>';
+    tableContainer.innerHTML = html;
+  }
+}
+
+function exportCSV() {
+  const entries = getFilteredEntries();
+  const s = loadSettings();
+  if (!entries.length) { showToast('No data in this date range'); return; }
+  
+  let header = `Name: ${s.name}, Designation: ${s.designation}\n`;
+  header += 'Date,Dep Time,From,Arr Date,Arr Time,Destination,Distance (km),Fare (₹),Mode,DA (₹),Purpose\n';
+  
+  const rows = entries.map(e => 
+    [formatDDMMYYYY(e.depDate), e.depTime, e.from, formatDDMMYYYY(e.arrDate), e.arrTime, e.destination,
+     e.distance, e.fare, e.mode, e.da, '"' + (e.purpose || '') + '"'].join(',')
+  ).join('\n');
+  
+  const blob = new Blob([header + rows], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `Tour_Report_${formatDDMMYYYY(document.getElementById('report-from').value)}_to_${formatDDMMYYYY(document.getElementById('report-to').value)}.csv`;
+  a.click();
+}
+
+async function shareText() {
+  const entries = getFilteredEntries();
+  const s = loadSettings();
+  const text = `📋 Tour Summary (${formatDDMMYYYY(document.getElementById('report-from').value)} to ${formatDDMMYYYY(document.getElementById('report-to').value)})\nOfficer: ${s.name}\nJourneys: ${entries.length}\nTotal Distance: ${entries.reduce((a,e)=>a+e.distance,0)} km\nTotal DA: ₹${entries.reduce((a,e)=>a+e.da,0)}`;
+  
+  if (navigator.share) {
+    try { await navigator.share({ title: 'Tour Summary', text }); return; } catch(e) {}
+  }
+  await navigator.clipboard.writeText(text);
+  showToast('Summary copied to clipboard!');
+}
+
+// Initialization
+applySettingsToHeader();
+initDates();
+updateDynamicDropdowns();
+renderSummary();
 </script>
 
 <script>
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js'));
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(e => console.log('SW failed:', e));
+  });
 }
 </script>
+
 </body>
 </html>
