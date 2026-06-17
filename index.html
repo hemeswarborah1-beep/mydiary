@@ -18,7 +18,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .header-top { display: flex; justify-content: space-between; align-items: flex-start; }
 .header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
 .header-sub { font-size: 13px; opacity: 0.85; margin-top: 2px; }
-.bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: var(--surface); border-top: 1px solid var(--border); display: flex; z-index: 100; padding-bottom: env(safe-area-inset-bottom); }
+.logout-btn { background: rgba(255,255,255,0.2); border: none; color: white; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; display: none; }
+.bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: var(--surface); border-top: 1px solid var(--border); display: none; z-index: 100; padding-bottom: env(safe-area-inset-bottom); }
 .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 10px 4px 8px; cursor: pointer; color: var(--text3); font-size: 11px; gap: 3px; border: none; background: none; }
 .nav-item.active { color: var(--blue); }
 .nav-icon { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 18px;}
@@ -60,22 +61,39 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   <div class="header-top">
     <div>
       <h1 id="header-name">📋 Tour Diary</h1>
-      <div class="header-sub" id="header-designation">Connecting to Cloud...</div>
+      <div class="header-sub" id="header-designation">Authentication required</div>
     </div>
+    <button class="logout-btn" id="btn-logout" onclick="window.logoutUser()">Logout</button>
   </div>
 </div>
 
 <div class="main">
-  <div class="screen active" id="screen-add">
+  <div class="screen active" id="screen-login">
+    <div class="card">
+      <div class="card-title">Officer Login</div>
+      <div class="field" style="margin-bottom:10px">
+        <label>Email</label>
+        <input type="email" id="login-email" placeholder="officer@example.com">
+      </div>
+      <div class="field" style="margin-bottom:20px">
+        <label>Password</label>
+        <input type="password" id="login-password">
+      </div>
+      <button class="btn btn-primary" onclick="window.loginUser()">Login securely</button>
+      <p style="text-align: center; font-size: 12px; color: var(--text3); margin-top: 15px;">Contact your Superadmin to register a new account.</p>
+    </div>
+  </div>
+
+  <div class="screen" id="screen-add">
     <div class="card">
       <div class="card-title">Journey Details</div>
       <div class="row">
         <div class="field">
-          <label>Date</label>
+          <label>Dep. Date</label>
           <input type="date" id="dep-date" onchange="window.autoCalculate()">
         </div>
         <div class="field">
-          <label>Time (24 Hr)</label>
+          <label>Dep. Time</label>
           <input type="time" id="dep-time" value="09:00" onchange="window.autoCalculate()">
         </div>
       </div>
@@ -85,7 +103,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       </div>
       <div class="row">
         <div class="field">
-          <label>Arrival Time</label>
+          <label>Arr. Date</label>
+          <input type="date" id="arr-date" onchange="window.autoCalculate()">
+        </div>
+        <div class="field">
+          <label>Arr. Time</label>
           <input type="time" id="arr-time" value="09:30" onchange="window.autoCalculate()">
         </div>
       </div>
@@ -158,7 +180,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 
   <div class="screen" id="screen-settings">
     <div class="card">
-      <div class="card-title">Profile & Rules (Cloud Saved)</div>
+      <div class="card-title">Profile & Rules</div>
       <div class="field" style="margin-bottom:10px"><label>Name</label><input type="text" id="set-name"></div>
       <div class="field" style="margin-bottom:10px"><label>Designation</label><input type="text" id="set-designation"></div>
       <div class="field" style="margin-bottom:10px"><label>Address</label><input type="text" id="set-address"></div>
@@ -180,7 +202,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
         <label>Fare Rate / km (₹)</label><input type="number" id="set-fare">
       </div>
     </div>
-    <button class="btn btn-primary" onclick="window.saveSettings()">Save to Cloud</button>
+    <button class="btn btn-primary" onclick="window.saveSettings()">Save Profile</button>
   </div>
 </div>
 
@@ -195,8 +217,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
-  import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, setDoc, getDoc, query, orderBy } 
+  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, setDoc, getDoc, query, where } 
     from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -205,15 +227,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     projectId: "my-diary-ad59b",
     storageBucket: "my-diary-ad59b.firebasestorage.app",
     messagingSenderId: "222761664690",
-    appId: "1:222761664690:web:341fffd7d573d7a55149ab",
-    measurementId: "G-B844W03262"
+    appId: "1:222761664690:web:341fffd7d573d7a55149ab"
   };
 
   const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
+  const auth = getAuth(app);
   const db = getFirestore(app);
 
   // Global State
+  let currentUser = null;
   let globalSettings = { name: "", designation: "", payLevel: "6", daRate: 500, fareRate: 12 };
   let tourEntries = [];
   let isReturnMode = false;
@@ -231,14 +253,56 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     document.getElementById('screen-' + tab).classList.add('active');
-    document.getElementById('nav-' + tab).classList.add('active');
+    
+    const navBtn = document.getElementById('nav-' + tab);
+    if(navBtn) navBtn.classList.add('active');
+    
     if (tab === 'summary') window.renderSummary();
   };
 
-  // --- FIREBASE DATA SYNC ---
-  window.loadSettings = async () => {
+  // --- AUTHENTICATION ---
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      currentUser = user;
+      document.querySelector('.bottom-nav').style.display = 'flex';
+      document.getElementById('btn-logout').style.display = 'block';
+      window.loadSettings().then(() => {
+        window.fetchEntries();
+        window.switchTab('add');
+      });
+    } else {
+      currentUser = null;
+      document.querySelector('.bottom-nav').style.display = 'none';
+      document.getElementById('btn-logout').style.display = 'none';
+      document.getElementById('header-name').textContent = '📋 Tour Diary';
+      document.getElementById('header-designation').textContent = 'Authentication Required';
+      window.switchTab('login');
+    }
+  });
+
+  window.loginUser = async () => {
+    const e = document.getElementById('login-email').value;
+    const p = document.getElementById('login-password').value;
     try {
-      const snap = await getDoc(doc(db, "settings", "user_profile"));
+      await signInWithEmailAndPassword(auth, e, p);
+      window.showToast("Login Successful!");
+    } catch(err) {
+      window.showToast("Login failed. Check email and password.");
+    }
+  };
+
+  window.logoutUser = async () => {
+    await signOut(auth);
+    document.getElementById('login-email').value = '';
+    document.getElementById('login-password').value = '';
+    window.showToast("Logged out successfully");
+  };
+
+  // --- FIREBASE DATA SYNC (ISOLATED BY USER) ---
+  window.loadSettings = async () => {
+    if(!currentUser) return;
+    try {
+      const snap = await getDoc(doc(db, "settings", currentUser.uid));
       if (snap.exists()) {
         globalSettings = snap.data();
         document.getElementById('set-name').value = globalSettings.name || '';
@@ -258,6 +322,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   };
 
   window.saveSettings = async () => {
+    if(!currentUser) return;
     const s = {
       name: document.getElementById('set-name').value,
       designation: document.getElementById('set-designation').value,
@@ -267,28 +332,33 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       fareRate: Number(document.getElementById('set-fare').value)
     };
     try {
-      await setDoc(doc(db, "settings", "user_profile"), s);
+      await setDoc(doc(db, "settings", currentUser.uid), s);
       globalSettings = s;
-      window.showToast('Profile Saved to Cloud!');
+      window.showToast('Profile Saved!');
       window.loadSettings();
     } catch(e) { window.showToast('Error saving to cloud'); }
   };
 
   window.fetchEntries = async () => {
+    if(!currentUser) return;
     try {
-      const q = query(collection(db, "entries"), orderBy("timestamp", "desc"));
+      const q = query(collection(db, "entries"), where("uid", "==", currentUser.uid));
       const snapshot = await getDocs(q);
-      tourEntries = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      
+      // Sort in Javascript to avoid needing complex Firestore indexes
+      tourEntries = snapshot.docs.map(d => ({ id: d.id, ...d.data() }))
+                                 .sort((a,b) => b.timestamp - a.timestamp);
+      
       window.renderRecords();
       window.renderSummary();
     } catch(e) { console.error(e); }
   };
 
   window.deleteEntry = async (id) => {
-    if(confirm('Delete this cloud record?')) {
+    if(confirm('Delete this record?')) {
       await deleteDoc(doc(db, "entries", id));
       window.fetchEntries();
-      window.showToast('Deleted from cloud');
+      window.showToast('Deleted');
     }
   };
 
@@ -304,13 +374,17 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   };
 
   window.saveEntry = async () => {
-    const date = document.getElementById('dep-date').value;
+    const depDate = document.getElementById('dep-date').value;
+    const arrDate = document.getElementById('arr-date').value || depDate;
     const dest = document.getElementById('destination').value;
-    if(!date || !dest) return window.showToast('Fill date and destination');
+    
+    if(!depDate || !dest) return window.showToast('Fill departure date and destination');
 
     const entry = {
+      uid: currentUser.uid, // Locks data to the logged-in user
       timestamp: Date.now(),
-      date: date,
+      date: depDate,
+      arrDate: arrDate,
       depTime: document.getElementById('dep-time').value,
       arrTime: document.getElementById('arr-time').value,
       from: document.getElementById('from').value,
@@ -327,13 +401,17 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       isReturnMode = true;
       document.getElementById('from').value = dest;
       document.getElementById('destination').value = 'Headquarter';
+      document.getElementById('dep-date').value = arrDate;
+      document.getElementById('arr-date').value = arrDate;
       document.getElementById('dep-time').value = entry.arrTime;
       document.querySelector('#screen-add .btn-primary').textContent = "Save Return & Calc DA";
       window.showToast('Outward saved. Enter return journey.');
     } else {
       const totalDist = outwardData.distance + entry.distance;
+      
+      // Calculate Exact Duration using both Dates and Times
       const start = new Date(`${outwardData.date}T${outwardData.depTime}`);
-      const end = new Date(`${entry.date}T${entry.arrTime}`);
+      const end = new Date(`${entry.arrDate}T${entry.arrTime}`);
       const hours = (end - start) / (1000 * 60 * 60);
       
       let finalDA = 0;
@@ -362,12 +440,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 
   window.renderRecords = () => {
     const el = document.getElementById('records-content');
-    if(!tourEntries.length) return el.innerHTML = '<p style="text-align:center">No records in cloud.</p>';
+    if(!tourEntries.length) return el.innerHTML = '<p style="text-align:center; padding: 20px;">No records yet.</p>';
     
     el.innerHTML = tourEntries.map(e => `
       <div class="entry-card">
         <div class="entry-header">
-          <div class="entry-date">${e.date} | ${e.depTime}-${e.arrTime}</div>
+          <div class="entry-date">${e.date} (${e.depTime}) to ${e.arrDate} (${e.arrTime})</div>
           <button class="delete-btn" onclick="window.deleteEntry('${e.id}')">🗑️</button>
         </div>
         <div class="entry-route">${e.from} → ${e.destination}</div>
@@ -405,12 +483,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     let csv = `Tour Report (${from} to ${to})\n`;
     csv += `Officer Name,${globalSettings.name || 'N/A'}\n`;
     csv += `Designation,${globalSettings.designation || 'N/A'}\n\n`;
-    csv += 'Date,Dep. Time,From,Arr. Time,Destination,Distance (km),Mode,Fare (Rs),DA (Rs),Purpose\n';
+    csv += 'Dep. Date,Dep. Time,From,Arr. Date,Arr. Time,Destination,Distance (km),Mode,Fare (Rs),DA (Rs),Purpose\n';
     
     filtered.forEach(e => {
-      // Wrap purpose in quotes so commas inside the text don't break the CSV columns
       const purposeText = e.purpose ? `"${e.purpose}"` : '';
-      csv += `${e.date},${e.depTime},${e.from},${e.arrTime},${e.destination},${e.distance},${e.mode || 'N/A'},${e.fare},${e.da},${purposeText}\n`;
+      csv += `${e.date},${e.depTime},${e.from},${e.arrDate},${e.arrTime},${e.destination},${e.distance},${e.mode || 'N/A'},${e.fare},${e.da},${purposeText}\n`;
     });
 
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -421,19 +498,16 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     a.click();
   };
 
-  // Init
+  // Init Dates
   const todayDate = new Date().toISOString().split('T')[0];
   const firstDay = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
   
   document.getElementById('dep-date').value = todayDate;
+  document.getElementById('arr-date').value = todayDate;
   if(document.getElementById('report-from')) {
     document.getElementById('report-from').value = firstDay;
     document.getElementById('report-to').value = todayDate;
   }
-
-  window.loadSettings().then(() => {
-    window.fetchEntries();
-  });
 </script>
 
 <script>
