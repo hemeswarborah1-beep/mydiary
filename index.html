@@ -11,16 +11,17 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
-:root { --blue: #1565C0; --blue-light: #1E88E5; --blue-dark: #0D47A1; --blue-bg: #E3F2FD; --surface: #FFFFFF; --bg: #F5F7FA; --border: #E0E0E0; --text: #1A1A2E; --text2: #5C6B7A; --text3: #9AA5B1; --success: #2E7D32; --success-bg: #E8F5E9; --danger: #C62828; --danger-bg: #FFEBEE; --radius: 12px; --radius-sm: 8px; --shadow: 0 1px 4px rgba(0,0,0,0.10); }
+:root { --blue: #1565C0; --blue-light: #1E88E5; --blue-dark: #0D47A1; --blue-bg: #E3F2FD; --surface: #FFFFFF; --bg: #F5F7FA; --border: #E0E0E0; --text: #1A1A2E; --text2: #5C6B7A; --text3: #9AA5B1; --success: #2E7D32; --success-bg: #E8F5E9; --danger: #C62828; --danger-bg: #FFEBEE; --premium: #FFD700; --radius: 12px; --radius-sm: 8px; --shadow: 0 1px 4px rgba(0,0,0,0.10); }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; max-width: 480px; margin: 0 auto; position: relative; }
 .header { background: linear-gradient(135deg, var(--blue-dark), var(--blue-light)); color: #fff; padding: 16px 16px 20px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
 .header-top { display: flex; justify-content: space-between; align-items: flex-start; }
-.header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+.header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; display: flex; align-items: center; gap: 5px; }
+.premium-badge { background: var(--premium); color: #000; font-size: 9px; padding: 2px 6px; border-radius: 10px; font-weight: 800; text-transform: uppercase; display: none; }
 .header-sub { font-size: 13px; opacity: 0.85; margin-top: 2px; }
 .logout-btn { background: rgba(255,255,255,0.2); border: none; color: white; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; display: none; }
-.bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: var(--surface); border-top: 1px solid var(--border); display: none; z-index: 100; padding-bottom: env(safe-area-inset-bottom); }
-.nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 10px 2px 8px; cursor: pointer; color: var(--text3); font-size: 10px; gap: 3px; border: none; background: none; }
+.bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: var(--surface); border-top: 1px solid var(--border); display: none; z-index: 100; padding-bottom: env(safe-area-inset-bottom); overflow-x: auto; white-space: nowrap; }
+.nav-item { flex: 1; display: inline-flex; flex-direction: column; align-items: center; padding: 10px 8px 8px; cursor: pointer; color: var(--text3); font-size: 10px; gap: 3px; border: none; background: none; min-width: 65px; }
 .nav-item.active { color: var(--blue); }
 .nav-icon { width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 18px;}
 .main { padding: 12px 12px 80px; min-height: calc(100vh - 140px); }
@@ -35,6 +36,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .btn { width: 100%; padding: 13px; border: none; border-radius: var(--radius); font-size: 15px; font-weight: 600; cursor: pointer; }
 .btn-primary { background: var(--blue); color: #fff; }
 .btn-warning { background: #FF9800; color: #fff; margin-top: 10px; }
+.btn-sm { width: auto; padding: 6px 12px; font-size: 12px; margin-top: 5px;}
+.btn-premium { background: #FFD700; color: #000; }
 .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
 .stat { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); padding: 12px; }
 .stat-label { font-size: 11px; color: var(--text2); }
@@ -59,8 +62,16 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px); background: #263238; color: #fff; padding: 10px 20px; border-radius: 24px; font-size: 13px; opacity: 0; transition: all .25s; z-index: 300; pointer-events: none; }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 .toggle-link { color: var(--blue); cursor: pointer; text-decoration: underline; font-size: 13px; text-align: center; margin-top: 15px; display: block; font-weight: 500; }
-.pending-user-card { border: 1.5px solid var(--border); padding: 12px; border-radius: var(--radius-sm); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-.pending-email { font-size: 14px; font-weight: 600; color: var(--text); }
+.pending-user-card { border: 1.5px solid var(--border); padding: 12px; border-radius: var(--radius-sm); margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; }
+.pending-email { font-size: 14px; font-weight: 600; color: var(--text); display: flex; justify-content: space-between;}
+.admin-actions { display: flex; gap: 5px; flex-wrap: wrap;}
+
+/* Modal Styling */
+.modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; padding: 20px;}
+.modal-content { background: var(--surface); padding: 20px; border-radius: var(--radius); width: 100%; max-width: 400px; max-height: 80vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+.alert-item { padding: 10px; border-left: 4px solid var(--danger); background: var(--danger-bg); margin-bottom: 10px; border-radius: 4px; }
+.alert-title { font-weight: 700; font-size: 14px; color: var(--danger); margin-bottom: 4px; }
+.alert-time { font-size: 12px; color: var(--text2); }
 </style>
 </head>
 <body>
@@ -68,7 +79,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 <div class="header">
   <div class="header-top">
     <div>
-      <h1 id="header-name">📋 Tour Diary</h1>
+      <h1 id="header-name">📋 Tour Diary <span class="premium-badge" id="badge-premium">Premium</span></h1>
       <div class="header-sub" id="header-designation">Authentication required</div>
     </div>
     <button class="logout-btn" id="btn-logout" onclick="window.logoutUser()">Logout</button>
@@ -100,10 +111,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 
   <div class="screen" id="screen-admin">
     <div class="card">
-      <div class="card-title">Pending Approvals</div>
-      <p style="font-size: 12px; color: var(--text2); margin-bottom: 15px;">Approve new officers below to grant them access to the app.</p>
+      <div class="card-title">User Management (Superadmin)</div>
+      <p style="font-size: 12px; color: var(--text2); margin-bottom: 15px;">Approve users or grant them Premium Alert access.</p>
       <div id="admin-content">
-         <p style="text-align:center; color: var(--text3); font-size: 13px;">Loading pending users...</p>
+         <p style="text-align:center; color: var(--text3); font-size: 13px;">Loading users...</p>
       </div>
     </div>
   </div>
@@ -180,7 +191,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 
   <div class="screen" id="screen-summary">
     <div class="card">
-      <div class="card-title">Export Report</div>
+      <div class="card-title">Filter & Search</div>
       <div class="row">
         <div class="field">
           <label>From Date</label>
@@ -190,6 +201,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
           <label>To Date</label>
           <input type="date" id="report-to" onchange="window.renderSummary()">
         </div>
+      </div>
+      <div class="field" style="margin-top: 10px;">
+        <label>Search Keyword (Dest, Route, Date)</label>
+        <input type="text" id="report-search" placeholder="🔍 Search destination or date..." onkeyup="window.renderSummary()">
       </div>
     </div>
 
@@ -201,11 +216,44 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     </div>
 
     <div class="section-head">Detailed View & Edit</div>
-    <div class="report-table-container" id="report-details">
-      </div>
+    <div class="report-table-container" id="report-details"></div>
 
     <button class="export-btn" style="border: 2px solid var(--blue); color: var(--blue);" onclick="window.exportCSV()">⬇️ Download CSV / Excel</button>
     <button class="export-btn" onclick="window.shareText()">📤 Share Summary</button>
+  </div>
+
+  <div class="screen" id="screen-alerts">
+    
+    <div id="premium-lock" style="display: none; text-align: center; padding: 40px 20px;">
+      <div style="font-size: 50px; margin-bottom: 15px;">🔒</div>
+      <h3 style="color: var(--blue); margin-bottom: 10px;">Premium Feature</h3>
+      <p style="color: var(--text2); font-size: 14px; line-height: 1.5;">The "Alert Me" notification system is reserved for Premium officers.</p>
+      <p style="color: var(--text3); font-size: 13px; margin-top: 20px;">Please contact your Superadmin to upgrade your account.</p>
+    </div>
+
+    <div id="premium-content" style="display: none;">
+      <div class="card">
+        <div class="card-title">Create New Alert</div>
+        <div class="field" style="margin-bottom:10px">
+          <label>Alert Title / Purpose</label>
+          <input type="text" id="alert-title" placeholder="e.g. Audit Meeting, Court Hearing">
+        </div>
+        <div class="row">
+          <div class="field">
+            <label>Due Date</label>
+            <input type="date" id="alert-date">
+          </div>
+          <div class="field">
+            <label>Time</label>
+            <input type="time" id="alert-time" value="10:00">
+          </div>
+        </div>
+        <button class="btn btn-premium" onclick="window.saveAlert()" style="margin-top: 5px;">➕ Add Alert</button>
+      </div>
+
+      <div class="section-head">Your Scheduled Alerts</div>
+      <div id="alerts-list">Loading alerts...</div>
+    </div>
   </div>
 
   <div class="screen" id="screen-settings">
@@ -240,9 +288,22 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   <button class="nav-item active" onclick="window.switchTab('add')" id="nav-add"><div class="nav-icon">➕</div>Add</button>
   <button class="nav-item" onclick="window.switchTab('records')" id="nav-records"><div class="nav-icon">📋</div>Records</button>
   <button class="nav-item" onclick="window.switchTab('summary')" id="nav-summary"><div class="nav-icon">📊</div>Reports</button>
+  <button class="nav-item" onclick="window.switchTab('alerts')" id="nav-alerts"><div class="nav-icon">🔔</div>Alerts</button>
   <button class="nav-item" onclick="window.switchTab('settings')" id="nav-settings"><div class="nav-icon">⚙️</div>Settings</button>
   <button class="nav-item" onclick="window.switchTab('admin')" id="nav-admin" style="display:none;"><div class="nav-icon">🛡️</div>Admin</button>
 </nav>
+
+<div class="modal-overlay" id="notification-modal">
+  <div class="modal-content">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+      <h3 style="color: var(--danger);">🚨 Upcoming Alerts!</h3>
+      <button onclick="document.getElementById('notification-modal').style.display='none'" style="background:none; border:none; font-size: 20px; cursor:pointer;">&times;</button>
+    </div>
+    <p style="font-size: 13px; color: var(--text2); margin-bottom: 15px;">You have the following tasks due within the next 3 days:</p>
+    <div id="notification-list"></div>
+    <button class="btn btn-primary" style="margin-top: 15px;" onclick="document.getElementById('notification-modal').style.display='none'">Got it</button>
+  </div>
+</div>
 
 <div class="toast" id="toast"></div>
 
@@ -268,6 +329,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   // Global State
   let currentUser = null;
   let isAdminUser = false;
+  let isPremiumUser = false;
   let authMode = 'login';
   let editingId = null;
   let isReturnMode = false;
@@ -275,6 +337,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   
   let globalSettings = { name: "", designation: "", payLevel: "6", daRate: 500, fareRate: 12 };
   let tourEntries = [];
+  let userAlerts = [];
   const CPC_DA_RATES = { "14": 1000, "12": 900, "9": 800, "6": 500, "1": 500 };
 
   // --- UI UTILS ---
@@ -300,7 +363,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     if(navBtn) navBtn.classList.add('active');
     
     if (tab === 'summary') window.renderSummary();
-    if (tab === 'admin') window.loadPendingUsers();
+    if (tab === 'admin') window.loadAdminUsers();
   };
 
   // --- AUTHENTICATION & APPROVAL ---
@@ -314,7 +377,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   window.processAuth = async () => {
     const e = document.getElementById('login-email').value;
     const p = document.getElementById('login-password').value;
-    
     if(!e || !p) return window.showToast("Please enter email and password.");
     
     try {
@@ -323,7 +385,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
         window.showToast("Logging in...");
       } else {
         const userCred = await createUserWithEmailAndPassword(auth, e, p);
-        await setDoc(doc(db, "profiles", userCred.user.uid), { email: e, status: 'pending', role: 'officer' });
+        await setDoc(doc(db, "profiles", userCred.user.uid), { email: e, status: 'pending', role: 'officer', premium: false });
         window.showToast("Account created! Awaiting admin approval.");
       }
     } catch(err) { window.showToast(err.message.replace('Firebase: ', '')); }
@@ -342,10 +404,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       const profileSnap = await getDoc(doc(db, "profiles", user.uid));
       let status = 'approved'; 
       isAdminUser = false;
+      isPremiumUser = false;
       
       if (profileSnap.exists()) {
          status = profileSnap.data().status;
          isAdminUser = profileSnap.data().role === 'admin';
+         isPremiumUser = profileSnap.data().premium === true;
       }
 
       if (status === 'pending') {
@@ -353,67 +417,168 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
          document.getElementById('pending-card').style.display = 'block';
          document.querySelector('.bottom-nav').style.display = 'none';
          document.getElementById('btn-logout').style.display = 'block';
-         document.getElementById('header-designation').textContent = 'Approval Required';
+         document.getElementById('badge-premium').style.display = 'none';
          window.switchTab('login');
       } else {
          document.getElementById('login-card').style.display = 'block';
          document.getElementById('pending-card').style.display = 'none';
          document.querySelector('.bottom-nav').style.display = 'flex';
          document.getElementById('btn-logout').style.display = 'block';
-         document.getElementById('nav-admin').style.display = isAdminUser ? 'flex' : 'none';
+         document.getElementById('nav-admin').style.display = isAdminUser ? 'inline-flex' : 'none';
+         
+         // Setup Premium UI
+         document.getElementById('badge-premium').style.display = isPremiumUser ? 'inline-block' : 'none';
+         document.getElementById('premium-lock').style.display = isPremiumUser ? 'none' : 'block';
+         document.getElementById('premium-content').style.display = isPremiumUser ? 'block' : 'none';
 
          window.loadSettings().then(() => {
            window.fetchEntries();
+           if(isPremiumUser) window.fetchAlerts(); // Only fetch alerts if premium
            window.switchTab('add');
          });
       }
     } else {
       currentUser = null;
       isAdminUser = false;
+      isPremiumUser = false;
       document.getElementById('login-card').style.display = 'block';
       document.getElementById('pending-card').style.display = 'none';
       document.querySelector('.bottom-nav').style.display = 'none';
       document.getElementById('nav-admin').style.display = 'none';
       document.getElementById('btn-logout').style.display = 'none';
-      document.getElementById('header-name').textContent = '📋 Tour Diary';
-      document.getElementById('header-designation').textContent = 'Authentication Required';
+      document.getElementById('badge-premium').style.display = 'none';
       window.switchTab('login');
     }
   });
 
   // --- ADMIN DASHBOARD LOGIC ---
-  window.loadPendingUsers = async () => {
+  window.loadAdminUsers = async () => {
     if(!isAdminUser) return;
     const el = document.getElementById('admin-content');
-    el.innerHTML = '<p style="text-align:center; color:var(--text3); font-size:13px;">Checking for new signups...</p>';
+    el.innerHTML = '<p style="text-align:center; color:var(--text3); font-size:13px;">Loading users...</p>';
     
     try {
-      const q = query(collection(db, "profiles"), where("status", "==", "pending"));
-      const snapshot = await getDocs(q);
+      const snapshot = await getDocs(collection(db, "profiles"));
+      if(snapshot.empty) { el.innerHTML = '<p>No users found.</p>'; return; }
       
-      if(snapshot.empty) {
-        el.innerHTML = '<p style="text-align:center; color:var(--success); font-weight:500; padding:20px;">✅ All caught up! No pending approvals.</p>';
-        return;
-      }
-      el.innerHTML = snapshot.docs.map(doc => `
-        <div class="pending-user-card">
-          <div class="pending-email">👤 ${doc.data().email}</div>
-          <button class="btn btn-primary" style="width: auto; padding: 6px 14px; font-size: 13px;" onclick="window.approveUser('${doc.id}')">Approve</button>
-        </div>
-      `).join('');
+      let html = '';
+      snapshot.docs.forEach(doc => {
+        const data = doc.data();
+        html += `<div class="pending-user-card">
+          <div class="pending-email"><span>👤 ${data.email}</span> 
+            ${data.premium ? '<span style="color:var(--premium);font-size:12px;">★ Premium</span>' : ''}
+          </div>
+          <div class="admin-actions">`;
+            
+        if(data.status === 'pending') {
+            html += `<button class="btn btn-primary btn-sm" onclick="window.updateUser('${doc.id}', 'status', 'approved')">Approve Access</button>`;
+        } else {
+            if(!data.premium) {
+                html += `<button class="btn btn-premium btn-sm" onclick="window.updateUser('${doc.id}', 'premium', true)">Grant Premium</button>`;
+            } else {
+                html += `<button class="btn btn-warning btn-sm" onclick="window.updateUser('${doc.id}', 'premium', false)">Revoke Premium</button>`;
+            }
+        }
+        html += `</div></div>`;
+      });
+      el.innerHTML = html;
     } catch(e) { el.innerHTML = '<p style="text-align:center; color:var(--danger);">Error loading users.</p>'; }
   };
 
-  window.approveUser = async (uid) => {
+  window.updateUser = async (uid, field, value) => {
     if(!isAdminUser) return;
     try {
-      await updateDoc(doc(db, "profiles", uid), { status: 'approved' });
-      window.showToast('✅ Officer Approved!');
-      window.loadPendingUsers(); 
-    } catch(e) { window.showToast('❌ Error approving user.'); }
+      await updateDoc(doc(db, "profiles", uid), { [field]: value });
+      window.showToast(`✅ User updated successfully!`);
+      window.loadAdminUsers(); 
+    } catch(e) { window.showToast('❌ Error updating user.'); }
   };
 
-  // --- FIREBASE DATA SYNC ---
+  // --- PREMIUM ALERTS LOGIC ---
+  window.fetchAlerts = async () => {
+    if(!currentUser || !isPremiumUser) return;
+    try {
+      const q = query(collection(db, "alerts"), where("uid", "==", currentUser.uid));
+      const snapshot = await getDocs(q);
+      userAlerts = snapshot.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => new Date(a.date) - new Date(b.date));
+      window.renderAlerts();
+      window.checkUpcomingAlerts();
+    } catch(e) { console.error("Error fetching alerts"); }
+  };
+
+  window.saveAlert = async () => {
+    const title = document.getElementById('alert-title').value;
+    const date = document.getElementById('alert-date').value;
+    const time = document.getElementById('alert-time').value;
+    
+    if(!title || !date) return window.showToast("Please provide title and date.");
+
+    try {
+      await addDoc(collection(db, "alerts"), {
+        uid: currentUser.uid, title, date, time, timestamp: Date.now()
+      });
+      window.showToast("✅ Alert created!");
+      document.getElementById('alert-title').value = '';
+      window.fetchAlerts();
+    } catch(e) { window.showToast("Database error saving alert"); }
+  };
+
+  window.deleteAlert = async (id) => {
+    if(!confirm("Delete this alert?")) return;
+    try {
+      await deleteDoc(doc(db, "alerts", id));
+      window.fetchAlerts();
+      window.showToast('Alert deleted');
+    } catch(e) {}
+  };
+
+  window.renderAlerts = () => {
+    const el = document.getElementById('alerts-list');
+    if(!userAlerts.length) return el.innerHTML = '<p style="text-align:center; color:var(--text3); font-size:13px; padding:15px;">No alerts created yet.</p>';
+    
+    el.innerHTML = userAlerts.map(a => `
+      <div class="entry-card" style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <div style="font-weight:600; font-size:14px;">${a.title}</div>
+          <div style="font-size:12px; color:var(--text2); margin-top:4px;">🗓️ ${window.formatDDMMYYYY(a.date)} &nbsp; ⏰ ${a.time}</div>
+        </div>
+        <button class="delete-btn" onclick="window.deleteAlert('${a.id}')">🗑️</button>
+      </div>
+    `).join('');
+  };
+
+  window.checkUpcomingAlerts = () => {
+    if(!userAlerts.length) return;
+    
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const upcoming = [];
+
+    userAlerts.forEach(a => {
+        const alertDate = new Date(a.date);
+        alertDate.setHours(0,0,0,0);
+        const diffTime = alertDate - today;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        // If due within the next 3 days (or overdue/today = 0)
+        if(diffDays >= 0 && diffDays <= 3) {
+            upcoming.push(a);
+        }
+    });
+
+    if(upcoming.length > 0) {
+        const listEl = document.getElementById('notification-list');
+        listEl.innerHTML = upcoming.map(a => `
+           <div class="alert-item">
+             <div class="alert-title">${a.title}</div>
+             <div class="alert-time">Due: ${window.formatDDMMYYYY(a.date)} at ${a.time}</div>
+           </div>
+        `).join('');
+        document.getElementById('notification-modal').style.display = 'flex';
+    }
+  };
+
+  // --- FIREBASE DATA SYNC (TOUR DIARY) ---
   window.loadSettings = async () => {
     if(!currentUser) return;
     try {
@@ -427,7 +592,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
         document.getElementById('set-da').value = globalSettings.daRate || 500;
         document.getElementById('set-fare').value = globalSettings.fareRate || 12;
         
-        document.getElementById('header-name').textContent = globalSettings.name || '📋 Tour Diary';
+        document.getElementById('header-name').innerHTML = `📋 Tour Diary ${isPremiumUser ? '<span class="premium-badge">Premium</span>' : ''}`;
         document.getElementById('header-designation').textContent = globalSettings.designation || 'Journey Tracker';
       } else {
         window.switchTab('settings');
@@ -483,7 +648,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     }
   };
 
-  // --- LOGIC ---
+  // --- LOGIC & DUPLICATE PREVENTION ---
   window.updateAutoDA = () => {
     const lvl = document.getElementById('set-paylevel').value;
     document.getElementById('set-da').value = CPC_DA_RATES[lvl] || 500;
@@ -492,22 +657,29 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   window.autoCalculate = () => {
     const dist = Number(document.getElementById('distance').value) || 0;
     document.getElementById('fare').value = Math.round(dist * globalSettings.fareRate);
-    // Note: DA is handled by Return Mode logic upon saving.
   };
 
   window.saveEntry = async () => {
     const depDate = document.getElementById('dep-date').value;
+    const depTime = document.getElementById('dep-time').value;
     const arrDate = document.getElementById('arr-date').value || depDate;
     const dest = document.getElementById('destination').value;
     
     if(!depDate || !dest) return window.showToast('Fill departure date and destination');
+
+    if (!isReturnMode && !editingId) {
+       const isDuplicate = tourEntries.some(e => e.date === depDate && e.depTime === depTime);
+       if (isDuplicate) {
+           return window.showToast("⚠️ Duplicate blocked: An entry for this Date and Time already exists.");
+       }
+    }
 
     const entryData = {
       uid: currentUser.uid, 
       timestamp: Date.now(),
       date: depDate,
       arrDate: arrDate,
-      depTime: document.getElementById('dep-time').value,
+      depTime: depTime,
       arrTime: document.getElementById('arr-time').value,
       from: document.getElementById('from').value,
       destination: dest,
@@ -518,7 +690,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       da: Number(document.getElementById('da').value) || 0
     };
 
-    // UPDATE MODE
     if (editingId) {
       try {
         await updateDoc(doc(db, "entries", editingId), entryData);
@@ -529,7 +700,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       return;
     }
 
-    // NEW ENTRY MODE (Return Journey Flow)
     if(!isReturnMode) {
       outwardData = entryData;
       isReturnMode = true;
@@ -544,7 +714,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       document.querySelector('#screen-add .btn-primary').textContent = "Save Return & Calc DA";
       window.showToast('Outward saved. Enter return journey.');
     } else {
-      // Calculate Total DA based on Absence
       const totalDist = outwardData.distance + entryData.distance;
       const start = new Date(`${outwardData.date}T${outwardData.depTime}`);
       const end = new Date(`${entryData.arrDate}T${entryData.arrTime}`);
@@ -560,8 +729,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
         else if(rem > 0) finalDA += (globalSettings.daRate * 0.3);
       }
       
-      outwardData.da = 0; // Outward DA is 0
-      entryData.da = Math.round(finalDA); // Return gets total consolidated DA
+      outwardData.da = 0; 
+      entryData.da = Math.round(finalDA); 
 
       try {
         await addDoc(collection(db, "entries"), outwardData);
@@ -597,13 +766,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     document.getElementById('da').value = entry.da;
     document.getElementById('purpose').value = entry.purpose || '';
 
-    document.getElementById('da').readOnly = false; // Allow manual override during edit
+    document.getElementById('da').readOnly = false; 
 
     editingId = id;
     document.getElementById('btn-save-entry').textContent = "Update Entry";
     document.getElementById('btn-cancel-edit').style.display = "block";
     
-    // Cancel any pending outward mode
     isReturnMode = false;
     outwardData = null;
 
@@ -631,7 +799,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     window.showToast('Record copied to clipboard!');
   };
 
-  // --- RENDERING ---
+  // --- RENDERING, LIVE SEARCH & EXPORT ---
   window.renderRecords = () => {
     const el = document.getElementById('records-content');
     if(!tourEntries.length) return el.innerHTML = '<p style="text-align:center; padding: 20px;">No records yet.</p>';
@@ -656,12 +824,26 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     `).join('');
   };
 
-  window.renderSummary = () => {
+  window.getFilteredSummaryList = () => {
     const from = document.getElementById('report-from').value;
     const to = document.getElementById('report-to').value;
-    if (!from || !to) return;
+    const searchTerm = (document.getElementById('report-search').value || "").toLowerCase();
 
-    const filtered = tourEntries.filter(e => e.date >= from && e.date <= to);
+    if (!from || !to) return [];
+    let filtered = tourEntries.filter(e => e.date >= from && e.date <= to);
+
+    if (searchTerm) {
+       filtered = filtered.filter(e => 
+          (e.destination && e.destination.toLowerCase().includes(searchTerm)) ||
+          (e.from && e.from.toLowerCase().includes(searchTerm)) ||
+          (e.date && e.date.includes(searchTerm))
+       );
+    }
+    return filtered;
+  };
+
+  window.renderSummary = () => {
+    const filtered = window.getFilteredSummaryList();
     
     document.getElementById('s-count').textContent = filtered.length;
     document.getElementById('s-km').textContent = filtered.reduce((sum, e) => sum + (e.distance || 0), 0);
@@ -670,7 +852,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 
     const tableContainer = document.getElementById('report-details');
     if (!filtered.length) {
-      tableContainer.innerHTML = '<p style="text-align:center; color:var(--text3); padding:10px;">No records found for this period.</p>';
+      tableContainer.innerHTML = '<p style="text-align:center; color:var(--text3); padding:10px;">No records found matching criteria.</p>';
     } else {
       let html = '<table class="report-table"><tr><th>Date</th><th>Route</th><th>DA</th><th style="text-align:center;">Action</th></tr>';
       filtered.forEach(e => {
@@ -690,15 +872,17 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   };
 
   window.exportCSV = () => {
-    const from = document.getElementById('report-from').value;
-    const to = document.getElementById('report-to').value;
-    const filtered = tourEntries.filter(e => e.date >= from && e.date <= to);
+    const filtered = window.getFilteredSummaryList();
+    const s = globalSettings;
     
-    if(!filtered.length) return window.showToast('No data for this date range!');
+    if(!filtered.length) return window.showToast('No data for this date range/search!');
 
-    let csv = `Tour Report (${from} to ${to})\n`;
-    csv += `Officer Name,${globalSettings.name || 'N/A'}\n`;
-    csv += `Designation,${globalSettings.designation || 'N/A'}\n\n`;
+    const fromDateStr = document.getElementById('report-from').value;
+    const toDateStr = document.getElementById('report-to').value;
+
+    let csv = `Tour Report (${fromDateStr} to ${toDateStr})\n`;
+    csv += `Officer Name,${s.name || 'N/A'}\n`;
+    csv += `Designation,${s.designation || 'N/A'}\n\n`;
     csv += 'Dep. Date,Dep. Time,From,Arr. Date,Arr. Time,Destination,Distance (km),Mode,Fare (Rs),DA (Rs),Purpose\n';
     
     filtered.forEach(e => {
@@ -710,14 +894,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `Tour_Report_${from}_to_${to}.csv`;
+    a.download = `Tour_Report_${fromDateStr}_to_${toDateStr}.csv`;
     a.click();
   };
 
   window.shareText = async () => {
+    const filtered = window.getFilteredSummaryList();
     const fromD = document.getElementById('report-from').value;
     const toD = document.getElementById('report-to').value;
-    const filtered = tourEntries.filter(e => e.date >= fromD && e.date <= toD);
     const text = `📋 Tour Summary (${window.formatDDMMYYYY(fromD)} to ${window.formatDDMMYYYY(toD)})\nOfficer: ${globalSettings.name}\nJourneys: ${filtered.length}\nTotal Distance: ${filtered.reduce((a,e)=>a+e.distance,0)} km\nTotal DA: ₹${filtered.reduce((a,e)=>a+e.da,0)}`;
     
     if (navigator.share) {
@@ -733,6 +917,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   
   document.getElementById('dep-date').value = todayDate;
   document.getElementById('arr-date').value = todayDate;
+  document.getElementById('alert-date').value = todayDate;
   if(document.getElementById('report-from')) {
     document.getElementById('report-from').value = firstDay;
     document.getElementById('report-to').value = todayDate;
