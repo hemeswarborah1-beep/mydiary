@@ -53,6 +53,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .export-btn { width: 100%; padding: 13px; border: 1.5px solid var(--border); border-radius: var(--radius); background: var(--surface); font-size: 14px; margin-bottom: 10px; cursor: pointer; }
 .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px); background: #263238; color: #fff; padding: 10px 20px; border-radius: 24px; font-size: 13px; opacity: 0; transition: all .25s; z-index: 300; pointer-events: none; }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toggle-link { color: var(--blue); cursor: pointer; text-decoration: underline; font-size: 13px; text-align: center; margin-top: 15px; display: block; font-weight: 500; }
 </style>
 </head>
 <body>
@@ -69,8 +70,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 
 <div class="main">
   <div class="screen active" id="screen-login">
-    <div class="card">
-      <div class="card-title">Officer Login</div>
+    <div class="card" id="login-card">
+      <div class="card-title" id="auth-title">Officer Login</div>
       <div class="field" style="margin-bottom:10px">
         <label>Email</label>
         <input type="email" id="login-email" placeholder="officer@example.com">
@@ -79,8 +80,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
         <label>Password</label>
         <input type="password" id="login-password">
       </div>
-      <button class="btn btn-primary" onclick="window.loginUser()">Login securely</button>
-      <p style="text-align: center; font-size: 12px; color: var(--text3); margin-top: 15px;">Contact your Superadmin to register a new account.</p>
+      <button class="btn btn-primary" id="btn-auth" onclick="window.processAuth()">Login securely</button>
+      <a class="toggle-link" onclick="window.toggleAuthMode()">Need an account? Sign up here</a>
+    </div>
+
+    <div class="card" id="pending-card" style="display:none; text-align:center; padding: 30px 15px;">
+       <h3 style="color: var(--blue); margin-bottom: 10px;">⏳ Account Pending</h3>
+       <p style="color: var(--text2); font-size: 14px; line-height: 1.5;">Your account has been successfully created!<br><br>However, it requires Superadmin approval before you can access the Tour Diary system.</p>
+       <p style="color: var(--text3); font-size: 13px; margin-top: 20px;">Please contact your administrator to activate your account.</p>
     </div>
   </div>
 
@@ -217,7 +224,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
   import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, setDoc, getDoc, query, where } 
     from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
@@ -236,6 +243,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 
   // Global State
   let currentUser = null;
+  let authMode = 'login'; // Can be 'login' or 'signup'
   let globalSettings = { name: "", designation: "", payLevel: "6", daRate: 500, fareRate: 12 };
   let tourEntries = [];
   let isReturnMode = false;
@@ -246,7 +254,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   window.showToast = (msg) => {
     const t = document.getElementById('toast');
     t.textContent = msg; t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2500);
+    setTimeout(() => t.classList.remove('show'), 3000);
   };
 
   window.switchTab = (tab) => {
@@ -260,34 +268,36 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     if (tab === 'summary') window.renderSummary();
   };
 
-  // --- AUTHENTICATION ---
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      currentUser = user;
-      document.querySelector('.bottom-nav').style.display = 'flex';
-      document.getElementById('btn-logout').style.display = 'block';
-      window.loadSettings().then(() => {
-        window.fetchEntries();
-        window.switchTab('add');
-      });
-    } else {
-      currentUser = null;
-      document.querySelector('.bottom-nav').style.display = 'none';
-      document.getElementById('btn-logout').style.display = 'none';
-      document.getElementById('header-name').textContent = '📋 Tour Diary';
-      document.getElementById('header-designation').textContent = 'Authentication Required';
-      window.switchTab('login');
-    }
-  });
+  // --- AUTHENTICATION & APPROVAL ---
+  window.toggleAuthMode = () => {
+    authMode = authMode === 'login' ? 'signup' : 'login';
+    document.getElementById('auth-title').textContent = authMode === 'login' ? 'Officer Login' : 'Create New Account';
+    document.getElementById('btn-auth').textContent = authMode === 'login' ? 'Login securely' : 'Sign Up';
+    document.querySelector('.toggle-link').textContent = authMode === 'login' ? 'Need an account? Sign up here' : 'Already have an account? Login';
+  };
 
-  window.loginUser = async () => {
+  window.processAuth = async () => {
     const e = document.getElementById('login-email').value;
     const p = document.getElementById('login-password').value;
+    
+    if(!e || !p) return window.showToast("Please enter email and password.");
+    
     try {
-      await signInWithEmailAndPassword(auth, e, p);
-      window.showToast("Login Successful!");
+      if(authMode === 'login') {
+        await signInWithEmailAndPassword(auth, e, p);
+        window.showToast("Logging in...");
+      } else {
+        // Sign up flow
+        const userCred = await createUserWithEmailAndPassword(auth, e, p);
+        // Create a pending profile in Firestore
+        await setDoc(doc(db, "profiles", userCred.user.uid), { 
+            email: e, 
+            status: 'pending' 
+        });
+        window.showToast("Account created! Awaiting admin approval.");
+      }
     } catch(err) {
-      window.showToast("Login failed. Check email and password.");
+      window.showToast(err.message.replace('Firebase: ', ''));
     }
   };
 
@@ -297,6 +307,50 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     document.getElementById('login-password').value = '';
     window.showToast("Logged out successfully");
   };
+
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      currentUser = user;
+      
+      // Check user approval status
+      const profileSnap = await getDoc(doc(db, "profiles", user.uid));
+      let status = 'approved'; // Default to approved for users you previously made manually
+      
+      if (profileSnap.exists()) {
+         status = profileSnap.data().status;
+      }
+
+      if (status === 'pending') {
+         // Block access, show pending screen
+         document.getElementById('login-card').style.display = 'none';
+         document.getElementById('pending-card').style.display = 'block';
+         document.querySelector('.bottom-nav').style.display = 'none';
+         document.getElementById('btn-logout').style.display = 'block';
+         document.getElementById('header-designation').textContent = 'Approval Required';
+         window.switchTab('login');
+      } else {
+         // Grant full access
+         document.getElementById('login-card').style.display = 'block';
+         document.getElementById('pending-card').style.display = 'none';
+         document.querySelector('.bottom-nav').style.display = 'flex';
+         document.getElementById('btn-logout').style.display = 'block';
+         
+         window.loadSettings().then(() => {
+           window.fetchEntries();
+           window.switchTab('add');
+         });
+      }
+    } else {
+      currentUser = null;
+      document.getElementById('login-card').style.display = 'block';
+      document.getElementById('pending-card').style.display = 'none';
+      document.querySelector('.bottom-nav').style.display = 'none';
+      document.getElementById('btn-logout').style.display = 'none';
+      document.getElementById('header-name').textContent = '📋 Tour Diary';
+      document.getElementById('header-designation').textContent = 'Authentication Required';
+      window.switchTab('login');
+    }
+  });
 
   // --- FIREBASE DATA SYNC (ISOLATED BY USER) ---
   window.loadSettings = async () => {
@@ -381,7 +435,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     if(!depDate || !dest) return window.showToast('Fill departure date and destination');
 
     const entry = {
-      uid: currentUser.uid, // Locks data to the logged-in user
+      uid: currentUser.uid, 
       timestamp: Date.now(),
       date: depDate,
       arrDate: arrDate,
@@ -409,7 +463,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     } else {
       const totalDist = outwardData.distance + entry.distance;
       
-      // Calculate Exact Duration using both Dates and Times
       const start = new Date(`${outwardData.date}T${outwardData.depTime}`);
       const end = new Date(`${entry.arrDate}T${entry.arrTime}`);
       const hours = (end - start) / (1000 * 60 * 60);
