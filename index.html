@@ -126,6 +126,31 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     <div id="records-content">Loading...</div>
   </div>
 
+  <div class="screen" id="screen-summary">
+    <div class="card">
+      <div class="card-title">Export Report</div>
+      <div class="row">
+        <div class="field">
+          <label>From Date</label>
+          <input type="date" id="report-from" onchange="window.renderSummary()">
+        </div>
+        <div class="field">
+          <label>To Date</label>
+          <input type="date" id="report-to" onchange="window.renderSummary()">
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat"><div class="stat-label">Total Journeys</div><div class="stat-value blue" id="s-count">0</div></div>
+      <div class="stat"><div class="stat-label">Distance (km)</div><div class="stat-value" id="s-km">0</div></div>
+      <div class="stat"><div class="stat-label">Fare Paid</div><div class="stat-value" id="s-fare">₹0</div></div>
+      <div class="stat"><div class="stat-label">DA Claimed</div><div class="stat-value green" id="s-da">₹0</div></div>
+    </div>
+
+    <button class="btn export-btn" style="border: 2px solid var(--blue); color: var(--blue);" onclick="window.exportCSV()">⬇️ Download CSV / Excel</button>
+  </div>
+
   <div class="screen" id="screen-settings">
     <div class="card">
       <div class="card-title">Profile & Rules (Cloud Saved)</div>
@@ -144,7 +169,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
             <option value="1">Level 5 & Below</option>
           </select>
         </div>
-        <div class="field"><label>DA Rate (₹)</label><input type="number" id="set-da" readonly></div>
+        <div class="field"><label>DA Rate (₹)</label><input type="number" id="set-da"></div>
       </div>
       <div class="field" style="margin-top:10px">
         <label>Fare Rate / km (₹)</label><input type="number" id="set-fare">
@@ -157,6 +182,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 <nav class="bottom-nav">
   <button class="nav-item active" onclick="window.switchTab('add')" id="nav-add"><div class="nav-icon">➕</div>Add</button>
   <button class="nav-item" onclick="window.switchTab('records')" id="nav-records"><div class="nav-icon">📋</div>Records</button>
+  <button class="nav-item" onclick="window.switchTab('summary')" id="nav-summary"><div class="nav-icon">📊</div>Reports</button>
   <button class="nav-item" onclick="window.switchTab('settings')" id="nav-settings"><div class="nav-icon">⚙️</div>Settings</button>
 </nav>
 
@@ -201,6 +227,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     document.getElementById('screen-' + tab).classList.add('active');
     document.getElementById('nav-' + tab).classList.add('active');
+    if (tab === 'summary') window.renderSummary();
   };
 
   // --- FIREBASE DATA SYNC ---
@@ -248,6 +275,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       const snapshot = await getDocs(q);
       tourEntries = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
       window.renderRecords();
+      window.renderSummary();
     } catch(e) { console.error(e); }
   };
 
@@ -268,7 +296,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   window.autoCalculate = () => {
     const dist = Number(document.getElementById('distance').value) || 0;
     document.getElementById('fare').value = Math.round(dist * globalSettings.fareRate);
-    // DA calculated on return
   };
 
   window.saveEntry = async () => {
@@ -285,6 +312,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       destination: dest,
       distance: Number(document.getElementById('distance').value),
       fare: Number(document.getElementById('fare').value),
+      mode: document.getElementById('mode').value,
       da: 0
     };
 
@@ -297,7 +325,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       document.querySelector('#screen-add .btn-primary').textContent = "Save Return & Calc DA";
       window.showToast('Outward saved. Enter return journey.');
     } else {
-      // Calculate DA
       const totalDist = outwardData.distance + entry.distance;
       const start = new Date(`${outwardData.date}T${outwardData.depTime}`);
       const end = new Date(`${entry.date}T${entry.arrTime}`);
@@ -314,7 +341,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       }
       entry.da = Math.round(finalDA);
 
-      // Save to Firestore
       try {
         await addDoc(collection(db, "entries"), outwardData);
         await addDoc(collection(db, "entries"), entry);
@@ -347,9 +373,57 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     `).join('');
   };
 
+  // --- REPORTS & EXPORT LOGIC ---
+  window.renderSummary = () => {
+    const from = document.getElementById('report-from').value;
+    const to = document.getElementById('report-to').value;
+    if (!from || !to) return;
+
+    const filtered = tourEntries.filter(e => e.date >= from && e.date <= to);
+    
+    document.getElementById('s-count').textContent = filtered.length;
+    document.getElementById('s-km').textContent = filtered.reduce((sum, e) => sum + (e.distance || 0), 0);
+    document.getElementById('s-fare').textContent = '₹' + filtered.reduce((sum, e) => sum + (e.fare || 0), 0);
+    document.getElementById('s-da').textContent = '₹' + filtered.reduce((sum, e) => sum + (e.da || 0), 0);
+  };
+
+  window.exportCSV = () => {
+    const from = document.getElementById('report-from').value;
+    const to = document.getElementById('report-to').value;
+    const filtered = tourEntries.filter(e => e.date >= from && e.date <= to);
+    
+    if(!filtered.length) return window.showToast('No data for this date range!');
+
+    let csv = `Tour Report (${from} to ${to})\n`;
+    csv += `Officer Name,${globalSettings.name || 'N/A'}\n`;
+    csv += `Designation,${globalSettings.designation || 'N/A'}\n\n`;
+    csv += 'Date,Dep. Time,From,Arr. Time,Destination,Distance (km),Mode,Fare (Rs),DA (Rs)\n';
+    
+    filtered.forEach(e => {
+      csv += `${e.date},${e.depTime},${e.from},${e.arrTime},${e.destination},${e.distance},${e.mode || 'N/A'},${e.fare},${e.da}\n`;
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Tour_Report_${from}_to_${to}.csv`;
+    a.click();
+  };
+
   // Init
-  document.getElementById('dep-date').value = new Date().toISOString().split('T')[0];
-  window.loadSettings().then(() => window.fetchEntries());
+  const todayDate = new Date().toISOString().split('T')[0];
+  const firstDay = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+  
+  document.getElementById('dep-date').value = todayDate;
+  if(document.getElementById('report-from')) {
+    document.getElementById('report-from').value = firstDay;
+    document.getElementById('report-to').value = todayDate;
+  }
+
+  window.loadSettings().then(() => {
+    window.fetchEntries();
+  });
 </script>
 
 <script>
