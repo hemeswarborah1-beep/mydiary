@@ -374,7 +374,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   <div class="modal-content" style="text-align: center; padding: 25px;">
     <div style="font-size: 40px; margin-bottom: 10px;">⭐</div>
     <h3 style="color: var(--blue-dark); margin-bottom: 10px;">Upgrade to Premium</h3>
-    <p style="color: var(--text2); font-size: 13px; line-height: 1.5; margin-bottom: 15px;">Unlock the **Alert Me** infrastructure and auto-populated official central **TR-25 TA Bill Framework printing** features.</p>
+    <p style="color: var(--text2); font-size: 13px; line-height: 1.5; margin-bottom: 15px;">Unlock the Alert Me infrastructure and auto-populated official central TR-25 TA Bill Framework printing features.</p>
     
     <div style="background: var(--blue-bg); padding: 15px; border-radius: var(--radius-sm); margin-bottom: 20px; border: 1.5px dashed var(--blue);">
        <span style="font-size: 14px; color: var(--text2); font-weight: 600;">Professional Officers Plan</span>
@@ -589,7 +589,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     if (user) {
       currentUser = user;
       
-      // Fetch plan pricing dynamically
       const priceSnap = await getDoc(doc(db, "app_config", "pricing"));
       if(priceSnap.exists()) cachedPlanPrice = priceSnap.data().yearly_rate || 199;
 
@@ -617,15 +616,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
          document.getElementById('btn-logout').style.display = 'block';
          document.getElementById('nav-admin').style.display = isAdminUser ? 'inline-flex' : 'none';
          
-         // Setup Premium vs Free Tier features interface mappings
          document.getElementById('badge-premium').style.display = isPremiumUser ? 'inline-block' : 'none';
          document.getElementById('premium-lock').style.display = isPremiumUser ? 'none' : 'block';
          document.getElementById('premium-content').style.display = isPremiumUser ? 'block' : 'none';
          document.getElementById('btn-tr25-print').style.display = isPremiumUser ? 'block' : 'none';
 
-         // Optional AdSense injection block mechanism 
          if (isPremiumUser) {
-            // Remove AdSense blocks if premium user (Wipes out any auto-loaded ads)
             try { (adsbygoogle = window.adsbygoogle || []).pauseAdRequests = 1; } catch(e){}
          }
 
@@ -633,7 +629,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
            window.fetchEntries();
            if(isPremiumUser) window.fetchAlerts(); 
            
-           // If user is FREE tier, prompt upgrade screen cleanly upon entry
            if(!isPremiumUser && !isAdminUser) {
               setTimeout(() => { window.showPlanModal(); }, 1200);
            }
@@ -672,7 +667,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       let html = '';
       snapshot.docs.forEach(doc => {
         const d = doc.data();
-        if(doc.id === currentUser.uid) return; // Skip self
+        if(doc.id === currentUser.uid) return; 
         html += `<div class="pending-user-card">
           <div>
             <div class="pending-email" style="display:block;"><b>👤 ${d.name || 'N/A'}</b> ${d.premium ? '<span style="color:var(--premium);font-size:12px;float:right; font-weight:700;">★ Premium</span>' : ''}</div>
@@ -967,7 +962,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
         </tr>
      `).join('');
      
-     window.print(); // Triggers Native Device Hardware Print Dialog / Native Formatted PDF saving engine
+     window.print(); 
   };
 
   // --- RENDERING, SEARCH & EXPORTS ---
