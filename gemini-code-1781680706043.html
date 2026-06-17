@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1565C0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Tour Diary">
+<title>Tour Diary Cloud</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root { --blue: #1565C0; --blue-light: #1E88E5; --blue-dark: #0D47A1; --blue-bg: #E3F2FD; --surface: #FFFFFF; --bg: #F5F7FA; --border: #E0E0E0; --text: #1A1A2E; --text2: #5C6B7A; --text3: #9AA5B1; --success: #2E7D32; --success-bg: #E8F5E9; --danger: #C62828; --danger-bg: #FFEBEE; --radius: 12px; --radius-sm: 8px; --shadow: 0 1px 4px rgba(0,0,0,0.10); }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; max-width: 480px; margin: 0 auto; position: relative; }
+.header { background: linear-gradient(135deg, var(--blue-dark), var(--blue-light)); color: #fff; padding: 16px 16px 20px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+.header-top { display: flex; justify-content: space-between; align-items: flex-start; }
+.header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
+.header-sub { font-size: 13px; opacity: 0.85; margin-top: 2px; }
+.bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: var(--surface); border-top: 1px solid var(--border); display: flex; z-index: 100; padding-bottom: env(safe-area-inset-bottom); }
+.nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 10px 4px 8px; cursor: pointer; color: var(--text3); font-size: 11px; gap: 3px; border: none; background: none; }
+.nav-item.active { color: var(--blue); }
+.nav-icon { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 18px;}
+.main { padding: 12px 12px 80px; min-height: calc(100vh - 140px); }
+.screen { display: none; } .screen.active { display: block; }
+.card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); padding: 14px; margin-bottom: 12px; box-shadow: var(--shadow); }
+.card-title { font-size: 13px; font-weight: 600; color: var(--text2); text-transform: uppercase; margin-bottom: 12px; }
+.row { display: flex; gap: 10px; margin-bottom: 10px; }
+.field { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.field label { font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; }
+.field input, .field select, .field textarea { border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 9px 11px; font-size: 14px; width: 100%; }
+.field textarea { resize: none; height: 60px; }
+.btn { width: 100%; padding: 13px; border: none; border-radius: var(--radius); font-size: 15px; font-weight: 600; cursor: pointer; }
+.btn-primary { background: var(--blue); color: #fff; }
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.stat { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); padding: 12px; }
+.stat-label { font-size: 11px; color: var(--text2); }
+.stat-value { font-size: 22px; font-weight: 700; color: var(--text); }
+.stat-value.blue { color: var(--blue); } .stat-value.green { color: var(--success); }
+.entry-card { background: var(--surface); border-radius: var(--radius); padding: 12px; margin-bottom: 10px; border: 1px solid var(--border); }
+.entry-header { display: flex; justify-content: space-between; margin-bottom: 6px; }
+.entry-date { font-size: 12px; font-weight: 700; color: var(--blue); }
+.entry-route { font-size: 15px; font-weight: 600; }
+.entry-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 7px; }
+.chip { font-size: 11px; padding: 3px 9px; border-radius: 20px; background: var(--bg); border: 1px solid var(--border); }
+.chip.blue { background: var(--blue-bg); color: var(--blue); }
+.chip.green { background: var(--success-bg); color: var(--success); }
+.delete-btn { background: none; border: none; cursor: pointer; }
+.section-head { font-size: 11px; font-weight: 700; color: var(--text3); text-transform: uppercase; margin: 14px 0 8px; }
+.export-btn { width: 100%; padding: 13px; border: 1.5px solid var(--border); border-radius: var(--radius); background: var(--surface); font-size: 14px; margin-bottom: 10px; cursor: pointer; }
+.toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px); background: #263238; color: #fff; padding: 10px 20px; border-radius: 24px; font-size: 13px; opacity: 0; transition: all .25s; z-index: 300; pointer-events: none; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div>
+      <h1 id="header-name">📋 Tour Diary</h1>
+      <div class="header-sub" id="header-designation">Connecting to Cloud...</div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="screen active" id="screen-add">
+    <div class="card">
+      <div class="card-title">Journey Details</div>
+      <div class="row">
+        <div class="field">
+          <label>Date</label>
+          <input type="date" id="dep-date" onchange="window.autoCalculate()">
+        </div>
+        <div class="field">
+          <label>Time (24 Hr)</label>
+          <input type="time" id="dep-time" value="09:00" onchange="window.autoCalculate()">
+        </div>
+      </div>
+      <div class="field" style="margin-bottom:10px">
+        <label>From</label>
+        <input type="text" id="from" value="Headquarter">
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>Arrival Time</label>
+          <input type="time" id="arr-time" value="09:30" onchange="window.autoCalculate()">
+        </div>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label>Destination</label>
+        <input type="text" id="destination" placeholder="e.g. Branch Office">
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Travel & Claim</div>
+      <div class="row">
+        <div class="field">
+          <label>Distance (km)</label>
+          <input type="number" id="distance" placeholder="0" min="0" oninput="window.autoCalculate()">
+        </div>
+        <div class="field">
+          <label>Mode</label>
+          <select id="mode">
+            <option>Car</option><option>Bus</option><option>Train</option><option>Two-wheeler</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>Fare (₹)</label>
+          <input type="number" id="fare" placeholder="0" readonly>
+        </div>
+        <div class="field">
+          <label>DA (₹)</label>
+          <input type="number" id="da" placeholder="0" readonly>
+        </div>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="window.saveEntry()">Save & Continue</button>
+  </div>
+
+  <div class="screen" id="screen-records">
+    <div id="records-content">Loading...</div>
+  </div>
+
+  <div class="screen" id="screen-settings">
+    <div class="card">
+      <div class="card-title">Profile & Rules (Cloud Saved)</div>
+      <div class="field" style="margin-bottom:10px"><label>Name</label><input type="text" id="set-name"></div>
+      <div class="field" style="margin-bottom:10px"><label>Designation</label><input type="text" id="set-designation"></div>
+      <div class="field" style="margin-bottom:10px"><label>Address</label><input type="text" id="set-address"></div>
+      
+      <div class="row">
+        <div class="field">
+          <label>Pay Level</label>
+          <select id="set-paylevel" onchange="window.updateAutoDA()">
+            <option value="14">Level 14 & Above</option>
+            <option value="12">Level 12 to 13</option>
+            <option value="9">Level 9 to 11</option>
+            <option value="6">Level 6 to 8</option>
+            <option value="1">Level 5 & Below</option>
+          </select>
+        </div>
+        <div class="field"><label>DA Rate (₹)</label><input type="number" id="set-da" readonly></div>
+      </div>
+      <div class="field" style="margin-top:10px">
+        <label>Fare Rate / km (₹)</label><input type="number" id="set-fare">
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="window.saveSettings()">Save to Cloud</button>
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <button class="nav-item active" onclick="window.switchTab('add')" id="nav-add"><div class="nav-icon">➕</div>Add</button>
+  <button class="nav-item" onclick="window.switchTab('records')" id="nav-records"><div class="nav-icon">📋</div>Records</button>
+  <button class="nav-item" onclick="window.switchTab('settings')" id="nav-settings"><div class="nav-icon">⚙️</div>Settings</button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+  import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, setDoc, getDoc, query, orderBy } 
+    from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyB91XxgwSK7WSa2d8iwt3G5mMBwHyEk0YA",
+    authDomain: "my-diary-ad59b.firebaseapp.com",
+    projectId: "my-diary-ad59b",
+    storageBucket: "my-diary-ad59b.firebasestorage.app",
+    messagingSenderId: "222761664690",
+    appId: "1:222761664690:web:341fffd7d573d7a55149ab",
+    measurementId: "G-B844W03262"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const db = getFirestore(app);
+
+  // Global State
+  let globalSettings = { name: "", designation: "", payLevel: "6", daRate: 500, fareRate: 12 };
+  let tourEntries = [];
+  let isReturnMode = false;
+  let outwardData = null;
+  const CPC_DA_RATES = { "14": 1000, "12": 900, "9": 800, "6": 500, "1": 500 };
+
+  // --- UI UTILS ---
+  window.showToast = (msg) => {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  };
+
+  window.switchTab = (tab) => {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('screen-' + tab).classList.add('active');
+    document.getElementById('nav-' + tab).classList.add('active');
+  };
+
+  // --- FIREBASE DATA SYNC ---
+  window.loadSettings = async () => {
+    try {
+      const snap = await getDoc(doc(db, "settings", "user_profile"));
+      if (snap.exists()) {
+        globalSettings = snap.data();
+        document.getElementById('set-name').value = globalSettings.name || '';
+        document.getElementById('set-designation').value = globalSettings.designation || '';
+        document.getElementById('set-address').value = globalSettings.address || '';
+        document.getElementById('set-paylevel').value = globalSettings.payLevel || '6';
+        document.getElementById('set-da').value = globalSettings.daRate || 500;
+        document.getElementById('set-fare').value = globalSettings.fareRate || 12;
+        
+        document.getElementById('header-name').textContent = globalSettings.name || '📋 Tour Diary';
+        document.getElementById('header-designation').textContent = globalSettings.designation || 'Journey Tracker';
+      } else {
+        window.switchTab('settings');
+        window.showToast('Welcome! Please setup your profile first.');
+      }
+    } catch(e) { console.error("Error loading settings", e); }
+  };
+
+  window.saveSettings = async () => {
+    const s = {
+      name: document.getElementById('set-name').value,
+      designation: document.getElementById('set-designation').value,
+      address: document.getElementById('set-address').value,
+      payLevel: document.getElementById('set-paylevel').value,
+      daRate: Number(document.getElementById('set-da').value),
+      fareRate: Number(document.getElementById('set-fare').value)
+    };
+    try {
+      await setDoc(doc(db, "settings", "user_profile"), s);
+      globalSettings = s;
+      window.showToast('Profile Saved to Cloud!');
+      window.loadSettings();
+    } catch(e) { window.showToast('Error saving to cloud'); }
+  };
+
+  window.fetchEntries = async () => {
+    try {
+      const q = query(collection(db, "entries"), orderBy("timestamp", "desc"));
+      const snapshot = await getDocs(q);
+      tourEntries = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      window.renderRecords();
+    } catch(e) { console.error(e); }
+  };
+
+  window.deleteEntry = async (id) => {
+    if(confirm('Delete this cloud record?')) {
+      await deleteDoc(doc(db, "entries", id));
+      window.fetchEntries();
+      window.showToast('Deleted from cloud');
+    }
+  };
+
+  // --- LOGIC ---
+  window.updateAutoDA = () => {
+    const lvl = document.getElementById('set-paylevel').value;
+    document.getElementById('set-da').value = CPC_DA_RATES[lvl] || 500;
+  };
+
+  window.autoCalculate = () => {
+    const dist = Number(document.getElementById('distance').value) || 0;
+    document.getElementById('fare').value = Math.round(dist * globalSettings.fareRate);
+    // DA calculated on return
+  };
+
+  window.saveEntry = async () => {
+    const date = document.getElementById('dep-date').value;
+    const dest = document.getElementById('destination').value;
+    if(!date || !dest) return window.showToast('Fill date and destination');
+
+    const entry = {
+      timestamp: Date.now(),
+      date: date,
+      depTime: document.getElementById('dep-time').value,
+      arrTime: document.getElementById('arr-time').value,
+      from: document.getElementById('from').value,
+      destination: dest,
+      distance: Number(document.getElementById('distance').value),
+      fare: Number(document.getElementById('fare').value),
+      da: 0
+    };
+
+    if(!isReturnMode) {
+      outwardData = entry;
+      isReturnMode = true;
+      document.getElementById('from').value = dest;
+      document.getElementById('destination').value = 'Headquarter';
+      document.getElementById('dep-time').value = entry.arrTime;
+      document.querySelector('#screen-add .btn-primary').textContent = "Save Return & Calc DA";
+      window.showToast('Outward saved. Enter return journey.');
+    } else {
+      // Calculate DA
+      const totalDist = outwardData.distance + entry.distance;
+      const start = new Date(`${outwardData.date}T${outwardData.depTime}`);
+      const end = new Date(`${entry.date}T${entry.arrTime}`);
+      const hours = (end - start) / (1000 * 60 * 60);
+      
+      let finalDA = 0;
+      if(totalDist >= 8 && hours > 0) {
+        const days = Math.floor(hours / 24);
+        const rem = hours % 24;
+        finalDA += (days * globalSettings.daRate);
+        if(rem > 12) finalDA += globalSettings.daRate;
+        else if(rem >= 6) finalDA += (globalSettings.daRate * 0.7);
+        else if(rem > 0) finalDA += (globalSettings.daRate * 0.3);
+      }
+      entry.da = Math.round(finalDA);
+
+      // Save to Firestore
+      try {
+        await addDoc(collection(db, "entries"), outwardData);
+        await addDoc(collection(db, "entries"), entry);
+        window.showToast(`Journey Complete! DA: ₹${entry.da}`);
+        isReturnMode = false;
+        document.querySelector('#screen-add .btn-primary').textContent = "Save & Continue";
+        document.getElementById('distance').value = '';
+        window.fetchEntries();
+      } catch(e) { window.showToast('Database error'); }
+    }
+  };
+
+  window.renderRecords = () => {
+    const el = document.getElementById('records-content');
+    if(!tourEntries.length) return el.innerHTML = '<p style="text-align:center">No records in cloud.</p>';
+    
+    el.innerHTML = tourEntries.map(e => `
+      <div class="entry-card">
+        <div class="entry-header">
+          <div class="entry-date">${e.date} | ${e.depTime}-${e.arrTime}</div>
+          <button class="delete-btn" onclick="window.deleteEntry('${e.id}')">🗑️</button>
+        </div>
+        <div class="entry-route">${e.from} → ${e.destination}</div>
+        <div class="entry-chips">
+          <span class="chip">${e.distance} km</span>
+          <span class="chip blue">₹${e.fare}</span>
+          <span class="chip green">DA ₹${e.da}</span>
+        </div>
+      </div>
+    `).join('');
+  };
+
+  // Init
+  document.getElementById('dep-date').value = new Date().toISOString().split('T')[0];
+  window.loadSettings().then(() => window.fetchEntries());
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js'));
+}
+</script>
+</body>
+</html>
