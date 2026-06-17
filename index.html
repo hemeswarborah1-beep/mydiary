@@ -504,11 +504,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     } catch(err) { window.showToast(err.message.replace('Firebase: ', '')); }
   };
 
-  window.logoutUser = async () => {
+ window.logoutUser = async () => {
     await signOut(auth);
-    document.getElementById('login-email').value = '';
-    document.getElementById('login-password').value = '';
-    window.showToast("Logged out successfully");
+    window.showToast("Logging out...");
+    
+    // Force a complete page refresh to clear memory and return to login
+    setTimeout(() => {
+        window.location.reload();
+    }, 800);
   };
 
   onAuthStateChanged(auth, async (user) => {
