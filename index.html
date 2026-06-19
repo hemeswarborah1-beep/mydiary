@@ -38,7 +38,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .field label { font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; }
 .field input, .field select, .field textarea { border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 9px 11px; font-size: 14px; width: 100%; }
 .field textarea { resize: none; height: 60px; }
-.btn { width: 100%; padding: 13px; border: none; border-radius: var(--radius); font-size: 15px; font-weight: 600; cursor: pointer; }
+.btn { width: 100%; padding: 13px; border: none; border-radius: var(--radius); font-size: 15px; font-weight: 600; cursor: pointer; text-align: center; }
 .btn-primary { background: var(--blue); color: #fff; }
 .btn-warning { background: #FF9800; color: #fff; margin-top: 10px; }
 .btn-sm { width: auto; padding: 6px 12px; font-size: 12px; margin-top: 5px;}
@@ -231,7 +231,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
           <input type="number" id="da" placeholder="0" readonly>
         </div>
       </div>
-      <div class="field" style="margin-top:10px">
+      <div class="field" style="margin-top:10px" id="purpose-container">
         <label>Purpose of Journey</label>
         <textarea id="purpose" placeholder="e.g. Annual Inspection, Audit, etc."></textarea>
       </div>
@@ -381,7 +381,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
        <h1 style="color: var(--blue-dark); margin: 5px 0;" id="modal-plan-price">₹199 / Yearly</h1>
        <small style="color: var(--text3);">No hidden advertisements • Cancel anytime</small>
     </div>
-    <p style="font-size: 11px; color: var(--text3); margin-bottom: 15px;">To finalize activation, please send your subscription remittance request directly to your system Superadmin.</p>
+    
+    <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px;">
+       <a id="btn-pay-upi" href="#" class="btn btn-premium" style="text-decoration: none; display: block; line-height: 20px; background: #2E7D32; color: white;">📱 Pay Instantly via UPI App</a>
+    </div>
+
+    <p style="font-size: 11px; color: var(--text3); margin-bottom: 15px;">To finalize activation after payment, please drop your payment details directly to your system Superadmin.</p>
     <button class="btn btn-primary" onclick="document.getElementById('plan-modal').style.display='none'">Close Window</button>
   </div>
 </div>
@@ -489,6 +494,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 
   window.showPlanModal = () => {
      document.getElementById('modal-plan-price').textContent = `₹${cachedPlanPrice} / Yearly`;
+     
+     // CONFIGURE YOUR UPI CREDENTIALS HERE
+     const merchantUPI = "YOUR_UPI_ID_HERE@okaxis"; 
+     const merchantName = encodeURIComponent("Tour Diary Premium"); 
+     
+     const upiIntentString = `upi://pay?pa=${merchantUPI}&pn=${merchantName}&am=${cachedPlanPrice}&cu=INR&tn=TourDiary_Premium_Activation`;
+     document.getElementById('btn-pay-upi').href = upiIntentString;
+     
      document.getElementById('plan-modal').style.display = 'flex';
   };
 
@@ -845,12 +858,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
        if (isDuplicate) return window.showToast("⚠️ Duplicate blocked: Entry already exists.");
     }
 
+    // Determine purpose context based on return mode flag status
+    const loggedPurpose = isReturnMode ? "Return Journey" : document.getElementById('purpose').value.trim();
+
     const entryData = {
       uid: currentUser.uid, timestamp: Date.now(), date: depDate, arrDate: arrDate, depTime: depTime,
       arrTime: document.getElementById('arr-time').value, from: document.getElementById('from').value,
       destination: dest, distance: Number(document.getElementById('distance').value),
       fare: Number(document.getElementById('fare').value), mode: document.getElementById('mode').value,
-      purpose: document.getElementById('purpose').value.trim(), da: Number(document.getElementById('da').value) || 0
+      purpose: loggedPurpose, da: Number(document.getElementById('da').value) || 0
     };
 
     if (editingId) {
@@ -868,6 +884,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       document.getElementById('dep-date').value = arrDate; document.getElementById('arr-date').value = arrDate;
       document.getElementById('dep-time').value = entryData.arrTime;
       document.getElementById('distance').value = ''; document.getElementById('da').value = ''; document.getElementById('fare').value = '';
+      
+      // Hide the purpose field container since return journey doesn't capture it
+      document.getElementById('purpose-container').style.display = 'none';
+      
       document.querySelector('#screen-add .btn-primary').textContent = "Save Return & Calc DA";
       window.showToast('Outward saved. Enter return journey.');
     } else {
@@ -894,6 +914,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
         document.querySelector('#screen-add .btn-primary').textContent = "Save & Continue";
         ['distance','purpose','destination'].forEach(id => document.getElementById(id).value = '');
         document.getElementById('from').value = 'Headquarter';
+        
+        // Restore visibility of purpose container for next fresh entry log
+        document.getElementById('purpose-container').style.display = 'flex';
+        
         window.fetchEntries();
       } catch(e) { window.showToast('Database error'); }
     }
@@ -915,6 +939,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     document.getElementById('da').readOnly = false; 
 
     editingId = id; isReturnMode = false; outwardData = null;
+    document.getElementById('purpose-container').style.display = 'flex';
     document.getElementById('btn-save-entry').textContent = "Update Entry";
     document.getElementById('btn-cancel-edit').style.display = "block";
     window.switchTab('add'); window.scrollTo(0, 0);
@@ -927,6 +952,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     document.getElementById('da').readOnly = true;
     ['distance','fare','da','purpose', 'destination'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('from').value = 'Headquarter';
+    document.getElementById('purpose-container').style.display = 'flex';
   };
 
   window.shareSingleEntry = async (id) => {
