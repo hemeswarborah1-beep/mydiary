@@ -12,7 +12,6 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 
 <!-- GOOGLE ADSENSE CODE PLACEHOLDER -->
-<!-- Replace ca-pub-XXXXXXXXXXXXXXXX with your actual AdSense Publisher ID once approved -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
 
 <style>
@@ -109,31 +108,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   <div class="screen active" id="screen-login">
     <div class="card" id="login-card">
       <div class="card-title" id="auth-title">Officer Login</div>
-      
       <div id="signup-fields" style="display:none;">
-        <div class="field" style="margin-bottom:10px">
-          <label>Full Name</label>
-          <input type="text" id="auth-name" placeholder="e.g. Mridul Kumar Kalita">
-        </div>
-        <div class="field" style="margin-bottom:10px">
-          <label>Designation</label>
-          <input type="text" id="auth-designation" placeholder="e.g. Inspector of Post Offices">
-        </div>
-        <div class="field" style="margin-bottom:10px">
-          <label>Mobile Number</label>
-          <input type="tel" id="auth-mobile" placeholder="e.g. 9876543210">
-        </div>
+        <div class="field" style="margin-bottom:10px"><label>Full Name</label><input type="text" id="auth-name" placeholder="e.g. Mridul Kumar Kalita"></div>
+        <div class="field" style="margin-bottom:10px"><label>Designation</label><input type="text" id="auth-designation" placeholder="e.g. Inspector of Post Offices"></div>
+        <div class="field" style="margin-bottom:10px"><label>Mobile Number</label><input type="tel" id="auth-mobile" placeholder="e.g. 9876543210"></div>
       </div>
-
-      <div class="field" style="margin-bottom:10px">
-        <label>Email</label>
-        <input type="email" id="login-email" placeholder="officer@example.com">
-      </div>
-      <div class="field" style="margin-bottom:20px">
-        <label>Password</label>
-        <input type="password" id="login-password">
-      </div>
-      
+      <div class="field" style="margin-bottom:10px"><label>Email</label><input type="email" id="login-email" placeholder="officer@example.com"></div>
+      <div class="field" style="margin-bottom:20px"><label>Password</label><input type="password" id="login-password"></div>
       <button class="btn btn-primary" id="btn-auth" onclick="window.processAuth()">Login securely</button>
       <a class="toggle-link" onclick="window.toggleAuthMode()">Need an account? Sign up here</a>
     </div>
@@ -141,7 +122,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     <div class="card" id="pending-card" style="display:none; text-align:center; padding: 30px 15px;">
        <h3 style="color: var(--blue); margin-bottom: 10px;">⏳ Account Pending</h3>
        <p style="color: var(--text2); font-size: 14px; line-height: 1.5;">Your account has been successfully created!<br><br>However, it requires Superadmin approval before you can access the Tour Diary system.</p>
-       <p style="color: var(--text3); font-size: 13px; margin-top: 20px;">Please wait for your administrator to activate your account.</p>
     </div>
   </div>
 
@@ -150,20 +130,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     <div class="card">
       <div class="card-title">Global Plan Pricing Configuration</div>
       <div class="row" style="align-items: flex-end;">
-         <div class="field">
-            <label>Premium Plan Cost (₹ / Year)</label>
-            <input type="number" id="admin-plan-price" value="199">
-         </div>
+         <div class="field"><label>Premium Plan Cost (₹ / Year)</label><input type="number" id="admin-plan-price" value="199"></div>
          <button class="btn btn-primary" style="width:auto; padding:11px 20px;" onclick="window.saveGlobalPrice()">Save Price</button>
       </div>
     </div>
-
     <div class="card">
       <div class="card-title">User Management (Superadmin)</div>
-      <p style="font-size: 12px; color: var(--text2); margin-bottom: 15px;">Approve users or grant them Premium Alert/TR-25 access.</p>
-      <div id="admin-content">
-         <p style="text-align:center; color: var(--text3); font-size: 13px;">Loading users...</p>
-      </div>
+      <div id="admin-content"><p style="text-align:center; color: var(--text3); font-size: 13px;">Loading users...</p></div>
     </div>
   </div>
 
@@ -172,41 +145,22 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     <div class="card">
       <div class="card-title">Journey Details</div>
       <div class="row">
-        <div class="field">
-          <label>Dep. Date</label>
-          <input type="date" id="dep-date" onchange="window.autoCalculate()">
-        </div>
-        <div class="field">
-          <label>Dep. Time</label>
-          <input type="time" id="dep-time" value="09:00" onchange="window.autoCalculate()">
-        </div>
+        <div class="field"><label>Dep. Date</label><input type="date" id="dep-date" onchange="window.autoCalculate()"></div>
+        <div class="field"><label>Dep. Time</label><input type="time" id="dep-time" value="09:00" onchange="window.autoCalculate()"></div>
       </div>
-      <div class="field" style="margin-bottom:10px">
-        <label>From</label>
-        <input type="text" id="from" value="Headquarter">
-      </div>
+      <div class="field" style="margin-bottom:10px"><label>From</label><input type="text" id="from" value="Headquarter"></div>
       <div class="row">
-        <div class="field">
-          <label>Arr. Date</label>
-          <input type="date" id="arr-date" onchange="window.autoCalculate()">
-        </div>
-        <div class="field">
-          <label>Arr. Time</label>
-          <input type="time" id="arr-time" value="09:30" onchange="window.autoCalculate()">
-        </div>
+        <div class="field"><label>Arr. Date</label><input type="date" id="arr-date" onchange="window.autoCalculate()"></div>
+        <div class="field"><label>Arr. Time</label><input type="time" id="arr-time" value="09:30" onchange="window.autoCalculate()"></div>
       </div>
-      <div class="field" style="margin-bottom:0">
-        <label>Destination</label>
-        <input type="text" id="destination" placeholder="e.g. Branch Office">
-      </div>
+      <div class="field" style="margin-bottom:0"><label>Destination</label><input type="text" id="destination" placeholder="e.g. Branch Office"></div>
     </div>
 
     <div class="card">
       <div class="card-title">Travel & Claim</div>
       <div class="row">
         <div class="field">
-          <label style="display: flex; justify-content: space-between; align-items: center;">
-            Distance (km)
+          <label style="display: flex; justify-content: space-between; align-items: center;">Distance (km)
             <div style="display: flex; gap: 5px;">
               <button type="button" id="btn-start-gps" onclick="window.startGPS()" style="background:var(--blue-bg); color:var(--blue); border:1px solid var(--blue-light); border-radius:4px; font-size:9px; padding:2px 6px; cursor:pointer; font-weight:700;">📍 START GPS</button>
               <button type="button" id="btn-stop-gps" onclick="window.stopGPS()" style="background:var(--danger-bg); color:var(--danger); border:1px solid var(--danger); border-radius:4px; font-size:9px; padding:2px 6px; cursor:pointer; font-weight:700; display:none;">🛑 STOP & CALC</button>
@@ -214,28 +168,21 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
           </label>
           <input type="number" id="distance" placeholder="0" min="0" oninput="window.autoCalculate()">
         </div>
-        <div class="field">
-          <label>Mode</label>
-          <select id="mode">
-            <option>Car</option><option>Bus</option><option>Train</option><option>Two-wheeler</option>
-          </select>
-        </div>
+        <div class="field"><label>Mode</label><select id="mode"><option>Car</option><option>Bus</option><option>Train</option><option>Two-wheeler</option></select></div>
       </div>
       <div class="row">
-        <div class="field">
-          <label>Fare (₹)</label>
-          <input type="number" id="fare" placeholder="0" readonly>
-        </div>
-        <div class="field">
-          <label>DA (₹)</label>
-          <input type="number" id="da" placeholder="0" readonly>
-        </div>
+        <div class="field"><label>Fare (₹)</label><input type="number" id="fare" placeholder="0" readonly></div>
+        <div class="field"><label>DA (₹)</label><input type="number" id="da" placeholder="0" readonly></div>
       </div>
       <div class="field" style="margin-top:10px" id="purpose-container">
         <label>Purpose of Journey</label>
         <textarea id="purpose" placeholder="e.g. Annual Inspection, Audit, etc."></textarea>
       </div>
     </div>
+    
+    <!-- 31 Days Limit Tracker -->
+    <div id="trial-counter" style="text-align:center; font-size:12px; color:var(--text2); margin-bottom:10px;"></div>
+    
     <button class="btn btn-primary" id="btn-save-entry" onclick="window.saveEntry()">Save & Continue</button>
     <button class="btn btn-warning" id="btn-cancel-edit" onclick="window.cancelEdit()" style="display:none;">Cancel Edit</button>
   </div>
@@ -250,19 +197,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     <div class="card">
       <div class="card-title">Filter & Search</div>
       <div class="row">
-        <div class="field">
-          <label>From Date</label>
-          <input type="date" id="report-from" onchange="window.renderSummary()">
-        </div>
-        <div class="field">
-          <label>To Date</label>
-          <input type="date" id="report-to" onchange="window.renderSummary()">
-        </div>
+        <div class="field"><label>From Date</label><input type="date" id="report-from" onchange="window.renderSummary()"></div>
+        <div class="field"><label>To Date</label><input type="date" id="report-to" onchange="window.renderSummary()"></div>
       </div>
-      <div class="field" style="margin-top: 10px;">
-        <label>Search Keyword (Dest, Route, Date)</label>
-        <input type="text" id="report-search" placeholder="🔍 Search destination or date..." onkeyup="window.renderSummary()">
-      </div>
+      <div class="field" style="margin-top: 10px;"><label>Search Keyword (Dest, Route, Date)</label><input type="text" id="report-search" placeholder="🔍 Search destination or date..." onkeyup="window.renderSummary()"></div>
     </div>
 
     <div class="stats-grid">
@@ -275,7 +213,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     <div class="section-head">Detailed View & Edit</div>
     <div class="report-table-container" id="report-details"></div>
 
-    <!-- Free vs Premium Export Features Options Container -->
     <div id="premium-export-container" style="margin-bottom: 10px;">
        <button class="export-btn btn-premium" id="btn-tr25-print" onclick="window.printTR25()" style="display:none; border:none; margin-bottom:10px;">🖨️ Generate Official TR-25 TA Bill</button>
     </div>
@@ -296,19 +233,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     <div id="premium-content" style="display: none;">
       <div class="card">
         <div class="card-title">Create New Alert</div>
-        <div class="field" style="margin-bottom:10px">
-          <label>Alert Title / Purpose</label>
-          <input type="text" id="alert-title" placeholder="e.g. Audit Meeting, Court Hearing">
-        </div>
+        <div class="field" style="margin-bottom:10px"><label>Alert Title / Purpose</label><input type="text" id="alert-title" placeholder="e.g. Audit Meeting, Court Hearing"></div>
         <div class="row">
-          <div class="field">
-            <label>Due Date</label>
-            <input type="date" id="alert-date">
-          </div>
-          <div class="field">
-            <label>Time</label>
-            <input type="time" id="alert-time" value="10:00">
-          </div>
+          <div class="field"><label>Due Date</label><input type="date" id="alert-date"></div>
+          <div class="field"><label>Time</label><input type="time" id="alert-time" value="10:00"></div>
         </div>
         <button class="btn btn-premium" onclick="window.saveAlert()" style="margin-top: 5px;">➕ Add Alert</button>
       </div>
@@ -324,23 +252,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       <div class="field" style="margin-bottom:10px"><label>Name</label><input type="text" id="set-name"></div>
       <div class="field" style="margin-bottom:10px"><label>Designation</label><input type="text" id="set-designation"></div>
       <div class="field" style="margin-bottom:10px"><label>Address</label><input type="text" id="set-address"></div>
-      
       <div class="row">
         <div class="field">
           <label>Pay Level</label>
-          <select id="set-paylevel" onchange="window.updateAutoDA()">
-            <option value="14">Level 14 & Above</option>
-            <option value="12">Level 12 to 13</option>
-            <option value="9">Level 9 to 11</option>
-            <option value="6">Level 6 to 8</option>
-            <option value="1">Level 5 & Below</option>
-          </select>
+          <select id="set-paylevel" onchange="window.updateAutoDA()"><option value="14">Level 14 & Above</option><option value="12">Level 12 to 13</option><option value="9">Level 9 to 11</option><option value="6">Level 6 to 8</option><option value="1">Level 5 & Below</option></select>
         </div>
         <div class="field"><label>DA Rate (₹)</label><input type="number" id="set-da"></div>
       </div>
-      <div class="field" style="margin-top:10px">
-        <label>Fare Rate / km (₹)</label><input type="number" id="set-fare">
-      </div>
+      <div class="field" style="margin-top:10px"><label>Fare Rate / km (₹)</label><input type="number" id="set-fare"></div>
     </div>
     <button class="btn btn-primary" onclick="window.saveSettings()">Save Profile</button>
   </div>
@@ -356,7 +275,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 </nav>
 
 <!-- MODALS -->
-<!-- Alert Notification Modal -->
 <div class="modal-overlay" id="notification-modal">
   <div class="modal-content">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
@@ -369,12 +287,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   </div>
 </div>
 
-<!-- Premium Commercial Upgrade Plan Modal Layout -->
+<!-- Premium Commercial Upgrade Plan Modal -->
 <div class="modal-overlay" id="plan-modal">
   <div class="modal-content" style="text-align: center; padding: 25px;">
     <div style="font-size: 40px; margin-bottom: 10px;">⭐</div>
     <h3 style="color: var(--blue-dark); margin-bottom: 10px;">Upgrade to Premium</h3>
-    <p style="color: var(--text2); font-size: 13px; line-height: 1.5; margin-bottom: 15px;">Unlock the Alert Me infrastructure and auto-populated official central TR-25 TA Bill Framework printing features.</p>
+    
+    <!-- Dynamic text that updates based on trial usage -->
+    <p id="modal-trial-text" style="color: var(--text2); font-size: 13px; line-height: 1.5; margin-bottom: 15px;">Unlock the Alert Me infrastructure and auto-populated official central TR-25 TA Bill Framework printing features.</p>
     
     <div style="background: var(--blue-bg); padding: 15px; border-radius: var(--radius-sm); margin-bottom: 20px; border: 1.5px dashed var(--blue);">
        <span style="font-size: 14px; color: var(--text2); font-weight: 600;">Professional Officers Plan</span>
@@ -383,45 +303,28 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     </div>
     
     <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px;">
-       <a id="btn-pay-upi" href="#" class="btn btn-premium" style="text-decoration: none; display: block; line-height: 20px; background: #2E7D32; color: white;">📱 Pay Instantly via UPI App</a>
+       <a id="btn-pay-upi" href="#" class="btn btn-premium" style="text-decoration: none; display: block; line-height: 20px; background: #2E7D32; color: white;">📱 Pay Instantly via GooglePay/PhonePe</a>
     </div>
 
-    <p style="font-size: 11px; color: var(--text3); margin-bottom: 15px;">To finalize activation after payment, please drop your payment details directly to your system Superadmin.</p>
-    <button class="btn btn-primary" onclick="document.getElementById('plan-modal').style.display='none'">Close Window</button>
+    <p style="font-size: 11px; color: var(--text3); margin-bottom: 15px;">After successful payment, please drop a message/screenshot to your Superadmin for instant activation.</p>
+    <button class="btn" style="background: #eceff1; color: #37474f;" onclick="document.getElementById('plan-modal').style.display='none'">Close Window</button>
   </div>
 </div>
 
-<!-- HIDDEN OFFICIAL GOVT TR-25 DOCUMENT STRUCTURE SPECIFICALLY FOR PRINT CONTEXTS -->
+<!-- TR-25 PRINT SECTION -->
 <div id="tr25-print-section">
   <div class="tr25-title">TRAVELLING ALLOWANCE BILL FOR GAZETTED/NON-GAZETTED OFFICERS</div>
   <div style="text-align:center; font-weight:bold; margin-bottom:20px; font-size:14px;">FORM T.R. 25 (Central Civil Services Rules)</div>
-  
   <p style="margin: 5px 0;"><b>Officer Name:</b> <span id="p-tr25-name"></span></p>
   <p style="margin: 5px 0;"><b>Designation:</b> <span id="p-tr25-desig"></span></p>
   <p style="margin: 5px 0;"><b>Sub-Division Office:</b> <span id="p-tr25-address"></span></p>
-  
   <table id="tr25-print-table">
      <thead>
-       <tr>
-         <th colspan="2">Departure</th>
-         <th colspan="2">Arrival</th>
-         <th rowspan="2">From / To Route Location</th>
-         <th rowspan="2">Distance (km)</th>
-         <th rowspan="2">Travel Mode</th>
-         <th rowspan="2">Fare Claimed</th>
-         <th rowspan="2">Daily Allowance (DA)</th>
-         <th rowspan="2">Purpose of Journey Log</th>
-       </tr>
-       <tr>
-         <th>Date</th>
-         <th>Time</th>
-         <th>Date</th>
-         <th>Time</th>
-       </tr>
+       <tr><th colspan="2">Departure</th><th colspan="2">Arrival</th><th rowspan="2">From / To Route Location</th><th rowspan="2">Distance (km)</th><th rowspan="2">Travel Mode</th><th rowspan="2">Fare Claimed</th><th rowspan="2">Daily Allowance (DA)</th><th rowspan="2">Purpose of Journey Log</th></tr>
+       <tr><th>Date</th><th>Time</th><th>Date</th><th>Time</th></tr>
      </thead>
      <tbody id="tr25-print-body"></tbody>
   </table>
-  
   <div style="margin-top:50px; display:flex; justify-content:space-between; font-weight:bold; font-size:14px;">
      <div>Date: __________________</div>
      <div style="text-align:center; margin-right:20px;">____________________________________<br>Signature of Claiming Officer</div>
@@ -450,7 +353,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  // Global State
   let currentUser = null;
   let isAdminUser = false;
   let isPremiumUser = false;
@@ -466,7 +368,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   let cachedPlanPrice = 199;
   const CPC_DA_RATES = { "14": 1000, "12": 900, "9": 800, "6": 500, "1": 500 };
 
-  // --- UI UTILS ---
   window.formatDDMMYYYY = (isoDate) => {
     if (!isoDate) return '';
     const parts = isoDate.split('-');
@@ -484,10 +385,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     document.getElementById('screen-' + tab).classList.add('active');
-    
     const navBtn = document.getElementById('nav-' + tab);
     if(navBtn) navBtn.classList.add('active');
-    
     if (tab === 'summary') window.renderSummary();
     if (tab === 'admin') window.loadAdminUsers();
   };
@@ -499,20 +398,17 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
      const merchantUPI = "YOUR_UPI_ID_HERE@okaxis"; 
      const merchantName = encodeURIComponent("Tour Diary Premium"); 
      
-     const upiIntentString = `upi://pay?pa=${merchantUPI}&pn=${merchantName}&am=${cachedPlanPrice}&cu=INR&tn=TourDiary_Premium_Activation`;
+     const upiIntentString = `upi://pay?pa=${merchantUPI}&pn=${merchantName}&am=${cachedPlanPrice}&cu=INR&tn=TourDiary_Premium`;
      document.getElementById('btn-pay-upi').href = upiIntentString;
      
      document.getElementById('plan-modal').style.display = 'flex';
   };
 
-  // --- GPS TRACKING ---
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
     const R = 6371; 
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-              Math.sin(dLon/2) * Math.sin(dLon/2);
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     return R * c; 
   };
@@ -542,7 +438,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
         dist = dist * 1.20; 
         document.getElementById('distance').value = Math.round(dist);
         window.autoCalculate();
-        
         gpsStartCoords = null;
         document.getElementById('btn-start-gps').style.display = 'block';
         document.getElementById('btn-stop-gps').style.display = 'none';
@@ -553,7 +448,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     );
   };
 
-  // --- AUTHENTICATION ---
   window.toggleAuthMode = () => {
     authMode = authMode === 'login' ? 'signup' : 'login';
     document.getElementById('auth-title').textContent = authMode === 'login' ? 'Officer Login' : 'Create New Account';
@@ -566,7 +460,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     const e = document.getElementById('login-email').value;
     const p = document.getElementById('login-password').value;
     if(!e || !p) return window.showToast("Please enter email and password.");
-    
     try {
       if(authMode === 'login') {
         await signInWithEmailAndPassword(auth, e, p);
@@ -575,17 +468,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
         const name = document.getElementById('auth-name').value;
         const desig = document.getElementById('auth-designation').value;
         const mob = document.getElementById('auth-mobile').value;
-
         if(!name || !desig || !mob) return window.showToast("Please fill all signup fields.");
         const userCred = await createUserWithEmailAndPassword(auth, e, p);
-        
-        await setDoc(doc(db, "profiles", userCred.user.uid), { 
-            email: e, name: name, designation: desig, mobile: mob, status: 'pending', role: 'officer', premium: false 
-        });
-
-        await setDoc(doc(db, "settings", userCred.user.uid), {
-           name: name, designation: desig, address: "", payLevel: "6", daRate: 500, fareRate: 12
-        });
+        await setDoc(doc(db, "profiles", userCred.user.uid), { email: e, name: name, designation: desig, mobile: mob, status: 'pending', role: 'officer', premium: false });
+        await setDoc(doc(db, "settings", userCred.user.uid), { name: name, designation: desig, address: "", payLevel: "6", daRate: 500, fareRate: 12 });
         window.showToast("Account created! Awaiting admin approval.");
       }
     } catch(err) { window.showToast(err.message.replace('Firebase: ', '')); }
@@ -597,18 +483,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     setTimeout(() => { window.location.reload(); }, 800);
   };
 
-  // --- CORE SYSTEM LOAD ---
   onAuthStateChanged(auth, async (user) => {
     if (user) {
       currentUser = user;
-      
       const priceSnap = await getDoc(doc(db, "app_config", "pricing"));
       if(priceSnap.exists()) cachedPlanPrice = priceSnap.data().yearly_rate || 199;
 
       const profileSnap = await getDoc(doc(db, "profiles", user.uid));
       let status = 'approved'; 
-      isAdminUser = false;
-      isPremiumUser = false;
+      isAdminUser = false; isPremiumUser = false;
       
       if (profileSnap.exists()) {
          status = profileSnap.data().status;
@@ -634,27 +517,19 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
          document.getElementById('premium-content').style.display = isPremiumUser ? 'block' : 'none';
          document.getElementById('btn-tr25-print').style.display = isPremiumUser ? 'block' : 'none';
 
-         if (isPremiumUser) {
-            try { (adsbygoogle = window.adsbygoogle || []).pauseAdRequests = 1; } catch(e){}
-         }
+         if (isPremiumUser) { try { (adsbygoogle = window.adsbygoogle || []).pauseAdRequests = 1; } catch(e){} }
 
          window.loadSettings().then(() => {
            window.fetchEntries();
            if(isPremiumUser) window.fetchAlerts(); 
-           
-           if(!isPremiumUser && !isAdminUser) {
-              setTimeout(() => { window.showPlanModal(); }, 1200);
-           }
            window.switchTab('add');
          });
       }
     } else {
-      currentUser = null;
-      window.switchTab('login');
+      currentUser = null; window.switchTab('login');
     }
   });
 
-  // --- ADMIN SETTING ---
   window.saveGlobalPrice = async () => {
      if(!isAdminUser) return;
      const newPrice = Number(document.getElementById('admin-plan-price').value) || 199;
@@ -662,21 +537,19 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
        await setDoc(doc(db, "app_config", "pricing"), { yearly_rate: newPrice });
        cachedPlanPrice = newPrice;
        window.showToast(`✅ Global pricing saved as ₹${newPrice}/Yearly`);
-     } catch(e) { window.showToast("Error updating price configuration database."); }
+     } catch(e) { window.showToast("Error updating price."); }
   };
 
   window.loadAdminUsers = async () => {
     if(!isAdminUser) return;
     const el = document.getElementById('admin-content');
     el.innerHTML = '<p style="text-align:center; color:var(--text3); font-size:13px;">Loading users...</p>';
-    
     const priceSnap = await getDoc(doc(db, "app_config", "pricing"));
     if(priceSnap.exists()) document.getElementById('admin-plan-price').value = priceSnap.data().yearly_rate;
 
     try {
       const snapshot = await getDocs(collection(db, "profiles"));
       if(snapshot.empty) { el.innerHTML = '<p>No users found.</p>'; return; }
-      
       let html = '';
       snapshot.docs.forEach(doc => {
         const d = doc.data();
@@ -684,22 +557,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
         html += `<div class="pending-user-card">
           <div>
             <div class="pending-email" style="display:block;"><b>👤 ${d.name || 'N/A'}</b> ${d.premium ? '<span style="color:var(--premium);font-size:12px;float:right; font-weight:700;">★ Premium</span>' : ''}</div>
-            <div style="font-size:11px; color:var(--text2); margin-top:6px;">
-               ${d.designation ? `💼 ${d.designation} <br>` : ''}
-               ${d.mobile ? `📱 ${d.mobile} <br>` : ''}
-               ✉️ ${d.email}
-            </div>
+            <div style="font-size:11px; color:var(--text2); margin-top:6px;">${d.designation ? `💼 ${d.designation} <br>` : ''}${d.mobile ? `📱 ${d.mobile} <br>` : ''}✉️ ${d.email}</div>
           </div>
           <div class="admin-actions" style="margin-top:8px;">`;
-            
         if(d.status === 'pending') {
             html += `<button class="btn btn-primary btn-sm" onclick="window.updateUser('${doc.id}', 'status', 'approved')">Approve Access</button>`;
         } else {
-            if(!d.premium) {
-                html += `<button class="btn btn-premium btn-sm" onclick="window.updateUser('${doc.id}', 'premium', true)">Grant Premium</button>`;
-            } else {
-                html += `<button class="btn btn-warning btn-sm" onclick="window.updateUser('${doc.id}', 'premium', false)">Revoke Premium</button>`;
-            }
+            if(!d.premium) html += `<button class="btn btn-premium btn-sm" onclick="window.updateUser('${doc.id}', 'premium', true)">Grant Premium</button>`;
+            else html += `<button class="btn btn-warning btn-sm" onclick="window.updateUser('${doc.id}', 'premium', false)">Revoke Premium</button>`;
         }
         html += `</div></div>`;
       });
@@ -711,20 +576,17 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     if(!isAdminUser) return;
     try {
       await updateDoc(doc(db, "profiles", uid), { [field]: value });
-      window.showToast(`✅ User status updated!`);
-      window.loadAdminUsers(); 
+      window.showToast(`✅ User status updated!`); window.loadAdminUsers(); 
     } catch(e) { window.showToast('❌ Error processing request.'); }
   };
 
-  // --- PREMIUM ALERTS LOGIC ---
   window.fetchAlerts = async () => {
     if(!currentUser || !isPremiumUser) return;
     try {
       const q = query(collection(db, "alerts"), where("uid", "==", currentUser.uid));
       const snapshot = await getDocs(q);
       userAlerts = snapshot.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => new Date(a.date) - new Date(b.date));
-      window.renderAlerts();
-      window.checkUpcomingAlerts();
+      window.renderAlerts(); window.checkUpcomingAlerts();
     } catch(e) { console.error(e); }
   };
 
@@ -775,7 +637,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     }
   };
 
-  // --- TOUR DIARY PROFILE & CLAIM MATH ---
   window.loadSettings = async () => {
     if(!currentUser) return;
     try {
@@ -807,8 +668,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     try {
       await setDoc(doc(db, "settings", currentUser.uid), s);
       globalSettings = s;
-      window.showToast('Profile Saved!');
-      window.loadSettings();
+      window.showToast('Profile Saved!'); window.loadSettings();
     } catch(e) { window.showToast('Error syncing cloud.'); }
   };
 
@@ -822,16 +682,38 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
          if (a.date === b.date) return (a.depTime || "").localeCompare(b.depTime || "");
          return (a.date || "").localeCompare(b.date || "");
       });
-      window.renderRecords();
-      window.renderSummary();
+      
+      // Update Free Trial counter and Smart Popup Logic
+      if (!isPremiumUser && !isAdminUser) {
+          const uniqueDays = new Set(tourEntries.map(e => e.date)).size;
+          const counterEl = document.getElementById('trial-counter');
+          
+          if (uniqueDays >= 31) {
+              counterEl.innerHTML = `<span style="color:var(--danger); font-weight:700;">Free Trial Expired (31/31 Days). Please Upgrade.</span>`;
+          } else {
+              counterEl.innerHTML = `Free Trial: <b>${uniqueDays} / 31</b> Journey Days Logged`;
+          }
+
+          // SMART POPUP: Only show if they have used 28 days or more
+          if (uniqueDays >= 28) {
+              const statusText = uniqueDays >= 31 ? "TRIAL EXPIRED." : "RENEW NOW.";
+              document.getElementById('modal-trial-text').innerHTML = `<strong style="color:var(--danger); font-size:15px;">${uniqueDays}/31 DAYS FREE USED. ${statusText}</strong><br><br>Unlock the Premium Plan to continue logging your journeys and gain access to official T.R. 25 Auto-Printing.`;
+              
+              // Trigger the popup 1.2 seconds after fetch completes (which is after login)
+              setTimeout(() => { window.showPlanModal(); }, 1200);
+          }
+      } else {
+          document.getElementById('trial-counter').style.display = 'none';
+      }
+
+      window.renderRecords(); window.renderSummary();
     } catch(e) { console.error(e); }
   };
 
   window.deleteEntry = async (id) => {
     if(confirm('Delete this record?')) {
       await deleteDoc(doc(db, "entries", id));
-      window.fetchEntries();
-      window.showToast('Deleted');
+      window.fetchEntries(); window.showToast('Deleted');
     }
   };
 
@@ -853,12 +735,20 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     
     if(!depDate || !dest) return window.showToast('Fill departure date and destination');
 
+    // ENFORCE 31-DAY FREE TRIAL LIMIT BLOCKER FOR NEW OUTWARD JOURNEYS
+    if (!isReturnMode && !editingId && !isPremiumUser && !isAdminUser) {
+        const uniqueDays = new Set(tourEntries.map(e => e.date)).size;
+        if (uniqueDays >= 31) {
+            window.showPlanModal();
+            return window.showToast("⚠️ Trial Expired: 31 Days Limit Reached!");
+        }
+    }
+
     if (!isReturnMode && !editingId) {
        const isDuplicate = tourEntries.some(e => e.date === depDate && e.depTime === depTime);
        if (isDuplicate) return window.showToast("⚠️ Duplicate blocked: Entry already exists.");
     }
 
-    // Determine purpose context based on return mode flag status
     const loggedPurpose = isReturnMode ? "Return Journey" : document.getElementById('purpose').value.trim();
 
     const entryData = {
@@ -878,18 +768,41 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     }
 
     if(!isReturnMode) {
+      
+      // Calculate Outward Duration for Intelligent Mirroring
+      const depD = new Date(`${entryData.date}T${entryData.depTime}`);
+      const arrD = new Date(`${entryData.arrDate}T${entryData.arrTime}`);
+      const durationMs = arrD - depD;
+      
       outwardData = entryData; isReturnMode = true;
-      document.getElementById('from').value = dest;
-      document.getElementById('destination').value = 'Headquarter';
-      document.getElementById('dep-date').value = arrDate; document.getElementById('arr-date').value = arrDate;
+      
+      // Mirror the locations
+      document.getElementById('from').value = entryData.destination;
+      document.getElementById('destination').value = entryData.from;
+      
+      // Pre-fill Departure to exactly when Outward Arrived
+      document.getElementById('dep-date').value = entryData.arrDate; 
       document.getElementById('dep-time').value = entryData.arrTime;
-      document.getElementById('distance').value = ''; document.getElementById('da').value = ''; document.getElementById('fare').value = '';
       
-      // Hide the purpose field container since return journey doesn't capture it
+      // Auto-calculate exact mirrored arrival time 
+      if(durationMs > 0) {
+          const returnDepD = new Date(`${entryData.arrDate}T${entryData.arrTime}`);
+          const returnArrD = new Date(returnDepD.getTime() + durationMs);
+          const pad = (n) => n.toString().padStart(2, '0');
+          document.getElementById('arr-date').value = returnArrD.toISOString().split('T')[0];
+          document.getElementById('arr-time').value = `${pad(returnArrD.getHours())}:${pad(returnArrD.getMinutes())}`;
+      } else {
+          document.getElementById('arr-date').value = entryData.arrDate;
+      }
+      
+      // Auto-fill exactly matched distance and recalculate
+      document.getElementById('distance').value = entryData.distance; 
+      window.autoCalculate(); 
+      document.getElementById('da').value = '';
+      
       document.getElementById('purpose-container').style.display = 'none';
-      
       document.querySelector('#screen-add .btn-primary').textContent = "Save Return & Calc DA";
-      window.showToast('Outward saved. Enter return journey.');
+      window.showToast('Outward saved! Return Journey data automatically pre-filled.');
     } else {
       const totalDist = outwardData.distance + entryData.distance;
       const start = new Date(`${outwardData.date}T${outwardData.depTime}`);
@@ -914,10 +827,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
         document.querySelector('#screen-add .btn-primary').textContent = "Save & Continue";
         ['distance','purpose','destination'].forEach(id => document.getElementById(id).value = '');
         document.getElementById('from').value = 'Headquarter';
-        
-        // Restore visibility of purpose container for next fresh entry log
         document.getElementById('purpose-container').style.display = 'flex';
-        
         window.fetchEntries();
       } catch(e) { window.showToast('Database error'); }
     }
@@ -962,7 +872,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     await navigator.clipboard.writeText(text); window.showToast('Copied to clipboard!');
   };
 
-  // --- TR-25 OFFICIAL LAYOUT POPULATION PRINT LOGIC ---
   window.printTR25 = () => {
      if(!isPremiumUser) return;
      const filtered = window.getFilteredSummaryList();
@@ -987,11 +896,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
           <td style="text-align:left;">${e.purpose || 'Official Duty'}</td>
         </tr>
      `).join('');
-     
      window.print(); 
   };
 
-  // --- RENDERING, SEARCH & EXPORTS ---
   window.renderRecords = () => {
     const el = document.getElementById('records-content');
     if(!tourEntries.length) return el.innerHTML = '<p style="text-align:center; padding: 20px;">No records yet.</p>';
@@ -1081,7 +988,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     await navigator.clipboard.writeText(text); window.showToast('Summary copied to clipboard!');
   };
 
-  // Init default timelines
   const todayDate = new Date().toISOString().split('T')[0];
   const firstDay = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
   document.getElementById('dep-date').value = todayDate;
