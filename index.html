@@ -77,7 +77,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .alert-title { font-weight: 700; font-size: 14px; color: var(--danger); margin-bottom: 4px; }
 .alert-time { font-size: 12px; color: var(--text2); }
 
-/* TR-25 Printing Framework Layout Styles */
+/* TR-25 Printing */
 #tr25-print-section { display: none; background: white; color: black; padding: 30px; font-family: 'Times New Roman', serif; }
 #tr25-print-section table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 12px; }
 #tr25-print-section th, #tr25-print-section td { border: 1px solid black; padding: 6px; text-align: center; }
@@ -494,9 +494,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       isAdminUser = false; isPremiumUser = false;
       
       if (profileSnap.exists()) {
-         status = profileSnap.data().status;
-         isAdminUser = profileSnap.data().role === 'admin';
-         isPremiumUser = profileSnap.data().premium === true;
+         const pData = profileSnap.data();
+         status = pData.status || 'approved';
+         
+         // Bulletproof Checks: Handles boolean, string "true", and integer 1
+         isAdminUser = (pData.role === 'admin' || String(pData.role).toLowerCase() === 'superadmin');
+         isPremiumUser = (pData.premium === true || String(pData.premium).toLowerCase() === 'true' || pData.premium === 1);
       }
 
       if (status === 'pending') {
@@ -554,16 +557,21 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       snapshot.docs.forEach(doc => {
         const d = doc.data();
         if(doc.id === currentUser.uid) return; 
+        
+        // Bulletproof check for admin panel rendering
+        const isUserPremium = (d.premium === true || String(d.premium).toLowerCase() === 'true' || d.premium === 1);
+        
         html += `<div class="pending-user-card">
           <div>
-            <div class="pending-email" style="display:block;"><b>👤 ${d.name || 'N/A'}</b> ${d.premium ? '<span style="color:var(--premium);font-size:12px;float:right; font-weight:700;">★ Premium</span>' : ''}</div>
+            <div class="pending-email" style="display:block;"><b>👤 ${d.name || 'N/A'}</b> ${isUserPremium ? '<span style="color:var(--premium);font-size:12px;float:right; font-weight:700;">★ Premium</span>' : ''}</div>
             <div style="font-size:11px; color:var(--text2); margin-top:6px;">${d.designation ? `💼 ${d.designation} <br>` : ''}${d.mobile ? `📱 ${d.mobile} <br>` : ''}✉️ ${d.email}</div>
           </div>
           <div class="admin-actions" style="margin-top:8px;">`;
+          
         if(d.status === 'pending') {
             html += `<button class="btn btn-primary btn-sm" onclick="window.updateUser('${doc.id}', 'status', 'approved')">Approve Access</button>`;
         } else {
-            if(!d.premium) html += `<button class="btn btn-premium btn-sm" onclick="window.updateUser('${doc.id}', 'premium', true)">Grant Premium</button>`;
+            if(!isUserPremium) html += `<button class="btn btn-premium btn-sm" onclick="window.updateUser('${doc.id}', 'premium', true)">Grant Premium</button>`;
             else html += `<button class="btn btn-warning btn-sm" onclick="window.updateUser('${doc.id}', 'premium', false)">Revoke Premium</button>`;
         }
         html += `</div></div>`;
@@ -699,7 +707,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
               const statusText = uniqueDays >= 31 ? "TRIAL EXPIRED." : "RENEW NOW.";
               document.getElementById('modal-trial-text').innerHTML = `<strong style="color:var(--danger); font-size:15px;">${uniqueDays}/31 DAYS FREE USED. ${statusText}</strong><br><br>Unlock the Premium Plan to continue logging your journeys and gain access to official T.R. 25 Auto-Printing.`;
               
-              // Trigger the popup 1.2 seconds after fetch completes (which is after login)
               setTimeout(() => { window.showPlanModal(); }, 1200);
           }
       } else {
@@ -769,22 +776,17 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 
     if(!isReturnMode) {
       
-      // Calculate Outward Duration for Intelligent Mirroring
       const depD = new Date(`${entryData.date}T${entryData.depTime}`);
       const arrD = new Date(`${entryData.arrDate}T${entryData.arrTime}`);
       const durationMs = arrD - depD;
       
       outwardData = entryData; isReturnMode = true;
       
-      // Mirror the locations
       document.getElementById('from').value = entryData.destination;
       document.getElementById('destination').value = entryData.from;
-      
-      // Pre-fill Departure to exactly when Outward Arrived
       document.getElementById('dep-date').value = entryData.arrDate; 
       document.getElementById('dep-time').value = entryData.arrTime;
       
-      // Auto-calculate exact mirrored arrival time 
       if(durationMs > 0) {
           const returnDepD = new Date(`${entryData.arrDate}T${entryData.arrTime}`);
           const returnArrD = new Date(returnDepD.getTime() + durationMs);
@@ -795,7 +797,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
           document.getElementById('arr-date').value = entryData.arrDate;
       }
       
-      // Auto-fill exactly matched distance and recalculate
       document.getElementById('distance').value = entryData.distance; 
       window.autoCalculate(); 
       document.getElementById('da').value = '';
