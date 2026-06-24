@@ -12,6 +12,7 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 <style>
 :root { --blue: #1565C0; --blue-light: #1E88E5; --blue-dark: #0D47A1; --blue-bg: #E3F2FD; --surface: #FFFFFF; --bg: #F5F7FA; --border: #E0E0E0; --text: #1A1A2E; --text2: #5C6B7A; --text3: #9AA5B1; --success: #2E7D32; --success-bg: #E8F5E9; --danger: #C62828; --danger-bg: #FFEBEE; --premium: #FFD700; --radius: 12px; --radius-sm: 8px; --shadow: 0 1px 4px rgba(0,0,0,0.10); }
@@ -139,6 +140,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     <div class="card">
       <div class="card-title">User Management (Superadmin)</div>
       <div id="admin-content"><p style="text-align:center; color: var(--text3); font-size: 13px;">Loading users...</p></div>
+    </div>
+    
+    <div class="card" style="margin-top: 20px;">
+      <div class="card-title">User Messages & Feedback</div>
+      <div id="admin-messages-content">
+          <p style="text-align:center; color: var(--text3); font-size: 13px;">Loading messages...</p>
+      </div>
     </div>
   </div>
 
@@ -318,6 +326,9 @@ onclick="window.shareText()">
       <div class="field" style="margin-bottom:10px">
         <textarea id="feedback-text" placeholder="Type your message, issue, or feature request here..."></textarea>
       </div>
+      <div class="field" style="margin-bottom:10px">
+        <input type="file" id="feedback-file" accept="image/*,.pdf" style="font-size: 12px;">
+      </div>
       <button class="btn" style="background: var(--text); color: #fff;" onclick="window.sendFeedback()">📤 Send Message</button>
     </div>
   </div>
@@ -363,7 +374,7 @@ Premium officers enjoy the following exclusive features:
        <small style="color: var(--text3);">No hidden advertisements • Cancel anytime</small>
     </div>
     <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px;">
-       <a id="btn-pay-upi" href="#" class="btn btn-premium" style="text-decoration: none; display: block; line-height: 20px; background: #2E7D32; color: white;">📱 Pay Instantly via GooglePay/PhonePe</a>
+       <button id="btn-pay-upi" class="btn btn-premium" style="line-height: 20px; background: #2E7D32; color: white; border: none; padding: 15px;" onclick="window.initiatePayment()">📱 Pay Securely via Razorpay</button>
     </div>
     <p style="font-size: 11px; color: var(--text3); margin-bottom: 15px;">After successful payment, please drop a message/screenshot to your Superadmin for instant activation.</p>
     <button class="btn" style="background: #eceff1; color: #37474f;" onclick="document.getElementById('plan-modal').style.display='none'">Close Window</button>
@@ -568,6 +579,8 @@ Premium officers enjoy the following exclusive features:
   import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
   import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, setDoc, getDoc, updateDoc, query, where } 
     from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+  // Added Storage imports
+  import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyB91XxgwSK7WSa2d8iwt3G5mMBwHyEk0YA",
@@ -581,6 +594,7 @@ Premium officers enjoy the following exclusive features:
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
+  const storage = getStorage(app); // Initialized storage
 
   let currentUser = null;
   let isAdminUser = false;
@@ -617,16 +631,37 @@ Premium officers enjoy the following exclusive features:
     const navBtn = document.getElementById('nav-' + tab);
     if(navBtn) navBtn.classList.add('active');
     if (tab === 'summary') window.renderSummary();
-    if (tab === 'admin') window.loadAdminUsers();
+    if (tab === 'admin') { 
+        window.loadAdminUsers();
+        window.loadAdminMessages(); // Load messages when admin tab is opened
+    }
   };
 
+  // Updated Payment Modal Logic
   window.showPlanModal = () => {
      document.getElementById('modal-plan-price').textContent = `₹${cachedPlanPrice} / Yearly`;
-     const merchantUPI = "YOUR_UPI_ID_HERE@okaxis"; 
-     const merchantName = encodeURIComponent("Tour Diary Premium"); 
-     const upiIntentString = `upi://pay?pa=${merchantUPI}&pn=${merchantName}&am=${cachedPlanPrice}&cu=INR&tn=TourDiary_Premium`;
-     document.getElementById('btn-pay-upi').href = upiIntentString;
      document.getElementById('plan-modal').style.display = 'flex';
+  };
+
+  // New Razorpay Integration Function
+  window.initiatePayment = async () => {
+      var options = {
+          "key": "YOUR_RAZORPAY_KEY_ID", // Replace with your actual Razorpay Key ID
+          "amount": (cachedPlanPrice * 100).toString(), // Amount in paise
+          "currency": "INR",
+          "name": "Tour Diary Premium",
+          "description": "Annual Subscription",
+          "handler": function (response){
+              window.showToast("Payment processing! Please wait a moment for premium activation.");
+          },
+          "prefill": {
+              "name": globalSettings.name,
+              "email": currentUser.email
+          },
+          "theme": { "color": "#1565C0" }
+      };
+      var rzp1 = new Razorpay(options);
+      rzp1.open();
   };
 
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
@@ -811,6 +846,54 @@ Premium officers enjoy the following exclusive features:
     } catch(e) { el.innerHTML = '<p style="text-align:center; color:var(--danger);">Error loading users.</p>'; }
   };
 
+  // New Admin Function to Load Feedback Messages
+  window.loadAdminMessages = async () => {
+      if(!isAdminUser) return;
+      const el = document.getElementById('admin-messages-content');
+      
+      try {
+          const snapshot = await getDocs(collection(db, "feedback"));
+          if(snapshot.empty) { el.innerHTML = '<p style="text-align:center; color:var(--text3); font-size:13px;">No messages found.</p>'; return; }
+          
+          let html = '';
+          const docs = snapshot.docs.map(doc => ({id: doc.id, ...doc.data()})).sort((a,b) => b.timestamp - a.timestamp);
+          
+          docs.forEach(d => {
+              const dateStr = new Date(d.timestamp).toLocaleString();
+              html += `<div class="pending-user-card" style="background: var(--bg);">
+                <div style="font-size:12px; color:var(--text2);"><b>${d.name}</b> (${d.email}) - ${dateStr}</div>
+                <div style="font-size:14px; margin: 8px 0;">${d.message}</div>
+                ${d.attachmentUrl ? `<a href="${d.attachmentUrl}" target="_blank" style="font-size:12px; color:var(--blue);">📎 View Attachment</a>` : ''}
+                
+                <div style="margin-top: 10px; border-top: 1px solid var(--border); padding-top: 8px;">
+                   ${d.adminReply ? 
+                     `<div style="font-size:13px; color:var(--success);"><b>Your Reply:</b> ${d.adminReply}</div>` : 
+                     `<div style="display:flex; gap:5px;">
+                        <input type="text" id="reply-${d.id}" placeholder="Type reply..." style="flex:1; padding: 6px; font-size: 12px; border: 1px solid var(--border); border-radius: 4px;">
+                        <button class="btn btn-primary btn-sm" onclick="window.sendAdminReply('${d.id}')">Reply</button>
+                      </div>`
+                   }
+                </div>
+              </div>`;
+          });
+          el.innerHTML = html;
+      } catch(e) { el.innerHTML = '<p style="color:var(--danger); text-align:center;">Error loading messages.</p>'; }
+  };
+
+  // New Admin Function to Send Reply
+  window.sendAdminReply = async (docId) => {
+      const replyText = document.getElementById(`reply-${docId}`).value;
+      if(!replyText) return window.showToast("Please type a reply.");
+      
+      try {
+          await updateDoc(doc(db, "feedback", docId), { adminReply: replyText });
+          window.showToast("✅ Reply sent!");
+          window.loadAdminMessages(); 
+      } catch(e) {
+          window.showToast("Error sending reply.");
+      }
+  };
+
   window.updateUser = async (uid, field, value) => {
     if(!isAdminUser) return;
     try {
@@ -915,17 +998,41 @@ Premium officers enjoy the following exclusive features:
     } catch(e) { window.showToast('Error syncing cloud.'); }
   };
   
+  // Updated sendFeedback with File Upload Support
   window.sendFeedback = async () => {
-    const msg = document.getElementById('feedback-text').value.trim();
-    if(!msg) return window.showToast("Please write a message first.");
-    if(!currentUser) return;
-    try {
-      await addDoc(collection(db, "feedback"), {
-        uid: currentUser.uid, email: currentUser.email, name: globalSettings.name || "Unknown Officer", message: msg, timestamp: Date.now()
-      });
-      document.getElementById('feedback-text').value = '';
-      window.showToast("✅ Message successfully sent to developer!");
-    } catch(e) { window.showToast("❌ Error sending message. Please try again."); }
+      const msg = document.getElementById('feedback-text').value.trim();
+      const fileInput = document.getElementById('feedback-file').files[0];
+      
+      if(!msg && !fileInput) return window.showToast("Please write a message or attach a file.");
+      if(!currentUser) return;
+
+      window.showToast("Sending message...");
+      let fileUrl = "";
+
+      try {
+          if (fileInput) {
+              const storageRef = ref(storage, `feedback_files/${Date.now()}_${fileInput.name}`);
+              const uploadTask = await uploadBytesResumable(storageRef, fileInput);
+              fileUrl = await getDownloadURL(storageRef);
+          }
+
+          await addDoc(collection(db, "feedback"), {
+              uid: currentUser.uid, 
+              email: currentUser.email, 
+              name: globalSettings.name || "Unknown Officer", 
+              message: msg, 
+              attachmentUrl: fileUrl,
+              timestamp: Date.now(),
+              adminReply: "" 
+          });
+          
+          document.getElementById('feedback-text').value = '';
+          document.getElementById('feedback-file').value = '';
+          window.showToast("✅ Message successfully sent!");
+      } catch(e) { 
+          window.showToast("❌ Error sending message. Please try again."); 
+          console.error(e);
+      }
   };
 
   window.fetchEntries = async () => {
