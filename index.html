@@ -11,7 +11,6 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 
-<!-- GOOGLE ADSENSE CODE PLACEHOLDER -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
 
 <style>
@@ -79,13 +78,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .alert-time { font-size: 12px; color: var(--text2); }
 
 /* TR-25 Printing Framework Layout Styles */
-#tr25-print-section { display: none; background: white; color: black; padding: 20px; font-family: 'Times New Roman', serif; }
-.print-table { width: 100%; border-collapse: collapse; margin-top: 5px; font-size: 11px; margin-bottom: 15px; }
-.print-table th, .print-table td { border: 1px solid black; padding: 4px; text-align: left; vertical-align: top; }
-.print-table th { text-align: center; font-weight: bold; }
+#tr25-print-section { display: none; background: white; color: black; padding: 0; font-family: 'Times New Roman', serif; }
+.print-table { width: 100%; border-collapse: collapse; margin-top: 5px; font-size: 10px; margin-bottom: 15px; }
+.print-table th, .print-table td { border: 1px solid black; padding: 4px; text-align: left; vertical-align: top; word-wrap: break-word; }
+.print-table th { text-align: center; font-weight: bold; background: #fafafa; }
 .tr25-title { text-align: center; font-weight: bold; font-size: 14px; margin-bottom: 15px; text-transform: uppercase;}
 .tr25-section-title { font-weight: bold; margin-top: 15px; font-size: 12px;}
+
 @media print {
+  @page { margin: 8mm; size: auto; } /* Reduces physical page margins to fit wide tables */
   body * { display: none !important; }
   #tr25-print-section, #tr25-print-section * { display: block !important; }
   #tr25-print-section table, #tr25-print-section th, #tr25-print-section td { display: table !important; }
@@ -107,7 +108,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 </div>
 
 <div class="main">
-  <!-- LOGIN / SIGNUP SCREEN -->
   <div class="screen active" id="screen-login">
     <div class="card" id="login-card">
       <div class="card-title" id="auth-title">Officer Login</div>
@@ -128,7 +128,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     </div>
   </div>
 
-  <!-- ADMIN DASHBOARD SCREEN -->
   <div class="screen" id="screen-admin">
     <div class="card">
       <div class="card-title">Global Plan Pricing Configuration</div>
@@ -143,7 +142,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     </div>
   </div>
 
-  <!-- ADD ENTRY SCREEN (MULTI-LEG UPGRADE) -->
   <div class="screen" id="screen-add">
     <div id="pending-legs-info" style="display:none; padding: 12px; background: var(--blue-bg); border: 1px solid var(--blue-light); border-radius: var(--radius-sm); margin-bottom: 12px; font-size: 13px; color: var(--blue-dark);">
       <strong>🚀 Tour Active:</strong> <span id="pending-legs-count">0</span> legs currently logged. Add your next destination below, or close the tour if you have returned.
@@ -173,13 +171,22 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
               <button type="button" id="btn-stop-gps" onclick="window.stopGPS()" style="background:var(--danger-bg); color:var(--danger); border:1px solid var(--danger); border-radius:4px; font-size:9px; padding:2px 6px; cursor:pointer; font-weight:700; display:none;">🛑 STOP & CALC</button>
             </div>
           </label>
-          <input type="number" id="distance" placeholder="0" min="0" oninput="window.autoCalculate()">
+          <input type="number" id="distance" placeholder="0" min="0" oninput="window.autoCalculate(false)">
         </div>
-        <div class="field"><label>Mode</label><select id="mode"><option>Car</option><option>Bus</option><option>Train</option><option>Two-wheeler</option></select></div>
+        <div class="field">
+          <label>Mode</label>
+          <select id="mode" onchange="window.autoCalculate(true)">
+            <option>Car</option>
+            <option>Two-wheeler</option>
+            <option>Bus</option>
+            <option>Train</option>
+            <option>By Air</option>
+          </select>
+        </div>
       </div>
       <div class="row">
-        <div class="field"><label>Fare (₹)</label><input type="number" id="fare" placeholder="0" readonly></div>
-        <div class="field"><label>DA (₹)</label><input type="number" id="da" placeholder="0" readonly></div>
+        <div class="field"><label>Fare (₹)</label><input type="number" id="fare" placeholder="0" readonly style="background: var(--bg);"></div>
+        <div class="field"><label>DA (₹)</label><input type="number" id="da" placeholder="0" readonly style="background: var(--bg);"></div>
       </div>
       <div class="field" style="margin-top:10px" id="purpose-container">
         <label>Purpose of Journey</label>
@@ -187,7 +194,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       </div>
     </div>
 
-    <!-- HOTEL STAY CARD -->
     <div class="card" id="hotel-container">
       <div class="card-title">Hotel & Lodging (Optional)</div>
       <div class="field" style="margin-bottom:10px">
@@ -215,12 +221,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     <button class="btn btn-warning" id="btn-cancel-edit" onclick="window.cancelEdit()" style="display:none;">Cancel / Reset Tour</button>
   </div>
 
-  <!-- RECORDS SCREEN -->
   <div class="screen" id="screen-records">
     <div id="records-content">Loading...</div>
   </div>
 
-  <!-- REPORTS SCREEN -->
   <div class="screen" id="screen-summary">
     <div class="card">
       <div class="card-title">Filter & Search</div>
@@ -253,7 +257,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     <button class="export-btn" onclick="window.shareText()">📤 Share Summary</button>
   </div>
 
-  <!-- ALERTS SCREEN (PREMIUM) -->
   <div class="screen" id="screen-alerts">
     <div id="premium-lock" style="display: none; text-align: center; padding: 40px 20px;">
       <div style="font-size: 50px; margin-bottom: 15px;">🔒</div>
@@ -277,7 +280,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     </div>
   </div>
 
-  <!-- SETTINGS SCREEN -->
   <div class="screen" id="screen-settings">
     <div class="card">
       <div class="card-title">Profile & Rules</div>
@@ -297,7 +299,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
         </div>
         <div class="field"><label>DA Rate (₹)</label><input type="number" id="set-da"></div>
       </div>
-      <div class="field" style="margin-top:10px"><label>Fare Rate / km (₹)</label><input type="number" id="set-fare"></div>
+      <div class="field" style="margin-top:10px"><label>Fare rate of Car/Bike (₹)</label><input type="number" id="set-fare"></div>
       <button class="btn btn-primary" style="margin-top: 15px;" onclick="window.saveSettings()">Save Profile</button>
     </div>
     
@@ -321,7 +323,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   <button class="nav-item" onclick="window.switchTab('admin')" id="nav-admin" style="display:none;"><div class="nav-icon">🛡️</div>Admin</button>
 </nav>
 
-<!-- MODALS -->
 <div class="modal-overlay" id="notification-modal">
   <div class="modal-content">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
@@ -334,7 +335,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   </div>
 </div>
 
-<!-- Premium Commercial Upgrade Plan Modal -->
 <div class="modal-overlay" id="plan-modal">
   <div class="modal-content" style="text-align: center; padding: 25px;">
     <div style="font-size: 40px; margin-bottom: 10px;">⭐</div>
@@ -353,7 +353,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   </div>
 </div>
 
-<!-- TR-25 PRINT SECTION -->
 <div id="tr25-print-section">
   <div style="text-align:center; font-weight:bold; font-size:16px;">FORM T.R. 25</div>
   <div style="text-align:center; font-weight:bold; font-size:12px;">GAR 14-A (Sub Bill)<br>Tour<br>Sub - bill No. .......................</div>
@@ -547,7 +546,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 
 <div class="toast" id="toast"></div>
 
-<!-- FIREBASE MODULAR SDK INTEGRATION -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -647,7 +645,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
         let dist = calculateDistance(gpsStartCoords.lat, gpsStartCoords.lon, endCoords.lat, endCoords.lon);
         dist = dist * 1.20; 
         document.getElementById('distance').value = Math.round(dist);
-        window.autoCalculate();
+        window.autoCalculate(false);
         gpsStartCoords = null;
         document.getElementById('btn-start-gps').style.display = 'block';
         document.getElementById('btn-stop-gps').style.display = 'none';
@@ -728,7 +726,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
          document.getElementById('premium-content').style.display = isPremiumUser ? 'block' : 'none';
          
          document.getElementById('premium-export-container').style.display = isPremiumUser ? 'block' : 'none';
-         document.getElementById('btn-tr25-print').style.display = isPremiumUser ? 'block' : 'none';
 
          if (isPremiumUser) { try { (adsbygoogle = window.adsbygoogle || []).pauseAdRequests = 1; } catch(e){} }
 
@@ -948,9 +945,22 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     document.getElementById('set-da').value = CPC_DA_RATES[lvl] || 500;
   };
 
-  window.autoCalculate = () => {
+  window.autoCalculate = (fromModeChange = false) => {
     const dist = Number(document.getElementById('distance').value) || 0;
-    document.getElementById('fare').value = Math.round(dist * globalSettings.fareRate);
+    const mode = document.getElementById('mode').value;
+    const fareInput = document.getElementById('fare');
+    
+    if (mode === 'Car' || mode === 'Two-wheeler') {
+        fareInput.readOnly = true;
+        fareInput.style.background = 'var(--bg)';
+        fareInput.value = Math.round(dist * globalSettings.fareRate);
+    } else {
+        fareInput.readOnly = false;
+        fareInput.style.background = '#fff';
+        if (fromModeChange === true) {
+            fareInput.value = ''; // Clear automatically calculated fare if user switches to public transport
+        }
+    }
   };
   
   window.calcHotel = () => {
@@ -1019,7 +1029,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       document.getElementById('from').value = dest; document.getElementById('destination').value = '';
       document.getElementById('dep-date').value = arrDate; document.getElementById('dep-time').value = entryData.arrTime;
       
-      ['distance','fare','purpose','hotel-name','hotel-from','hotel-to','hotel-rate','hotel-total'].forEach(id => document.getElementById(id).value = '');
+      ['distance','purpose','hotel-name','hotel-from','hotel-to','hotel-rate','hotel-total'].forEach(id => document.getElementById(id).value = '');
+      
+      // Clear manual fare when adding next leg just in case
+      if(document.getElementById('mode').value !== 'Car' && document.getElementById('mode').value !== 'Two-wheeler') {
+          document.getElementById('fare').value = '';
+      }
       
       document.getElementById('pending-legs-info').style.display = 'block';
       document.getElementById('pending-legs-count').textContent = pendingTourLegs.length;
@@ -1064,11 +1079,19 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     document.getElementById('arr-time').value = entry.arrTime;
     document.getElementById('destination').value = entry.destination;
     document.getElementById('distance').value = entry.distance;
-    document.getElementById('fare').value = entry.fare;
     document.getElementById('mode').value = entry.mode;
+    document.getElementById('fare').value = entry.fare;
+    
+    // Process correctly based on loaded mode
+    const fareInput = document.getElementById('fare');
+    if (entry.mode === 'Car' || entry.mode === 'Two-wheeler') {
+        fareInput.readOnly = true; fareInput.style.background = 'var(--bg)';
+    } else {
+        fareInput.readOnly = false; fareInput.style.background = '#fff';
+    }
+    
     document.getElementById('da').value = entry.da;
     document.getElementById('purpose').value = entry.purpose || '';
-    
     document.getElementById('hotel-name').value = entry.hotelName || '';
     document.getElementById('hotel-from').value = entry.hotelFrom || '';
     document.getElementById('hotel-to').value = entry.hotelTo || '';
@@ -1091,6 +1114,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     document.getElementById('btn-update-entry').style.display = 'none';
     document.getElementById('btn-cancel-edit').style.display = 'none';
     document.getElementById('da').readOnly = true;
+    document.getElementById('fare').readOnly = true; document.getElementById('fare').style.background = 'var(--bg)';
     ['distance','fare','da','purpose', 'destination','hotel-name','hotel-from','hotel-to','hotel-rate','hotel-total'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('from').value = 'Headquarter';
   };
@@ -1120,9 +1144,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
      body5.innerHTML = filtered.map(e => `
         <tr>
           <td>${window.formatDDMMYYYY(e.date)}</td>
-          <td>${e.depTime}<br><b>From:</b> ${e.from}</td>
+          <td>${e.depTime}</td>
+          <td>${e.from}</td>
           <td>${window.formatDDMMYYYY(e.arrDate)}</td>
-          <td>${e.arrTime}<br><b>To:</b> ${e.destination}</td>
+          <td>${e.arrTime}</td>
+          <td>${e.destination}</td>
           <td>${e.mode}</td>
           <td>${e.fare}</td>
           <td>${e.distance}</td>
