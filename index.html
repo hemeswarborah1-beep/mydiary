@@ -144,7 +144,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   <!-- ADD ENTRY SCREEN (MULTI-LEG UPGRADE) -->
   <div class="screen" id="screen-add">
     
-    <!-- Pending Legs Banner -->
     <div id="pending-legs-info" style="display:none; padding: 12px; background: var(--blue-bg); border: 1px solid var(--blue-light); border-radius: var(--radius-sm); margin-bottom: 12px; font-size: 13px; color: var(--blue-dark);">
       <strong>🚀 Tour Active:</strong> <span id="pending-legs-count">0</span> legs currently logged. Add your next destination below, or close the tour if you have returned.
     </div>
@@ -186,17 +185,31 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
         <textarea id="purpose" placeholder="e.g. Annual Inspection, Audit, etc."></textarea>
       </div>
     </div>
+
+    <!-- NEW HOTEL STAY CARD -->
+    <div class="card" id="hotel-container">
+      <div class="card-title">Hotel & Lodging (Optional)</div>
+      <div class="field" style="margin-bottom:10px">
+         <label>Hotel Name / City</label>
+         <input type="text" id="hotel-name" placeholder="e.g. Landmark Hotel, Guwahati">
+      </div>
+      <div class="row">
+        <div class="field"><label>Check-in</label><input type="date" id="hotel-from" onchange="window.calcHotel()"></div>
+        <div class="field"><label>Check-out</label><input type="date" id="hotel-to" onchange="window.calcHotel()"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>Rate/Day (₹)</label><input type="number" id="hotel-rate" oninput="window.calcHotel()" placeholder="0"></div>
+        <div class="field"><label>Total Bill (₹)</label><input type="number" id="hotel-total" placeholder="0" readonly></div>
+      </div>
+    </div>
     
-    <!-- 31 Days Limit Tracker -->
     <div id="trial-counter" style="text-align:center; font-size:12px; color:var(--text2); margin-bottom:10px;"></div>
     
-    <!-- Multi-Leg Interactive Action Buttons -->
     <div id="add-buttons-container" style="display: flex; gap: 10px;">
       <button class="btn btn-primary" id="btn-add-leg" style="flex: 1; font-size: 14px;" onclick="window.processLeg(false)">➕ Add Next Leg</button>
       <button class="btn btn-success" id="btn-finish-tour" style="flex: 1; font-size: 14px;" onclick="window.processLeg(true)">✅ End Tour & Calc DA</button>
     </div>
     
-    <!-- Edit / Reset Buttons -->
     <button class="btn btn-primary" id="btn-update-entry" onclick="window.processLeg(true)" style="display:none;">Update Entry</button>
     <button class="btn btn-warning" id="btn-cancel-edit" onclick="window.cancelEdit()" style="display:none;">Cancel / Reset Tour</button>
   </div>
@@ -265,6 +278,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       <div class="card-title">Profile & Rules</div>
       <div class="field" style="margin-bottom:10px"><label>Name</label><input type="text" id="set-name"></div>
       <div class="field" style="margin-bottom:10px"><label>Designation</label><input type="text" id="set-designation"></div>
+      
+      <!-- NEW SETTINGS FIELDS -->
+      <div class="row">
+         <div class="field"><label>Basic Pay (₹)</label><input type="number" id="set-basicpay" placeholder="e.g. 56900"></div>
+      </div>
+      <div class="field" style="margin-bottom:10px"><label>Reporting Authority Details</label><input type="text" id="set-authority" placeholder="e.g. Supdt. of Post Offices"></div>
+      
       <div class="field" style="margin-bottom:10px"><label>Address</label><input type="text" id="set-address"></div>
       <div class="row">
         <div class="field">
@@ -277,7 +297,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       <button class="btn btn-primary" style="margin-top: 15px;" onclick="window.saveSettings()">Save Profile</button>
     </div>
     
-    <!-- Developer Feedback Link Block -->
     <div class="card" style="margin-top: 20px;">
       <div class="card-title">Contact Developer</div>
       <p style="font-size: 11px; color: var(--text2); margin-bottom: 8px;">Found a bug or need a new feature? Message the admin directly.</p>
@@ -316,20 +335,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   <div class="modal-content" style="text-align: center; padding: 25px;">
     <div style="font-size: 40px; margin-bottom: 10px;">⭐</div>
     <h3 style="color: var(--blue-dark); margin-bottom: 10px;">Upgrade to Premium</h3>
-    
-    <!-- Dynamic text that updates based on trial usage -->
     <p id="modal-trial-text" style="color: var(--text2); font-size: 13px; line-height: 1.5; margin-bottom: 15px;">Unlock the Alert Me infrastructure and auto-populated official central TR-25 TA Bill Framework printing features.</p>
-    
     <div style="background: var(--blue-bg); padding: 15px; border-radius: var(--radius-sm); margin-bottom: 20px; border: 1.5px dashed var(--blue);">
        <span style="font-size: 14px; color: var(--text2); font-weight: 600;">Professional Officers Plan</span>
        <h1 style="color: var(--blue-dark); margin: 5px 0;" id="modal-plan-price">₹199 / Yearly</h1>
        <small style="color: var(--text3);">No hidden advertisements • Cancel anytime</small>
     </div>
-    
     <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px;">
        <a id="btn-pay-upi" href="#" class="btn btn-premium" style="text-decoration: none; display: block; line-height: 20px; background: #2E7D32; color: white;">📱 Pay Instantly via GooglePay/PhonePe</a>
     </div>
-
     <p style="font-size: 11px; color: var(--text3); margin-bottom: 15px;">After successful payment, please drop a message/screenshot to your Superadmin for instant activation.</p>
     <button class="btn" style="background: #eceff1; color: #37474f;" onclick="document.getElementById('plan-modal').style.display='none'">Close Window</button>
   </div>
@@ -383,9 +397,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   let authMode = 'login';
   
   let editingId = null;
-  let pendingTourLegs = []; // Array to hold infinite multi-leg trips temporarily
+  let pendingTourLegs = []; 
   
-  let globalSettings = { name: "", designation: "", payLevel: "6", daRate: 500, fareRate: 12 };
+  let globalSettings = { name: "", designation: "", basicPay: "", reportingAuthority: "", payLevel: "6", daRate: 500, fareRate: 12 };
   let tourEntries = [];
   let userAlerts = [];
   let gpsStartCoords = null;
@@ -417,14 +431,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 
   window.showPlanModal = () => {
      document.getElementById('modal-plan-price').textContent = `₹${cachedPlanPrice} / Yearly`;
-     
-     // CONFIGURE YOUR UPI CREDENTIALS HERE
      const merchantUPI = "YOUR_UPI_ID_HERE@okaxis"; 
      const merchantName = encodeURIComponent("Tour Diary Premium"); 
-     
      const upiIntentString = `upi://pay?pa=${merchantUPI}&pn=${merchantName}&am=${cachedPlanPrice}&cu=INR&tn=TourDiary_Premium`;
      document.getElementById('btn-pay-upi').href = upiIntentString;
-     
      document.getElementById('plan-modal').style.display = 'flex';
   };
 
@@ -495,7 +505,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
         if(!name || !desig || !mob) return window.showToast("Please fill all signup fields.");
         const userCred = await createUserWithEmailAndPassword(auth, e, p);
         await setDoc(doc(db, "profiles", userCred.user.uid), { email: e, name: name, designation: desig, mobile: mob, status: 'pending', role: 'officer', premium: false });
-        await setDoc(doc(db, "settings", userCred.user.uid), { name: name, designation: desig, address: "", payLevel: "6", daRate: 500, fareRate: 12 });
+        await setDoc(doc(db, "settings", userCred.user.uid), { name: name, designation: desig, basicPay: "", reportingAuthority: "", address: "", payLevel: "6", daRate: 500, fareRate: 12 });
         window.showToast("Account created! Awaiting admin approval.");
       }
     } catch(err) { window.showToast(err.message.replace('Firebase: ', '')); }
@@ -520,8 +530,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       if (profileSnap.exists()) {
          const pData = profileSnap.data();
          status = pData.status || 'approved';
-         
-         // Bulletproof Premium Checks
          isAdminUser = (pData.role === 'admin' || String(pData.role).toLowerCase() === 'superadmin');
          isPremiumUser = (pData.premium === true || String(pData.premium).toLowerCase() === 'true' || pData.premium === 1);
       }
@@ -581,7 +589,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       snapshot.docs.forEach(doc => {
         const d = doc.data();
         if(doc.id === currentUser.uid) return; 
-        
         const isUserPremium = (d.premium === true || String(d.premium).toLowerCase() === 'true' || d.premium === 1);
         
         html += `<div class="pending-user-card">
@@ -676,6 +683,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
         globalSettings = snap.data();
         document.getElementById('set-name').value = globalSettings.name || '';
         document.getElementById('set-designation').value = globalSettings.designation || '';
+        document.getElementById('set-basicpay').value = globalSettings.basicPay || '';
+        document.getElementById('set-authority').value = globalSettings.reportingAuthority || '';
         document.getElementById('set-address').value = globalSettings.address || '';
         document.getElementById('set-paylevel').value = globalSettings.payLevel || '6';
         document.getElementById('set-da').value = globalSettings.daRate || 500;
@@ -691,6 +700,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     const s = {
       name: document.getElementById('set-name').value,
       designation: document.getElementById('set-designation').value,
+      basicPay: document.getElementById('set-basicpay').value,
+      reportingAuthority: document.getElementById('set-authority').value,
       address: document.getElementById('set-address').value,
       payLevel: document.getElementById('set-paylevel').value,
       daRate: Number(document.getElementById('set-da').value),
@@ -703,25 +714,17 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     } catch(e) { window.showToast('Error syncing cloud.'); }
   };
   
-  // NEW DEVELOPER FEEDBACK FUNCTION
   window.sendFeedback = async () => {
     const msg = document.getElementById('feedback-text').value.trim();
     if(!msg) return window.showToast("Please write a message first.");
     if(!currentUser) return;
-    
     try {
       await addDoc(collection(db, "feedback"), {
-        uid: currentUser.uid,
-        email: currentUser.email,
-        name: globalSettings.name || "Unknown Officer",
-        message: msg,
-        timestamp: Date.now()
+        uid: currentUser.uid, email: currentUser.email, name: globalSettings.name || "Unknown Officer", message: msg, timestamp: Date.now()
       });
       document.getElementById('feedback-text').value = '';
       window.showToast("✅ Message successfully sent to developer!");
-    } catch(e) {
-      window.showToast("❌ Error sending message. Please try again.");
-    }
+    } catch(e) { window.showToast("❌ Error sending message. Please try again."); }
   };
 
   window.fetchEntries = async () => {
@@ -735,17 +738,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
          return (a.date || "").localeCompare(b.date || "");
       });
       
-      // Update Free Trial counter and Smart Popup Logic
       if (!isPremiumUser && !isAdminUser) {
           const uniqueDays = new Set(tourEntries.map(e => e.date)).size;
           const counterEl = document.getElementById('trial-counter');
-          
           if (uniqueDays >= 31) {
               counterEl.innerHTML = `<span style="color:var(--danger); font-weight:700;">Free Trial Expired (31/31 Days). Please Upgrade.</span>`;
           } else {
               counterEl.innerHTML = `Free Trial: <b>${uniqueDays} / 31</b> Journey Days Logged`;
           }
-
           if (uniqueDays >= 28) {
               const statusText = uniqueDays >= 31 ? "TRIAL EXPIRED." : "RENEW NOW.";
               document.getElementById('modal-trial-text').innerHTML = `<strong style="color:var(--danger); font-size:15px;">${uniqueDays}/31 DAYS FREE USED. ${statusText}</strong><br><br>Unlock the Premium Plan to continue logging your journeys and gain access to official T.R. 25 Auto-Printing.`;
@@ -754,7 +754,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       } else {
           document.getElementById('trial-counter').style.display = 'none';
       }
-
       window.renderRecords(); window.renderSummary();
     } catch(e) { console.error(e); }
   };
@@ -775,8 +774,21 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     const dist = Number(document.getElementById('distance').value) || 0;
     document.getElementById('fare').value = Math.round(dist * globalSettings.fareRate);
   };
+  
+  window.calcHotel = () => {
+      const from = document.getElementById('hotel-from').value;
+      const to = document.getElementById('hotel-to').value;
+      const rate = Number(document.getElementById('hotel-rate').value) || 0;
+      if (from && to) {
+          const d1 = new Date(from);
+          const d2 = new Date(to);
+          const days = Math.max(1, Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24)));
+          document.getElementById('hotel-total').value = rate * days;
+      } else {
+          document.getElementById('hotel-total').value = rate;
+      }
+  };
 
-  // MULTI-LEG TOUR LOGIC UPGRADE
   window.processLeg = async (isFinalLeg) => {
     const depDate = document.getElementById('dep-date').value;
     const depTime = document.getElementById('dep-time').value;
@@ -788,8 +800,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     if (pendingTourLegs.length === 0 && !editingId && !isPremiumUser && !isAdminUser) {
         const uniqueDays = new Set(tourEntries.map(e => e.date)).size;
         if (uniqueDays >= 31) {
-            window.showPlanModal();
-            return window.showToast("⚠️ Trial Expired: 31 Days Limit Reached!");
+            window.showPlanModal(); return window.showToast("⚠️ Trial Expired: 31 Days Limit Reached!");
         }
     }
 
@@ -798,7 +809,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
        if (isDuplicate) return window.showToast("⚠️ Duplicate blocked: Entry already exists.");
     }
 
-    // Determine the purpose dynamically
     const rawPurpose = document.getElementById('purpose').value.trim();
     const loggedPurpose = rawPurpose !== "" ? rawPurpose : (isFinalLeg && pendingTourLegs.length > 0 ? "Return Journey to HQ" : "");
 
@@ -807,7 +817,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       arrTime: document.getElementById('arr-time').value, from: document.getElementById('from').value,
       destination: dest, distance: Number(document.getElementById('distance').value),
       fare: Number(document.getElementById('fare').value), mode: document.getElementById('mode').value,
-      purpose: loggedPurpose, da: 0 // DA remains 0 until the final calculation
+      purpose: loggedPurpose, da: 0,
+      
+      hotelName: document.getElementById('hotel-name').value,
+      hotelFrom: document.getElementById('hotel-from').value,
+      hotelTo: document.getElementById('hotel-to').value,
+      hotelRate: Number(document.getElementById('hotel-rate').value) || 0,
+      hotelTotal: Number(document.getElementById('hotel-total').value) || 0
     };
 
     if (editingId) {
@@ -819,37 +835,25 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       return;
     }
 
-    // Add current leg to temporary memory
     pendingTourLegs.push(entryData);
 
     if (!isFinalLeg) {
-      // User clicked "Add Next Leg". Prepare UI for the next step.
-      document.getElementById('from').value = dest;
-      document.getElementById('destination').value = '';
-      document.getElementById('dep-date').value = arrDate;
-      document.getElementById('dep-time').value = entryData.arrTime;
+      document.getElementById('from').value = dest; document.getElementById('destination').value = '';
+      document.getElementById('dep-date').value = arrDate; document.getElementById('dep-time').value = entryData.arrTime;
       
-      document.getElementById('distance').value = ''; 
-      document.getElementById('fare').value = '';
-      document.getElementById('purpose').value = '';
+      ['distance','fare','purpose','hotel-name','hotel-from','hotel-to','hotel-rate','hotel-total'].forEach(id => document.getElementById(id).value = '');
       
-      // Update UI Banner
       document.getElementById('pending-legs-info').style.display = 'block';
       document.getElementById('pending-legs-count').textContent = pendingTourLegs.length;
-      document.getElementById('btn-cancel-edit').style.display = 'block'; // Allow them to reset if they make a mistake
-      
+      document.getElementById('btn-cancel-edit').style.display = 'block';
       window.showToast(`Leg ${pendingTourLegs.length} secured. Enter next destination.`);
-      
     } else {
-      // User clicked "End Tour & Calc DA". Do the grand calculation.
       const firstLeg = pendingTourLegs[0];
       const start = new Date(`${firstLeg.date}T${firstLeg.depTime}`);
       const end = new Date(`${entryData.arrDate}T${entryData.arrTime}`);
       const hours = (end - start) / (1000 * 60 * 60);
       
-      // Calculate continuous DA correctly over multi-day / multi-leg trips
       const totalDist = pendingTourLegs.reduce((sum, leg) => sum + leg.distance, 0);
-      
       let finalDA = 0;
       if(totalDist >= 8 && hours > 0) {
         const days = Math.floor(hours / 24); const rem = hours % 24;
@@ -859,24 +863,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
         else if(rem > 0) finalDA += (globalSettings.daRate * 0.3);
       }
       
-      // Assign the massive total DA only to the final leg for clean ledger reporting
       pendingTourLegs[pendingTourLegs.length - 1].da = Math.round(finalDA);
 
       try {
-        // Push all pending memory legs to Firebase Database instantly
-        for (let leg of pendingTourLegs) {
-           await addDoc(collection(db, "entries"), leg);
-        }
-        
+        for (let leg of pendingTourLegs) { await addDoc(collection(db, "entries"), leg); }
         window.showToast(`Multi-Leg Tour Complete! Total DA: ₹${pendingTourLegs[pendingTourLegs.length - 1].da}`);
-        
-        // Reset everything back to normal state
         pendingTourLegs = [];
-        document.getElementById('pending-legs-info').style.display = 'none';
-        document.getElementById('btn-cancel-edit').style.display = 'none';
-        ['distance','purpose','destination','fare','da'].forEach(id => document.getElementById(id).value = '');
+        document.getElementById('pending-legs-info').style.display = 'none'; document.getElementById('btn-cancel-edit').style.display = 'none';
+        ['distance','purpose','destination','fare','da','hotel-name','hotel-from','hotel-to','hotel-rate','hotel-total'].forEach(id => document.getElementById(id).value = '');
         document.getElementById('from').value = 'Headquarter';
-        
         window.fetchEntries();
       } catch(e) { window.showToast('Database error finalizing tour.'); }
     }
@@ -895,29 +890,30 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     document.getElementById('mode').value = entry.mode;
     document.getElementById('da').value = entry.da;
     document.getElementById('purpose').value = entry.purpose || '';
-    document.getElementById('da').readOnly = false; 
-
-    editingId = id; 
-    pendingTourLegs = []; // clear any active memory
-    document.getElementById('pending-legs-info').style.display = 'none';
     
-    // Switch buttons to Edit Mode
+    document.getElementById('hotel-name').value = entry.hotelName || '';
+    document.getElementById('hotel-from').value = entry.hotelFrom || '';
+    document.getElementById('hotel-to').value = entry.hotelTo || '';
+    document.getElementById('hotel-rate').value = entry.hotelRate || '';
+    document.getElementById('hotel-total').value = entry.hotelTotal || '';
+    
+    document.getElementById('da').readOnly = false; 
+    editingId = id; pendingTourLegs = []; 
+    document.getElementById('pending-legs-info').style.display = 'none';
     document.getElementById('add-buttons-container').style.display = 'none';
     document.getElementById('btn-update-entry').style.display = 'block';
     document.getElementById('btn-cancel-edit').style.display = 'block';
-    
     window.switchTab('add'); window.scrollTo(0, 0);
   };
 
   window.cancelEdit = () => {
-    editingId = null;
-    pendingTourLegs = [];
+    editingId = null; pendingTourLegs = [];
     document.getElementById('pending-legs-info').style.display = 'none';
     document.getElementById('add-buttons-container').style.display = 'flex';
     document.getElementById('btn-update-entry').style.display = 'none';
     document.getElementById('btn-cancel-edit').style.display = 'none';
     document.getElementById('da').readOnly = true;
-    ['distance','fare','da','purpose', 'destination'].forEach(id => document.getElementById(id).value = '');
+    ['distance','fare','da','purpose', 'destination','hotel-name','hotel-from','hotel-to','hotel-rate','hotel-total'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('from').value = 'Headquarter';
   };
 
@@ -932,25 +928,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
      if(!isPremiumUser) return;
      const filtered = window.getFilteredSummaryList();
      if(!filtered.length) return window.showToast("No data selected within current timeline parameters.");
-     
      document.getElementById('p-tr25-name').textContent = globalSettings.name || 'N/A';
      document.getElementById('p-tr25-desig').textContent = globalSettings.designation || 'N/A';
      document.getElementById('p-tr25-address').textContent = globalSettings.address || 'N/A';
-     
      const body = document.getElementById('tr25-print-body');
      body.innerHTML = filtered.map(e => `
-        <tr>
-          <td>${window.formatDDMMYYYY(e.date)}</td>
-          <td>${e.depTime}</td>
-          <td>${window.formatDDMMYYYY(e.arrDate)}</td>
-          <td>${e.arrTime}</td>
-          <td>${e.from} to ${e.destination}</td>
-          <td>${e.distance}</td>
-          <td>${e.mode}</td>
-          <td>₹${e.fare}</td>
-          <td>₹${e.da}</td>
-          <td style="text-align:left;">${e.purpose || 'Official Duty'}</td>
-        </tr>
+        <tr><td>${window.formatDDMMYYYY(e.date)}</td><td>${e.depTime}</td><td>${window.formatDDMMYYYY(e.arrDate)}</td><td>${e.arrTime}</td><td>${e.from} to ${e.destination}</td><td>${e.distance}</td><td>${e.mode}</td><td>₹${e.fare}</td><td>₹${e.da}</td><td style="text-align:left;">${e.purpose || 'Official Duty'}</td></tr>
      `).join('');
      window.print(); 
   };
@@ -962,34 +945,24 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       <div class="entry-card">
         <div class="entry-header">
           <div class="entry-date">${window.formatDDMMYYYY(e.date)} (${e.depTime}) to ${window.formatDDMMYYYY(e.arrDate)} (${e.arrTime})</div>
-          <div>
-           <button class="delete-btn" onclick="window.editEntry('${e.id}')" style="color:var(--blue);margin-right:10px;">✏️</button>
-           <button class="delete-btn" onclick="window.deleteEntry('${e.id}')">🗑️</button>
-          </div>
+          <div><button class="delete-btn" onclick="window.editEntry('${e.id}')" style="color:var(--blue);margin-right:10px;">✏️</button><button class="delete-btn" onclick="window.deleteEntry('${e.id}')">🗑️</button></div>
         </div>
         <div class="entry-route">${e.from} → ${e.destination}</div>
         <div class="entry-chips">
-          <span class="chip">${e.distance} km</span>
-          <span class="chip blue">₹${e.fare}</span>
-          <span class="chip green">DA ₹${e.da}</span>
+          <span class="chip">${e.distance} km</span><span class="chip blue">₹${e.fare}</span><span class="chip green">DA ₹${e.da}</span>
         </div>
+        ${e.hotelName ? `<div class="entry-purpose">🏨 ${e.hotelName} (₹${e.hotelTotal})</div>` : ''}
         ${e.purpose ? `<div class="entry-purpose">📝 ${e.purpose}</div>` : ''}
       </div>
     `).join('');
   };
 
   window.getFilteredSummaryList = () => {
-    const from = document.getElementById('report-from').value;
-    const to = document.getElementById('report-to').value;
+    const from = document.getElementById('report-from').value; const to = document.getElementById('report-to').value;
     const searchTerm = (document.getElementById('report-search').value || "").toLowerCase();
     if (!from || !to) return [];
     let filtered = tourEntries.filter(e => e.date >= from && e.date <= to);
-    if (searchTerm) {
-       filtered = filtered.filter(e => 
-          (e.destination && e.destination.toLowerCase().includes(searchTerm)) ||
-          (e.from && e.from.toLowerCase().includes(searchTerm)) || (e.date && e.date.includes(searchTerm))
-       );
-    }
+    if (searchTerm) { filtered = filtered.filter(e => (e.destination && e.destination.toLowerCase().includes(searchTerm)) || (e.from && e.from.toLowerCase().includes(searchTerm)) || (e.date && e.date.includes(searchTerm))); }
     return filtered;
   };
 
@@ -999,7 +972,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     document.getElementById('s-km').textContent = filtered.reduce((sum, e) => sum + (e.distance || 0), 0);
     document.getElementById('s-fare').textContent = '₹' + filtered.reduce((sum, e) => sum + (e.fare || 0), 0);
     document.getElementById('s-da').textContent = '₹' + filtered.reduce((sum, e) => sum + (e.da || 0), 0);
-
     const tableContainer = document.getElementById('report-details');
     if (!filtered.length) {
       tableContainer.innerHTML = '<p style="text-align:center; color:var(--text3); padding:10px;">No matching records found.</p>';
@@ -1011,7 +983,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
           <td>${e.from}<br>↓<br>${e.destination}</td>
           <td><b>₹${e.da}</b></td>
           <td style="text-align:center; min-width: 60px;">
-            <button onclick="window.editEntry('${e.id}')" style="background:none;border:none;cursor:pointer;font-size:16px;margin-bottom:6px;">✏️</button><br>
+            <button onclick="window.editEntry('${e.id}')" style="background:none;border:none;cursor:pointer;font-size:16px;margin-bottom:6px;">✏️</button>
+            <button onclick="window.deleteEntry('${e.id}')" style="background:none;border:none;cursor:pointer;font-size:16px;margin-bottom:6px;">🗑️</button>
+            <br>
             <button onclick="window.shareSingleEntry('${e.id}')" style="background:none;border:none;cursor:pointer;font-size:16px;">📤</button>
           </td>
         </tr>`;
@@ -1023,13 +997,17 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   window.exportCSV = () => {
     const filtered = window.getFilteredSummaryList(); const s = globalSettings;
     if(!filtered.length) return window.showToast('No data available to parse.');
-    const fromDateStr = document.getElementById('report-from').value;
-    const toDateStr = document.getElementById('report-to').value;
+    const fromDateStr = document.getElementById('report-from').value; const toDateStr = document.getElementById('report-to').value;
 
-    let csv = `Tour Report (${fromDateStr} to ${toDateStr})\nUser Name,${s.name || 'N/A'}\nDesignation,${s.designation || 'N/A'}\n\n`;
-    csv += 'Dep. Date,Dep. Time,From,Arr. Date,Arr. Time,Destination,Distance (km),Mode,Fare (Rs),DA (Rs),Purpose\n';
+    let csv = `Tour Report (${fromDateStr} to ${toDateStr})\n`;
+    csv += `User Name,${s.name || 'N/A'}\n`;
+    csv += `Designation,${s.designation || 'N/A'}\n`;
+    csv += `Basic Pay,${s.basicPay || 'N/A'}\n`;
+    csv += `Reporting Authority,${s.reportingAuthority || 'N/A'}\n\n`;
+    
+    csv += 'Dep. Date,Dep. Time,From,Arr. Date,Arr. Time,Destination,Distance (km),Mode,Fare (Rs),DA (Rs),Purpose,Hotel Name,Check-in,Check-out,Rate/Day,Total Hotel Bill\n';
     filtered.forEach(e => {
-      csv += `${e.date},${e.depTime},${e.from},${e.arrDate},${e.arrTime},${e.destination},${e.distance},${e.mode || 'N/A'},${e.fare},${e.da},"${e.purpose || ''}"\n`;
+      csv += `${e.date},${e.depTime},${e.from},${e.arrDate},${e.arrTime},${e.destination},${e.distance},${e.mode || 'N/A'},${e.fare},${e.da},"${e.purpose || ''}","${e.hotelName || ''}",${e.hotelFrom || ''},${e.hotelTo || ''},${e.hotelRate || ''},${e.hotelTotal || ''}\n`;
     });
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = window.URL.createObjectURL(blob); const a = document.createElement('a');
