@@ -253,8 +253,17 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
        <button class="export-btn btn-premium" id="btn-tr25-print" onclick="window.printTR25()" style="border:none; margin-bottom:10px;">🖨️ Generate Official TR-25 TA Bill</button>
     </div>
 
-    <button class="export-btn" style="border: 2px solid var(--blue); color: var(--blue);" onclick="window.exportCSV()">⬇️ Download CSV / Excel</button>
-    <button class="export-btn" onclick="window.shareText()">📤 Share Summary</button>
+    <button class="export-btn"
+id="btn-export-csv"
+style="border: 2px solid var(--blue); color: var(--blue);"
+onclick="window.exportCSV()">
+⬇️ Download CSV / Excel
+</button>
+<button class="export-btn"
+id="btn-share-summary"
+onclick="window.shareText()">
+📤 Share Summary
+</button>
   </div>
 
   <div class="screen" id="screen-alerts">
@@ -340,6 +349,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     <div style="font-size: 40px; margin-bottom: 10px;">⭐</div>
     <h3 style="color: var(--blue-dark); margin-bottom: 10px;">Upgrade to Premium</h3>
     <p id="modal-trial-text" style="color: var(--text2); font-size: 13px; line-height: 1.5; margin-bottom: 15px;">Unlock the Alert Me infrastructure and auto-populated official central TR-25 TA Bill Framework printing features.</p>
+    <p style="color: var(--text2); font-size: 14px; line-height: 1.7; text-align:left;">
+Premium officers enjoy the following exclusive features:
+<br><br>
+✅ Create Alert Notifications<br>
+✅ Generate Official TR-25 TA Bill<br>
+✅ Download CSV / Excel Reports<br>
+✅ Share Tour Summary<br>
+</p>
     <div style="background: var(--blue-bg); padding: 15px; border-radius: var(--radius-sm); margin-bottom: 20px; border: 1.5px dashed var(--blue);">
        <span style="font-size: 14px; color: var(--text2); font-weight: 600;">Professional Officers Plan</span>
        <h1 style="color: var(--blue-dark); margin: 5px 0;" id="modal-plan-price">₹199 / Yearly</h1>
@@ -727,6 +744,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
          
          document.getElementById('premium-export-container').style.display = isPremiumUser ? 'block' : 'none';
 
+         const csvBtn = document.getElementById('btn-export-csv');
+         const shareBtn = document.getElementById('btn-share-summary');
+         if (!isPremiumUser) {
+             csvBtn.style.opacity = "0.5";
+             shareBtn.style.opacity = "0.5";
+             csvBtn.innerHTML = "🔒 Download CSV / Excel (Premium)";
+             shareBtn.innerHTML = "🔒 Share Summary (Premium)";
+         }
+
          if (isPremiumUser) { try { (adsbygoogle = window.adsbygoogle || []).pauseAdRequests = 1; } catch(e){} }
 
          window.loadSettings().then(() => {
@@ -958,7 +984,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
         fareInput.readOnly = false;
         fareInput.style.background = '#fff';
         if (fromModeChange === true) {
-            fareInput.value = ''; // Clear automatically calculated fare if user switches to public transport
+            fareInput.value = '';
         }
     }
   };
@@ -1031,7 +1057,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       
       ['distance','purpose','hotel-name','hotel-from','hotel-to','hotel-rate','hotel-total'].forEach(id => document.getElementById(id).value = '');
       
-      // Clear manual fare when adding next leg just in case
       if(document.getElementById('mode').value !== 'Car' && document.getElementById('mode').value !== 'Two-wheeler') {
           document.getElementById('fare').value = '';
       }
@@ -1082,7 +1107,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     document.getElementById('mode').value = entry.mode;
     document.getElementById('fare').value = entry.fare;
     
-    // Process correctly based on loaded mode
     const fareInput = document.getElementById('fare');
     if (entry.mode === 'Car' || entry.mode === 'Two-wheeler') {
         fareInput.readOnly = true; fareInput.style.background = 'var(--bg)';
@@ -1225,7 +1249,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     }
   };
 
-  window.exportCSV = () => {
+  window.exportCSV = () => { if (!isPremiumUser) { window.showPlanModal(); return window.showToast( "Premium Subscription required for CSV/Excel export." );}
     const filtered = window.getFilteredSummaryList(); const s = globalSettings;
     if(!filtered.length) return window.showToast('No data available to parse.');
     const fromDateStr = document.getElementById('report-from').value; const toDateStr = document.getElementById('report-to').value;
@@ -1245,7 +1269,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     a.href = url; a.download = `Tour_Report_${fromDateStr}_to_${toDateStr}.csv`; a.click();
   };
 
-  window.shareText = async () => {
+  window.shareText = async () => { if (!isPremiumUser) {
+   window.showPlanModal();
+   return window.showToast(
+      "Premium Subscription required for sharing summary."
+   );
+}
     const filtered = window.getFilteredSummaryList();
     const fromD = document.getElementById('report-from').value; const toD = document.getElementById('report-to').value;
     const text = `📋 Tour Summary (${window.formatDDMMYYYY(fromD)} to ${window.formatDDMMYYYY(toD)})\nOfficer: ${globalSettings.name}\nJourneys: ${filtered.length}\nTotal Distance: ${filtered.reduce((a,e)=>a+e.distance,0)} km\nTotal DA: ₹${filtered.reduce((a,e)=>a+e.da,0)}`;
