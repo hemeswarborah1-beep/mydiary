@@ -78,11 +78,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .alert-title { font-weight: 700; font-size: 14px; color: var(--danger); margin-bottom: 4px; }
 .alert-time { font-size: 12px; color: var(--text2); }
 
-/* TR-25 Printing */
+/* TR-25 Printing Framework Layout Styles */
 #tr25-print-section { display: none; background: white; color: black; padding: 30px; font-family: 'Times New Roman', serif; }
-#tr25-print-section table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 12px; }
-#tr25-print-section th, #tr25-print-section td { border: 1px solid black; padding: 6px; text-align: center; }
-.tr25-title { text-align: center; font-weight: bold; font-size: 18px; margin-bottom: 5px; text-transform: uppercase;}
+#tr25-print-section table { width: 100%; border-collapse: collapse; margin-top: 5px; font-size: 11px; margin-bottom: 15px; }
+#tr25-print-section th, #tr25-print-section td { border: 1px solid black; padding: 4px; text-align: left; }
+#tr25-print-section table[style*="border:none"] th, #tr25-print-section table[style*="border:none"] td { border: none !important; }
+.tr25-title { text-align: center; font-weight: bold; font-size: 14px; margin-bottom: 15px; text-transform: uppercase;}
+.tr25-section-title { font-weight: bold; margin-top: 15px; font-size: 12px;}
 @media print {
   body * { display: none !important; }
   #tr25-print-section, #tr25-print-section * { display: block !important; }
@@ -143,7 +145,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 
   <!-- ADD ENTRY SCREEN (MULTI-LEG UPGRADE) -->
   <div class="screen" id="screen-add">
-    
     <div id="pending-legs-info" style="display:none; padding: 12px; background: var(--blue-bg); border: 1px solid var(--blue-light); border-radius: var(--radius-sm); margin-bottom: 12px; font-size: 13px; color: var(--blue-dark);">
       <strong>🚀 Tour Active:</strong> <span id="pending-legs-count">0</span> legs currently logged. Add your next destination below, or close the tour if you have returned.
     </div>
@@ -240,8 +241,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     <div class="section-head">Detailed View & Edit</div>
     <div class="report-table-container" id="report-details"></div>
 
-    <div id="premium-export-container" style="margin-bottom: 10px;">
-       <button class="export-btn btn-premium" id="btn-tr25-print" onclick="window.printTR25()" style="display:none; border:none; margin-bottom:10px;">🖨️ Generate Official TR-25 TA Bill</button>
+    <div id="premium-export-container" style="margin-bottom: 10px; display: none;">
+       <div class="field" style="margin-bottom:10px;">
+           <label>TA Advance Taken (₹) - For TR-25</label>
+           <input type="number" id="ta-advance" placeholder="e.g. 5000">
+       </div>
+       <button class="export-btn btn-premium" id="btn-tr25-print" onclick="window.printTR25()" style="border:none; margin-bottom:10px;">🖨️ Generate Official TR-25 TA Bill</button>
     </div>
 
     <button class="export-btn" style="border: 2px solid var(--blue); color: var(--blue);" onclick="window.exportCSV()">⬇️ Download CSV / Excel</button>
@@ -285,7 +290,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       </div>
       <div class="field" style="margin-bottom:10px"><label>Reporting Authority Details</label><input type="text" id="set-authority" placeholder="e.g. Supdt. of Post Offices"></div>
       
-      <div class="field" style="margin-bottom:10px"><label>Address</label><input type="text" id="set-address"></div>
+      <div class="field" style="margin-bottom:10px"><label>Headquarter Address</label><input type="text" id="set-address"></div>
       <div class="row">
         <div class="field">
           <label>Pay Level</label>
@@ -297,6 +302,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       <button class="btn btn-primary" style="margin-top: 15px;" onclick="window.saveSettings()">Save Profile</button>
     </div>
     
+    <!-- Developer Feedback Link Block -->
     <div class="card" style="margin-top: 20px;">
       <div class="card-title">Contact Developer</div>
       <p style="font-size: 11px; color: var(--text2); margin-bottom: 8px;">Found a bug or need a new feature? Message the admin directly.</p>
@@ -351,21 +357,54 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 
 <!-- TR-25 PRINT SECTION -->
 <div id="tr25-print-section">
-  <div class="tr25-title">TRAVELLING ALLOWANCE BILL FOR GAZETTED/NON-GAZETTED OFFICERS</div>
-  <div style="text-align:center; font-weight:bold; margin-bottom:20px; font-size:14px;">FORM T.R. 25 (Central Civil Services Rules)</div>
-  <p style="margin: 5px 0;"><b>Officer Name:</b> <span id="p-tr25-name"></span></p>
-  <p style="margin: 5px 0;"><b>Designation:</b> <span id="p-tr25-desig"></span></p>
-  <p style="margin: 5px 0;"><b>Sub-Division Office:</b> <span id="p-tr25-address"></span></p>
+  <div style="text-align:center; font-weight:bold; font-size:16px;">FORM T.R. 25 / GAR 14-A</div>
+  <div class="tr25-title">TRAVELLING ALLOWANCE BILL FOR TOUR</div>
+  <div class="tr25-section-title" style="text-decoration:underline;">PART - A (To be filled by the Government Servant)</div>
+  
+  <table style="width:100%; border:none; margin-bottom:15px;">
+     <tr>
+       <td style="width:50%;">1. Name: <b id="p-tr25-name"></b></td>
+       <td style="width:50%;">2. Designation: <b id="p-tr25-desig"></b></td>
+     </tr>
+     <tr>
+       <td>3. Pay Rs.: <b id="p-tr25-pay"></b></td>
+       <td>4. Headquarter: <b id="p-tr25-hq"></b></td>
+     </tr>
+  </table>
+
+  <div class="tr25-section-title">5. Details and purposes of journey (s) performed:</div>
   <table id="tr25-print-table">
      <thead>
-       <tr><th colspan="2">Departure</th><th colspan="2">Arrival</th><th rowspan="2">From / To Route Location</th><th rowspan="2">Distance (km)</th><th rowspan="2">Travel Mode</th><th rowspan="2">Fare Claimed</th><th rowspan="2">Daily Allowance (DA)</th><th rowspan="2">Purpose of Journey Log</th></tr>
-       <tr><th>Date</th><th>Time</th><th>Date</th><th>Time</th></tr>
+       <tr>
+         <th colspan="2">Departure</th><th colspan="2">Arrival</th>
+         <th rowspan="2">Mode of Travel & Fare</th><th rowspan="2">Distance (Kms)</th><th rowspan="2">Purpose of Journey</th>
+       </tr>
+       <tr><th>Date</th><th>Time / From</th><th>Date</th><th>Time / To</th></tr>
      </thead>
-     <tbody id="tr25-print-body"></tbody>
+     <tbody id="tr25-table-5"></tbody>
   </table>
-  <div style="margin-top:50px; display:flex; justify-content:space-between; font-weight:bold; font-size:14px;">
-     <div>Date: __________________</div>
-     <div style="text-align:center; margin-right:20px;">____________________________________<br>Signature of Claiming Officer</div>
+
+  <div class="tr25-section-title">9. Particulars to be furnished along with hotel receipts etc., in cases where higher rate of Daily Allowance is claimed:</div>
+  <table id="tr25-hotel-table">
+      <thead>
+         <tr><th>Period From</th><th>Period To</th><th>Name of the Hotel</th><th>Daily Rate Charged (Rs.)</th><th>Total Amount Paid (Rs.)</th></tr>
+      </thead>
+      <tbody id="tr25-table-9"></tbody>
+  </table>
+
+  <div class="tr25-section-title">12. Amount of Advance of Travelling Allowance, if any, drawn: Rs. <span id="p-tr25-advance"></span></div>
+  
+  <div style="margin-top:40px; text-align:right;">
+     Signature of the Government Servant<br>
+     Date: __________________
+  </div>
+
+  <div class="tr25-section-title" style="margin-top:40px; text-decoration:underline;">PART - B (To be filled by the Bill Section)</div>
+  <div style="margin-top:10px; font-size:12px;">
+      1. The net entitlement on account of Travelling Allowance works out to Rs. _________
+      <br><br>(e) Less amount of advance(s) of Travelling Allowance, if any, drawn: Rs. <span id="p-tr25-advance-b"></span>
+      <br><br><b>Net Amount:</b> Rs. _________
+      <br><br><br><b>Reporting Authority:</b> <span id="p-tr25-authority"></span>
   </div>
 </div>
 
@@ -550,6 +589,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
          document.getElementById('badge-premium').style.display = isPremiumUser ? 'inline-block' : 'none';
          document.getElementById('premium-lock').style.display = isPremiumUser ? 'none' : 'block';
          document.getElementById('premium-content').style.display = isPremiumUser ? 'block' : 'none';
+         
+         // Only show print export section container to premium
+         document.getElementById('premium-export-container').style.display = isPremiumUser ? 'block' : 'none';
          document.getElementById('btn-tr25-print').style.display = isPremiumUser ? 'block' : 'none';
 
          if (isPremiumUser) { try { (adsbygoogle = window.adsbygoogle || []).pauseAdRequests = 1; } catch(e){} }
@@ -924,17 +966,48 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     await navigator.clipboard.writeText(text); window.showToast('Copied to clipboard!');
   };
 
+  // ADVANCED TR-25 PRINT POPULATION LOGIC
   window.printTR25 = () => {
      if(!isPremiumUser) return;
      const filtered = window.getFilteredSummaryList();
      if(!filtered.length) return window.showToast("No data selected within current timeline parameters.");
+     
+     // Map Header Data (Items 1-4)
      document.getElementById('p-tr25-name').textContent = globalSettings.name || 'N/A';
      document.getElementById('p-tr25-desig').textContent = globalSettings.designation || 'N/A';
-     document.getElementById('p-tr25-address').textContent = globalSettings.address || 'N/A';
-     const body = document.getElementById('tr25-print-body');
-     body.innerHTML = filtered.map(e => `
-        <tr><td>${window.formatDDMMYYYY(e.date)}</td><td>${e.depTime}</td><td>${window.formatDDMMYYYY(e.arrDate)}</td><td>${e.arrTime}</td><td>${e.from} to ${e.destination}</td><td>${e.distance}</td><td>${e.mode}</td><td>₹${e.fare}</td><td>₹${e.da}</td><td style="text-align:left;">${e.purpose || 'Official Duty'}</td></tr>
+     document.getElementById('p-tr25-pay').textContent = globalSettings.basicPay || 'N/A';
+     document.getElementById('p-tr25-hq').textContent = globalSettings.address || 'N/A';
+     document.getElementById('p-tr25-authority').textContent = globalSettings.reportingAuthority || 'N/A';
+     
+     // Map Advance Data (Item 12)
+     const adv = document.getElementById('ta-advance').value || '0';
+     document.getElementById('p-tr25-advance').textContent = adv;
+     document.getElementById('p-tr25-advance-b').textContent = adv;
+     
+     // Map Journey Details (Item 5)
+     const body5 = document.getElementById('tr25-table-5');
+     body5.innerHTML = filtered.map(e => `
+        <tr>
+          <td>${window.formatDDMMYYYY(e.date)}</td>
+          <td>${e.depTime}<br><b>From:</b> ${e.from}</td>
+          <td>${window.formatDDMMYYYY(e.arrDate)}</td>
+          <td>${e.arrTime}<br><b>To:</b> ${e.destination}</td>
+          <td>${e.mode}<br>Fare: ₹${e.fare}</td>
+          <td>${e.distance}</td>
+          <td>${e.purpose || 'Official Duty'}</td>
+        </tr>
      `).join('');
+     
+     // Map Hotel Logic (Item 9) with "NIL" checker
+     const hotelData = filtered.filter(e => e.hotelName && e.hotelName.trim() !== '');
+     const body9 = document.getElementById('tr25-table-9');
+     
+     if(hotelData.length > 0) {
+        body9.innerHTML = hotelData.map(e => `<tr><td>${window.formatDDMMYYYY(e.hotelFrom)}</td><td>${window.formatDDMMYYYY(e.hotelTo)}</td><td>${e.hotelName}</td><td>₹${e.hotelRate}</td><td>₹${e.hotelTotal}</td></tr>`).join('');
+     } else {
+        body9.innerHTML = '<tr><td colspan="5" style="text-align:center; font-weight:bold;">NIL</td></tr>';
+     }
+     
      window.print(); 
   };
 
@@ -945,11 +1018,16 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       <div class="entry-card">
         <div class="entry-header">
           <div class="entry-date">${window.formatDDMMYYYY(e.date)} (${e.depTime}) to ${window.formatDDMMYYYY(e.arrDate)} (${e.arrTime})</div>
-          <div><button class="delete-btn" onclick="window.editEntry('${e.id}')" style="color:var(--blue);margin-right:10px;">✏️</button><button class="delete-btn" onclick="window.deleteEntry('${e.id}')">🗑️</button></div>
+          <div>
+           <button class="delete-btn" onclick="window.editEntry('${e.id}')" style="color:var(--blue);margin-right:10px;">✏️</button>
+           <button class="delete-btn" onclick="window.deleteEntry('${e.id}')">🗑️</button>
+          </div>
         </div>
         <div class="entry-route">${e.from} → ${e.destination}</div>
         <div class="entry-chips">
-          <span class="chip">${e.distance} km</span><span class="chip blue">₹${e.fare}</span><span class="chip green">DA ₹${e.da}</span>
+          <span class="chip">${e.distance} km</span>
+          <span class="chip blue">₹${e.fare}</span>
+          <span class="chip green">DA ₹${e.da}</span>
         </div>
         ${e.hotelName ? `<div class="entry-purpose">🏨 ${e.hotelName} (₹${e.hotelTotal})</div>` : ''}
         ${e.purpose ? `<div class="entry-purpose">📝 ${e.purpose}</div>` : ''}
@@ -958,11 +1036,17 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   };
 
   window.getFilteredSummaryList = () => {
-    const from = document.getElementById('report-from').value; const to = document.getElementById('report-to').value;
+    const from = document.getElementById('report-from').value;
+    const to = document.getElementById('report-to').value;
     const searchTerm = (document.getElementById('report-search').value || "").toLowerCase();
     if (!from || !to) return [];
     let filtered = tourEntries.filter(e => e.date >= from && e.date <= to);
-    if (searchTerm) { filtered = filtered.filter(e => (e.destination && e.destination.toLowerCase().includes(searchTerm)) || (e.from && e.from.toLowerCase().includes(searchTerm)) || (e.date && e.date.includes(searchTerm))); }
+    if (searchTerm) {
+       filtered = filtered.filter(e => 
+          (e.destination && e.destination.toLowerCase().includes(searchTerm)) ||
+          (e.from && e.from.toLowerCase().includes(searchTerm)) || (e.date && e.date.includes(searchTerm))
+       );
+    }
     return filtered;
   };
 
@@ -972,6 +1056,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     document.getElementById('s-km').textContent = filtered.reduce((sum, e) => sum + (e.distance || 0), 0);
     document.getElementById('s-fare').textContent = '₹' + filtered.reduce((sum, e) => sum + (e.fare || 0), 0);
     document.getElementById('s-da').textContent = '₹' + filtered.reduce((sum, e) => sum + (e.da || 0), 0);
+
     const tableContainer = document.getElementById('report-details');
     if (!filtered.length) {
       tableContainer.innerHTML = '<p style="text-align:center; color:var(--text3); padding:10px;">No matching records found.</p>';
@@ -997,7 +1082,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   window.exportCSV = () => {
     const filtered = window.getFilteredSummaryList(); const s = globalSettings;
     if(!filtered.length) return window.showToast('No data available to parse.');
-    const fromDateStr = document.getElementById('report-from').value; const toDateStr = document.getElementById('report-to').value;
+    const fromDateStr = document.getElementById('report-from').value;
+    const toDateStr = document.getElementById('report-to').value;
 
     let csv = `Tour Report (${fromDateStr} to ${toDateStr})\n`;
     csv += `User Name,${s.name || 'N/A'}\n`;
