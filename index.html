@@ -79,10 +79,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .alert-time { font-size: 12px; color: var(--text2); }
 
 /* TR-25 Printing Framework Layout Styles */
-#tr25-print-section { display: none; background: white; color: black; padding: 30px; font-family: 'Times New Roman', serif; }
-#tr25-print-section table { width: 100%; border-collapse: collapse; margin-top: 5px; font-size: 11px; margin-bottom: 15px; }
-#tr25-print-section th, #tr25-print-section td { border: 1px solid black; padding: 4px; text-align: left; }
-#tr25-print-section table[style*="border:none"] th, #tr25-print-section table[style*="border:none"] td { border: none !important; }
+#tr25-print-section { display: none; background: white; color: black; padding: 20px; font-family: 'Times New Roman', serif; }
+.print-table { width: 100%; border-collapse: collapse; margin-top: 5px; font-size: 11px; margin-bottom: 15px; }
+.print-table th, .print-table td { border: 1px solid black; padding: 4px; text-align: left; vertical-align: top; }
+.print-table th { text-align: center; font-weight: bold; }
 .tr25-title { text-align: center; font-weight: bold; font-size: 14px; margin-bottom: 15px; text-transform: uppercase;}
 .tr25-section-title { font-weight: bold; margin-top: 15px; font-size: 12px;}
 @media print {
@@ -187,7 +187,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       </div>
     </div>
 
-    <!-- NEW HOTEL STAY CARD -->
+    <!-- HOTEL STAY CARD -->
     <div class="card" id="hotel-container">
       <div class="card-title">Hotel & Lodging (Optional)</div>
       <div class="field" style="margin-bottom:10px">
@@ -284,7 +284,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       <div class="field" style="margin-bottom:10px"><label>Name</label><input type="text" id="set-name"></div>
       <div class="field" style="margin-bottom:10px"><label>Designation</label><input type="text" id="set-designation"></div>
       
-      <!-- NEW SETTINGS FIELDS -->
       <div class="row">
          <div class="field"><label>Basic Pay (₹)</label><input type="number" id="set-basicpay" placeholder="e.g. 56900"></div>
       </div>
@@ -302,7 +301,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       <button class="btn btn-primary" style="margin-top: 15px;" onclick="window.saveSettings()">Save Profile</button>
     </div>
     
-    <!-- Developer Feedback Link Block -->
     <div class="card" style="margin-top: 20px;">
       <div class="card-title">Contact Developer</div>
       <p style="font-size: 11px; color: var(--text2); margin-bottom: 8px;">Found a bug or need a new feature? Message the admin directly.</p>
@@ -357,54 +355,193 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 
 <!-- TR-25 PRINT SECTION -->
 <div id="tr25-print-section">
-  <div style="text-align:center; font-weight:bold; font-size:16px;">FORM T.R. 25 / GAR 14-A</div>
-  <div class="tr25-title">TRAVELLING ALLOWANCE BILL FOR TOUR</div>
-  <div class="tr25-section-title" style="text-decoration:underline;">PART - A (To be filled by the Government Servant)</div>
+  <div style="text-align:center; font-weight:bold; font-size:16px;">FORM T.R. 25</div>
+  <div style="text-align:center; font-weight:bold; font-size:12px;">GAR 14-A (Sub Bill)<br>Tour<br>Sub - bill No. .......................</div>
+  <div class="tr25-title" style="margin-top:10px;">TRAVELLING ALLOWANCE BILL FOR TOUR</div>
+  <div style="text-align:center; font-size:11px; margin-bottom:15px;">(NOTE: This bill should be prepared in duplicate - one for payment and the other as office copy)</div>
   
-  <table style="width:100%; border:none; margin-bottom:15px;">
-     <tr>
-       <td style="width:50%;">1. Name: <b id="p-tr25-name"></b></td>
-       <td style="width:50%;">2. Designation: <b id="p-tr25-desig"></b></td>
-     </tr>
-     <tr>
-       <td>3. Pay Rs.: <b id="p-tr25-pay"></b></td>
-       <td>4. Headquarter: <b id="p-tr25-hq"></b></td>
-     </tr>
+  <div style="text-align:center; font-weight:bold; text-decoration:underline; font-size:14px; margin-bottom:10px;">PART - A</div>
+  <div style="text-align:center; font-size:12px; margin-bottom:15px;">(To be filled by the Government Servant)</div>
+  
+  <table style="width:100%; border:none; margin-bottom:15px; font-size:12px;">
+     <tr><td style="padding:4px 0;">1. Name: <b id="p-tr25-name"></b></td></tr>
+     <tr><td style="padding:4px 0;">2. Designation: <b id="p-tr25-desig"></b></td></tr>
+     <tr><td style="padding:4px 0;">3. Pay Rs.: <b id="p-tr25-pay"></b></td></tr>
+     <tr><td style="padding:4px 0;">4. Headquarter: <b id="p-tr25-hq"></b></td></tr>
   </table>
 
-  <div class="tr25-section-title">5. Details and purposes of journey (s) performed:</div>
-  <table id="tr25-print-table">
+  <div class="tr25-section-title">5. Details and purposes of journey (s) performed: -</div>
+  <table class="print-table" id="tr25-print-table-5">
      <thead>
        <tr>
-         <th colspan="2">Departure</th><th colspan="2">Arrival</th>
-         <th rowspan="2">Mode of Travel & Fare</th><th rowspan="2">Distance (Kms)</th><th rowspan="2">Purpose of Journey</th>
+         <th colspan="3">Departure</th>
+         <th colspan="3">Arrival</th>
+         <th rowspan="2">Mode of travel &<br>Class of<br>Accommodation</th>
+         <th rowspan="2">Fare<br>paid</th>
+         <th rowspan="2">Distance<br>in Kms,<br>for Road<br>mileage</th>
+         <th rowspan="2">Duration<br>of halt</th>
+         <th rowspan="2">Purpose of<br>Journey</th>
        </tr>
-       <tr><th>Date</th><th>Time / From</th><th>Date</th><th>Time / To</th></tr>
+       <tr>
+         <th>Date</th><th>Time</th><th>From</th>
+         <th>Date</th><th>Time</th><th>To</th>
+       </tr>
      </thead>
      <tbody id="tr25-table-5"></tbody>
   </table>
 
-  <div class="tr25-section-title">9. Particulars to be furnished along with hotel receipts etc., in cases where higher rate of Daily Allowance is claimed:</div>
-  <table id="tr25-hotel-table">
+  <div style="font-size:12px; line-height:1.6; margin-bottom:15px;">
+    <table style="width:100%; border:none;">
+      <tr>
+        <td style="vertical-align:top; width:20px;"><b>6.</b></td>
+        <td>
+          <b>Mode of Journey (s)</b><br>
+          <table style="width:100%; border:none; margin-top:5px;">
+            <tr>
+              <td style="width:30px; vertical-align:top;">(i)</td>
+              <td style="width:50px; vertical-align:top;">AIR</td>
+              <td style="vertical-align:top;">
+                (a) Exchange voucher arranged by office............................................................ Yes / No<br>
+                (b) Ticket/Exchange voucher arranged by .......................................................................
+              </td>
+            </tr>
+            <tr>
+              <td style="vertical-align:top; padding-top:10px;">(ii)</td>
+              <td style="vertical-align:top; padding-top:10px;">RAIL</td>
+              <td style="vertical-align:top; padding-top:10px;">
+                (a) Whether traveled by mail / Express/ Ordinary train ....................................... Yes / No<br>
+                (b) Whether return tickets available ..................................................................................<br>
+                (c) If available whether return tickets purchased? If not, state reason ..............................
+              </td>
+            </tr>
+            <tr>
+              <td style="vertical-align:top; padding-top:10px;">(iii)</td>
+              <td style="vertical-align:top; padding-top:10px;">ROAD</td>
+              <td style="vertical-align:top; padding-top:10px;">
+                Mode of conveyance used (i.e. by Government transport/ by taking a taxi, a single seat in a bus or other in a public conveyance, by sharing with another Government servant in a car belonging to him or to a third person to be specified) ........................................................<br>.............................................................................................................................................
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td style="vertical-align:top; padding-top:15px;"><b>7.</b></td>
+        <td style="padding-top:15px;">
+          <b>Dates of absence from place of halt on account of :</b><br>
+          (a) Restricted Holidays and Casual Leave ......................................................................................<br>
+          (b) Note being actually in camp on Sundays and Holidays ............................................................
+        </td>
+      </tr>
+      <tr>
+        <td style="vertical-align:top; padding-top:15px;"><b>8.</b></td>
+        <td style="padding-top:15px;">
+          <b>Dates on which free board and/ or lodging provided by the State or any organization financed by State funds:</b><br>
+          (a) Board only : ................................................................................................................................<br>
+          (b) Lodging only : ............................................................................................................................<br>
+          (c) Boarding and lodging : ..............................................................................................................
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="tr25-section-title">9. Particulars to be furnished along with hotel receipts etc, in cases where higher rate of Daily Allowance is claimed for stay in hotel/other establishments providing board and/or lodging at scheduled tariff:</div>
+  <table class="print-table" id="tr25-hotel-table">
       <thead>
-         <tr><th>Period From</th><th>Period To</th><th>Name of the Hotel</th><th>Daily Rate Charged (Rs.)</th><th>Total Amount Paid (Rs.)</th></tr>
+         <tr>
+           <th colspan="2">Period of Stay</th>
+           <th rowspan="2">Name of the Hotel</th>
+           <th rowspan="2">Daily Rate of<br>Lodging<br>Charged</th>
+           <th rowspan="2">Total<br>Amount<br>Paid</th>
+         </tr>
+         <tr><th>From</th><th>To</th></tr>
       </thead>
       <tbody id="tr25-table-9"></tbody>
   </table>
 
-  <div class="tr25-section-title">12. Amount of Advance of Travelling Allowance, if any, drawn: Rs. <span id="p-tr25-advance"></span></div>
+  <div class="tr25-section-title">10. Particulars of Journey(s) for which higher class of accommodation than one to which the Government servant is entitled to was used.</div>
+  <table class="print-table">
+      <thead>
+        <tr>
+          <th rowspan="2">Date</th>
+          <th colspan="2">Name of Places</th>
+          <th rowspan="2">Mode of<br>Conveyance<br>Used</th>
+          <th rowspan="2">Class to<br>Which<br>Entitled</th>
+          <th rowspan="2">Class by<br>Which<br>Travelled</th>
+          <th colspan="2">Fare of the<br>Entitled Class</th>
+        </tr>
+        <tr><th>From</th><th>To</th><th>Rs.</th><th>P.</th></tr>
+      </thead>
+      <tbody>
+        <tr><td style="height:20px;"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td style="height:20px;"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      </tbody>
+  </table>
+  <div style="font-size:11px; margin-bottom:15px;">NOTE: If the journey by higher class of accommodation has been performed with the approval of the competent authority, the number and date of sanction may be quoted.</div>
+
+  <div class="tr25-section-title">11. Details of Journey(s) performed by road between places connected by rail.</div>
+  <table class="print-table">
+      <thead>
+        <tr>
+          <th rowspan="2">Date</th>
+          <th colspan="2">Name of Places</th>
+          <th colspan="2">Fare Paid</th>
+          <th rowspan="2">Remarks</th>
+        </tr>
+        <tr><th>From</th><th>To</th><th>Rs.</th><th>P.</th></tr>
+      </thead>
+      <tbody>
+        <tr><td style="height:20px;"></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr><td style="height:20px;"></td><td></td><td></td><td></td><td></td><td></td></tr>
+      </tbody>
+  </table>
+
+  <div class="tr25-section-title" style="margin-bottom: 20px;">12. Amount of Advance of Travelling Allowance, if any, drawn. Rs. <span id="p-tr25-advance"></span></div>
   
-  <div style="margin-top:40px; text-align:right;">
-     Signature of the Government Servant<br>
+  <div style="margin-top:20px; text-align:left; font-size:12px;">
+     Certified that the information, as given above, is true to the best of my knowledge and belief.
+  </div>
+  <div style="margin-top:40px; text-align:right; font-weight:bold; font-size:12px;">
+     Signature of the Government Servant
+  </div>
+  <div style="margin-top:10px; font-weight:bold; font-size:12px;">
      Date: __________________
   </div>
 
-  <div class="tr25-section-title" style="margin-top:40px; text-decoration:underline;">PART - B (To be filled by the Bill Section)</div>
-  <div style="margin-top:10px; font-size:12px;">
-      1. The net entitlement on account of Travelling Allowance works out to Rs. _________
-      <br><br>(e) Less amount of advance(s) of Travelling Allowance, if any, drawn: Rs. <span id="p-tr25-advance-b"></span>
-      <br><br><b>Net Amount:</b> Rs. _________
-      <br><br><br><b>Reporting Authority:</b> <span id="p-tr25-authority"></span>
+  <div style="page-break-before: always;"></div>
+  
+  <div class="tr25-section-title" style="margin-top:20px; text-align:center; font-size:14px; text-decoration:underline;">PART - B</div>
+  <div style="text-align:center; font-size:12px; margin-bottom:20px;">(To be filled by the Bill Section)</div>
+  
+  <div style="font-size:12px; line-height:1.8;">
+      1. The net entitlement on account of Travelling Allowance work out to Rs. _________<br>
+      (Rupees ...................................................................................................................) as detailed below:<br>
+      <table style="width:100%; border:none; margin-left:20px;">
+         <tr><td style="width:60%;">(a) Railway/ Air/Bus / Steamer fares</td><td>Rs. _________</td></tr>
+         <tr><td>(b) Road mileage for ............ Km. @Rs .......... Paisa / Km.</td><td>Rs. _________</td></tr>
+         <tr><td>(c) Daily Allowance:</td><td></td></tr>
+         <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;(i) ........ days @ Rs .............. Per day</td><td>Rs. _________</td></tr>
+         <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;(ii) ....... days @ Rs .............. Per day</td><td>Rs. _________</td></tr>
+         <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;(iii) ...... days @ Rs .............. Per day</td><td>Rs. _________</td></tr>
+         <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;(iv) ...... days @ Rs .............. Per day</td><td>Rs. _________</td></tr>
+         <tr><td>(d) Actual expenses</td><td>Rs. _________</td></tr>
+         <tr><td><b>Gross Amount</b></td><td><b>Rs. _________</b></td></tr>
+         <tr><td>(e) Less amount of advance(s) of Travelling Allowance, if any, drawn vide<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Voucher(s) No......................... dated ........................</td><td>Rs. <b id="p-tr25-advance-b"></b></td></tr>
+         <tr><td><b>Net Amount</b></td><td><b>Rs. _________</b></td></tr>
+      </table>
+      <br>
+      2. The expenditure is debitable to ..............................................................................................<br>
+  </div>
+
+  <div style="margin-top:60px; display:flex; justify-content:space-between; font-weight:bold; font-size:12px;">
+     <div style="text-align:center;">_______________________<br>Bill Clerk<br>(initial)</div>
+     <div style="text-align:center;">_______________________<br>Drawing and Disbursing Officer<br>(Signature)</div>
+  </div>
+  
+  <div style="margin-top:50px; text-align:left; font-weight:bold; font-size:12px;">
+     Countersigned
+  </div>
+  <div style="margin-top:40px; text-align:left; font-weight:bold; font-size:12px;">
+     _______________________<br>Controlling Officer<br>(Signature)
   </div>
 </div>
 
@@ -590,7 +727,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
          document.getElementById('premium-lock').style.display = isPremiumUser ? 'none' : 'block';
          document.getElementById('premium-content').style.display = isPremiumUser ? 'block' : 'none';
          
-         // Only show print export section container to premium
          document.getElementById('premium-export-container').style.display = isPremiumUser ? 'block' : 'none';
          document.getElementById('btn-tr25-print').style.display = isPremiumUser ? 'block' : 'none';
 
@@ -966,25 +1102,20 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     await navigator.clipboard.writeText(text); window.showToast('Copied to clipboard!');
   };
 
-  // ADVANCED TR-25 PRINT POPULATION LOGIC
   window.printTR25 = () => {
      if(!isPremiumUser) return;
      const filtered = window.getFilteredSummaryList();
      if(!filtered.length) return window.showToast("No data selected within current timeline parameters.");
      
-     // Map Header Data (Items 1-4)
      document.getElementById('p-tr25-name').textContent = globalSettings.name || 'N/A';
      document.getElementById('p-tr25-desig').textContent = globalSettings.designation || 'N/A';
      document.getElementById('p-tr25-pay').textContent = globalSettings.basicPay || 'N/A';
      document.getElementById('p-tr25-hq').textContent = globalSettings.address || 'N/A';
-     document.getElementById('p-tr25-authority').textContent = globalSettings.reportingAuthority || 'N/A';
      
-     // Map Advance Data (Item 12)
      const adv = document.getElementById('ta-advance').value || '0';
      document.getElementById('p-tr25-advance').textContent = adv;
      document.getElementById('p-tr25-advance-b').textContent = adv;
      
-     // Map Journey Details (Item 5)
      const body5 = document.getElementById('tr25-table-5');
      body5.innerHTML = filtered.map(e => `
         <tr>
@@ -992,18 +1123,19 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
           <td>${e.depTime}<br><b>From:</b> ${e.from}</td>
           <td>${window.formatDDMMYYYY(e.arrDate)}</td>
           <td>${e.arrTime}<br><b>To:</b> ${e.destination}</td>
-          <td>${e.mode}<br>Fare: ₹${e.fare}</td>
+          <td>${e.mode}</td>
+          <td>${e.fare}</td>
           <td>${e.distance}</td>
-          <td>${e.purpose || 'Official Duty'}</td>
+          <td>-</td>
+          <td>${e.purpose || ''}</td>
         </tr>
      `).join('');
      
-     // Map Hotel Logic (Item 9) with "NIL" checker
      const hotelData = filtered.filter(e => e.hotelName && e.hotelName.trim() !== '');
      const body9 = document.getElementById('tr25-table-9');
      
      if(hotelData.length > 0) {
-        body9.innerHTML = hotelData.map(e => `<tr><td>${window.formatDDMMYYYY(e.hotelFrom)}</td><td>${window.formatDDMMYYYY(e.hotelTo)}</td><td>${e.hotelName}</td><td>₹${e.hotelRate}</td><td>₹${e.hotelTotal}</td></tr>`).join('');
+        body9.innerHTML = hotelData.map(e => `<tr><td>${window.formatDDMMYYYY(e.hotelFrom)}</td><td>${window.formatDDMMYYYY(e.hotelTo)}</td><td>${e.hotelName}</td><td>${e.hotelRate}</td><td>${e.hotelTotal}</td></tr>`).join('');
      } else {
         body9.innerHTML = '<tr><td colspan="5" style="text-align:center; font-weight:bold;">NIL</td></tr>';
      }
@@ -1018,16 +1150,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       <div class="entry-card">
         <div class="entry-header">
           <div class="entry-date">${window.formatDDMMYYYY(e.date)} (${e.depTime}) to ${window.formatDDMMYYYY(e.arrDate)} (${e.arrTime})</div>
-          <div>
-           <button class="delete-btn" onclick="window.editEntry('${e.id}')" style="color:var(--blue);margin-right:10px;">✏️</button>
-           <button class="delete-btn" onclick="window.deleteEntry('${e.id}')">🗑️</button>
-          </div>
+          <div><button class="delete-btn" onclick="window.editEntry('${e.id}')" style="color:var(--blue);margin-right:10px;">✏️</button><button class="delete-btn" onclick="window.deleteEntry('${e.id}')">🗑️</button></div>
         </div>
         <div class="entry-route">${e.from} → ${e.destination}</div>
         <div class="entry-chips">
-          <span class="chip">${e.distance} km</span>
-          <span class="chip blue">₹${e.fare}</span>
-          <span class="chip green">DA ₹${e.da}</span>
+          <span class="chip">${e.distance} km</span><span class="chip blue">₹${e.fare}</span><span class="chip green">DA ₹${e.da}</span>
         </div>
         ${e.hotelName ? `<div class="entry-purpose">🏨 ${e.hotelName} (₹${e.hotelTotal})</div>` : ''}
         ${e.purpose ? `<div class="entry-purpose">📝 ${e.purpose}</div>` : ''}
@@ -1036,17 +1163,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   };
 
   window.getFilteredSummaryList = () => {
-    const from = document.getElementById('report-from').value;
-    const to = document.getElementById('report-to').value;
+    const from = document.getElementById('report-from').value; const to = document.getElementById('report-to').value;
     const searchTerm = (document.getElementById('report-search').value || "").toLowerCase();
     if (!from || !to) return [];
     let filtered = tourEntries.filter(e => e.date >= from && e.date <= to);
-    if (searchTerm) {
-       filtered = filtered.filter(e => 
-          (e.destination && e.destination.toLowerCase().includes(searchTerm)) ||
-          (e.from && e.from.toLowerCase().includes(searchTerm)) || (e.date && e.date.includes(searchTerm))
-       );
-    }
+    if (searchTerm) { filtered = filtered.filter(e => (e.destination && e.destination.toLowerCase().includes(searchTerm)) || (e.from && e.from.toLowerCase().includes(searchTerm)) || (e.date && e.date.includes(searchTerm))); }
     return filtered;
   };
 
@@ -1056,7 +1177,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     document.getElementById('s-km').textContent = filtered.reduce((sum, e) => sum + (e.distance || 0), 0);
     document.getElementById('s-fare').textContent = '₹' + filtered.reduce((sum, e) => sum + (e.fare || 0), 0);
     document.getElementById('s-da').textContent = '₹' + filtered.reduce((sum, e) => sum + (e.da || 0), 0);
-
     const tableContainer = document.getElementById('report-details');
     if (!filtered.length) {
       tableContainer.innerHTML = '<p style="text-align:center; color:var(--text3); padding:10px;">No matching records found.</p>';
@@ -1082,8 +1202,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   window.exportCSV = () => {
     const filtered = window.getFilteredSummaryList(); const s = globalSettings;
     if(!filtered.length) return window.showToast('No data available to parse.');
-    const fromDateStr = document.getElementById('report-from').value;
-    const toDateStr = document.getElementById('report-to').value;
+    const fromDateStr = document.getElementById('report-from').value; const toDateStr = document.getElementById('report-to').value;
 
     let csv = `Tour Report (${fromDateStr} to ${toDateStr})\n`;
     csv += `User Name,${s.name || 'N/A'}\n`;
