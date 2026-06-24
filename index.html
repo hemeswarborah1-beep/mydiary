@@ -39,6 +39,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .field textarea { resize: none; height: 60px; }
 .btn { width: 100%; padding: 13px; border: none; border-radius: var(--radius); font-size: 15px; font-weight: 600; cursor: pointer; text-align: center; }
 .btn-primary { background: var(--blue); color: #fff; }
+.btn-success { background: var(--success); color: #fff; }
 .btn-warning { background: #FF9800; color: #fff; margin-top: 10px; }
 .btn-sm { width: auto; padding: 6px 12px; font-size: 12px; margin-top: 5px;}
 .btn-premium { background: #FFD700; color: #000; font-weight: 700; }
@@ -140,8 +141,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     </div>
   </div>
 
-  <!-- ADD ENTRY SCREEN -->
+  <!-- ADD ENTRY SCREEN (MULTI-LEG UPGRADE) -->
   <div class="screen" id="screen-add">
+    
+    <!-- Pending Legs Banner -->
+    <div id="pending-legs-info" style="display:none; padding: 12px; background: var(--blue-bg); border: 1px solid var(--blue-light); border-radius: var(--radius-sm); margin-bottom: 12px; font-size: 13px; color: var(--blue-dark);">
+      <strong>🚀 Tour Active:</strong> <span id="pending-legs-count">0</span> legs currently logged. Add your next destination below, or close the tour if you have returned.
+    </div>
+
     <div class="card">
       <div class="card-title">Journey Details</div>
       <div class="row">
@@ -183,8 +190,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     <!-- 31 Days Limit Tracker -->
     <div id="trial-counter" style="text-align:center; font-size:12px; color:var(--text2); margin-bottom:10px;"></div>
     
-    <button class="btn btn-primary" id="btn-save-entry" onclick="window.saveEntry()">Save & Continue</button>
-    <button class="btn btn-warning" id="btn-cancel-edit" onclick="window.cancelEdit()" style="display:none;">Cancel Edit</button>
+    <!-- Multi-Leg Interactive Action Buttons -->
+    <div id="add-buttons-container" style="display: flex; gap: 10px;">
+      <button class="btn btn-primary" id="btn-add-leg" style="flex: 1; font-size: 14px;" onclick="window.processLeg(false)">➕ Add Next Leg</button>
+      <button class="btn btn-success" id="btn-finish-tour" style="flex: 1; font-size: 14px;" onclick="window.processLeg(true)">✅ End Tour & Calc DA</button>
+    </div>
+    
+    <!-- Edit / Reset Buttons -->
+    <button class="btn btn-primary" id="btn-update-entry" onclick="window.processLeg(true)" style="display:none;">Update Entry</button>
+    <button class="btn btn-warning" id="btn-cancel-edit" onclick="window.cancelEdit()" style="display:none;">Cancel / Reset Tour</button>
   </div>
 
   <!-- RECORDS SCREEN -->
@@ -260,8 +274,18 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
         <div class="field"><label>DA Rate (₹)</label><input type="number" id="set-da"></div>
       </div>
       <div class="field" style="margin-top:10px"><label>Fare Rate / km (₹)</label><input type="number" id="set-fare"></div>
+      <button class="btn btn-primary" style="margin-top: 15px;" onclick="window.saveSettings()">Save Profile</button>
     </div>
-    <button class="btn btn-primary" onclick="window.saveSettings()">Save Profile</button>
+    
+    <!-- Developer Feedback Link Block -->
+    <div class="card" style="margin-top: 20px;">
+      <div class="card-title">Contact Developer</div>
+      <p style="font-size: 11px; color: var(--text2); margin-bottom: 8px;">Found a bug or need a new feature? Message the admin directly.</p>
+      <div class="field" style="margin-bottom:10px">
+        <textarea id="feedback-text" placeholder="Type your message, issue, or feature request here..."></textarea>
+      </div>
+      <button class="btn" style="background: var(--text); color: #fff;" onclick="window.sendFeedback()">📤 Send Message</button>
+    </div>
   </div>
 </div>
 
@@ -357,9 +381,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   let isAdminUser = false;
   let isPremiumUser = false;
   let authMode = 'login';
+  
   let editingId = null;
-  let isReturnMode = false;
-  let outwardData = null;
+  let pendingTourLegs = []; // Array to hold infinite multi-leg trips temporarily
   
   let globalSettings = { name: "", designation: "", payLevel: "6", daRate: 500, fareRate: 12 };
   let tourEntries = [];
@@ -497,7 +521,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
          const pData = profileSnap.data();
          status = pData.status || 'approved';
          
-         // Bulletproof Checks: Handles boolean, string "true", and integer 1
+         // Bulletproof Premium Checks
          isAdminUser = (pData.role === 'admin' || String(pData.role).toLowerCase() === 'superadmin');
          isPremiumUser = (pData.premium === true || String(pData.premium).toLowerCase() === 'true' || pData.premium === 1);
       }
@@ -558,7 +582,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
         const d = doc.data();
         if(doc.id === currentUser.uid) return; 
         
-        // Bulletproof check for admin panel rendering
         const isUserPremium = (d.premium === true || String(d.premium).toLowerCase() === 'true' || d.premium === 1);
         
         html += `<div class="pending-user-card">
@@ -679,6 +702,27 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       window.showToast('Profile Saved!'); window.loadSettings();
     } catch(e) { window.showToast('Error syncing cloud.'); }
   };
+  
+  // NEW DEVELOPER FEEDBACK FUNCTION
+  window.sendFeedback = async () => {
+    const msg = document.getElementById('feedback-text').value.trim();
+    if(!msg) return window.showToast("Please write a message first.");
+    if(!currentUser) return;
+    
+    try {
+      await addDoc(collection(db, "feedback"), {
+        uid: currentUser.uid,
+        email: currentUser.email,
+        name: globalSettings.name || "Unknown Officer",
+        message: msg,
+        timestamp: Date.now()
+      });
+      document.getElementById('feedback-text').value = '';
+      window.showToast("✅ Message successfully sent to developer!");
+    } catch(e) {
+      window.showToast("❌ Error sending message. Please try again.");
+    }
+  };
 
   window.fetchEntries = async () => {
     if(!currentUser) return;
@@ -702,11 +746,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
               counterEl.innerHTML = `Free Trial: <b>${uniqueDays} / 31</b> Journey Days Logged`;
           }
 
-          // SMART POPUP: Only show if they have used 28 days or more
           if (uniqueDays >= 28) {
               const statusText = uniqueDays >= 31 ? "TRIAL EXPIRED." : "RENEW NOW.";
               document.getElementById('modal-trial-text').innerHTML = `<strong style="color:var(--danger); font-size:15px;">${uniqueDays}/31 DAYS FREE USED. ${statusText}</strong><br><br>Unlock the Premium Plan to continue logging your journeys and gain access to official T.R. 25 Auto-Printing.`;
-              
               setTimeout(() => { window.showPlanModal(); }, 1200);
           }
       } else {
@@ -734,7 +776,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     document.getElementById('fare').value = Math.round(dist * globalSettings.fareRate);
   };
 
-  window.saveEntry = async () => {
+  // MULTI-LEG TOUR LOGIC UPGRADE
+  window.processLeg = async (isFinalLeg) => {
     const depDate = document.getElementById('dep-date').value;
     const depTime = document.getElementById('dep-time').value;
     const arrDate = document.getElementById('arr-date').value || depDate;
@@ -742,8 +785,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     
     if(!depDate || !dest) return window.showToast('Fill departure date and destination');
 
-    // ENFORCE 31-DAY FREE TRIAL LIMIT BLOCKER FOR NEW OUTWARD JOURNEYS
-    if (!isReturnMode && !editingId && !isPremiumUser && !isAdminUser) {
+    if (pendingTourLegs.length === 0 && !editingId && !isPremiumUser && !isAdminUser) {
         const uniqueDays = new Set(tourEntries.map(e => e.date)).size;
         if (uniqueDays >= 31) {
             window.showPlanModal();
@@ -751,22 +793,25 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
         }
     }
 
-    if (!isReturnMode && !editingId) {
+    if (pendingTourLegs.length === 0 && !editingId) {
        const isDuplicate = tourEntries.some(e => e.date === depDate && e.depTime === depTime);
        if (isDuplicate) return window.showToast("⚠️ Duplicate blocked: Entry already exists.");
     }
 
-    const loggedPurpose = isReturnMode ? "Return Journey" : document.getElementById('purpose').value.trim();
+    // Determine the purpose dynamically
+    const rawPurpose = document.getElementById('purpose').value.trim();
+    const loggedPurpose = rawPurpose !== "" ? rawPurpose : (isFinalLeg && pendingTourLegs.length > 0 ? "Return Journey to HQ" : "");
 
     const entryData = {
       uid: currentUser.uid, timestamp: Date.now(), date: depDate, arrDate: arrDate, depTime: depTime,
       arrTime: document.getElementById('arr-time').value, from: document.getElementById('from').value,
       destination: dest, distance: Number(document.getElementById('distance').value),
       fare: Number(document.getElementById('fare').value), mode: document.getElementById('mode').value,
-      purpose: loggedPurpose, da: Number(document.getElementById('da').value) || 0
+      purpose: loggedPurpose, da: 0 // DA remains 0 until the final calculation
     };
 
     if (editingId) {
+      entryData.da = Number(document.getElementById('da').value) || 0;
       try {
         await updateDoc(doc(db, "entries", editingId), entryData);
         window.showToast("Entry Updated!"); window.cancelEdit(); window.fetchEntries();
@@ -774,41 +819,36 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       return;
     }
 
-    if(!isReturnMode) {
-      
-      const depD = new Date(`${entryData.date}T${entryData.depTime}`);
-      const arrD = new Date(`${entryData.arrDate}T${entryData.arrTime}`);
-      const durationMs = arrD - depD;
-      
-      outwardData = entryData; isReturnMode = true;
-      
-      document.getElementById('from').value = entryData.destination;
-      document.getElementById('destination').value = entryData.from;
-      document.getElementById('dep-date').value = entryData.arrDate; 
+    // Add current leg to temporary memory
+    pendingTourLegs.push(entryData);
+
+    if (!isFinalLeg) {
+      // User clicked "Add Next Leg". Prepare UI for the next step.
+      document.getElementById('from').value = dest;
+      document.getElementById('destination').value = '';
+      document.getElementById('dep-date').value = arrDate;
       document.getElementById('dep-time').value = entryData.arrTime;
       
-      if(durationMs > 0) {
-          const returnDepD = new Date(`${entryData.arrDate}T${entryData.arrTime}`);
-          const returnArrD = new Date(returnDepD.getTime() + durationMs);
-          const pad = (n) => n.toString().padStart(2, '0');
-          document.getElementById('arr-date').value = returnArrD.toISOString().split('T')[0];
-          document.getElementById('arr-time').value = `${pad(returnArrD.getHours())}:${pad(returnArrD.getMinutes())}`;
-      } else {
-          document.getElementById('arr-date').value = entryData.arrDate;
-      }
+      document.getElementById('distance').value = ''; 
+      document.getElementById('fare').value = '';
+      document.getElementById('purpose').value = '';
       
-      document.getElementById('distance').value = entryData.distance; 
-      window.autoCalculate(); 
-      document.getElementById('da').value = '';
+      // Update UI Banner
+      document.getElementById('pending-legs-info').style.display = 'block';
+      document.getElementById('pending-legs-count').textContent = pendingTourLegs.length;
+      document.getElementById('btn-cancel-edit').style.display = 'block'; // Allow them to reset if they make a mistake
       
-      document.getElementById('purpose-container').style.display = 'none';
-      document.querySelector('#screen-add .btn-primary').textContent = "Save Return & Calc DA";
-      window.showToast('Outward saved! Return Journey data automatically pre-filled.');
+      window.showToast(`Leg ${pendingTourLegs.length} secured. Enter next destination.`);
+      
     } else {
-      const totalDist = outwardData.distance + entryData.distance;
-      const start = new Date(`${outwardData.date}T${outwardData.depTime}`);
+      // User clicked "End Tour & Calc DA". Do the grand calculation.
+      const firstLeg = pendingTourLegs[0];
+      const start = new Date(`${firstLeg.date}T${firstLeg.depTime}`);
       const end = new Date(`${entryData.arrDate}T${entryData.arrTime}`);
       const hours = (end - start) / (1000 * 60 * 60);
+      
+      // Calculate continuous DA correctly over multi-day / multi-leg trips
+      const totalDist = pendingTourLegs.reduce((sum, leg) => sum + leg.distance, 0);
       
       let finalDA = 0;
       if(totalDist >= 8 && hours > 0) {
@@ -818,19 +858,27 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
         else if(rem >= 6) finalDA += (globalSettings.daRate * 0.7);
         else if(rem > 0) finalDA += (globalSettings.daRate * 0.3);
       }
-      outwardData.da = 0; entryData.da = Math.round(finalDA);
+      
+      // Assign the massive total DA only to the final leg for clean ledger reporting
+      pendingTourLegs[pendingTourLegs.length - 1].da = Math.round(finalDA);
 
       try {
-        await addDoc(collection(db, "entries"), outwardData);
-        await addDoc(collection(db, "entries"), entryData);
-        window.showToast(`Journey Complete! Total DA: ₹${entryData.da}`);
-        isReturnMode = false; outwardData = null;
-        document.querySelector('#screen-add .btn-primary').textContent = "Save & Continue";
-        ['distance','purpose','destination'].forEach(id => document.getElementById(id).value = '');
+        // Push all pending memory legs to Firebase Database instantly
+        for (let leg of pendingTourLegs) {
+           await addDoc(collection(db, "entries"), leg);
+        }
+        
+        window.showToast(`Multi-Leg Tour Complete! Total DA: ₹${pendingTourLegs[pendingTourLegs.length - 1].da}`);
+        
+        // Reset everything back to normal state
+        pendingTourLegs = [];
+        document.getElementById('pending-legs-info').style.display = 'none';
+        document.getElementById('btn-cancel-edit').style.display = 'none';
+        ['distance','purpose','destination','fare','da'].forEach(id => document.getElementById(id).value = '');
         document.getElementById('from').value = 'Headquarter';
-        document.getElementById('purpose-container').style.display = 'flex';
+        
         window.fetchEntries();
-      } catch(e) { window.showToast('Database error'); }
+      } catch(e) { window.showToast('Database error finalizing tour.'); }
     }
   };
 
@@ -849,21 +897,28 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     document.getElementById('purpose').value = entry.purpose || '';
     document.getElementById('da').readOnly = false; 
 
-    editingId = id; isReturnMode = false; outwardData = null;
-    document.getElementById('purpose-container').style.display = 'flex';
-    document.getElementById('btn-save-entry').textContent = "Update Entry";
-    document.getElementById('btn-cancel-edit').style.display = "block";
+    editingId = id; 
+    pendingTourLegs = []; // clear any active memory
+    document.getElementById('pending-legs-info').style.display = 'none';
+    
+    // Switch buttons to Edit Mode
+    document.getElementById('add-buttons-container').style.display = 'none';
+    document.getElementById('btn-update-entry').style.display = 'block';
+    document.getElementById('btn-cancel-edit').style.display = 'block';
+    
     window.switchTab('add'); window.scrollTo(0, 0);
   };
 
   window.cancelEdit = () => {
     editingId = null;
-    document.getElementById('btn-save-entry').textContent = "Save & Continue";
-    document.getElementById('btn-cancel-edit').style.display = "none";
+    pendingTourLegs = [];
+    document.getElementById('pending-legs-info').style.display = 'none';
+    document.getElementById('add-buttons-container').style.display = 'flex';
+    document.getElementById('btn-update-entry').style.display = 'none';
+    document.getElementById('btn-cancel-edit').style.display = 'none';
     document.getElementById('da').readOnly = true;
     ['distance','fare','da','purpose', 'destination'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('from').value = 'Headquarter';
-    document.getElementById('purpose-container').style.display = 'flex';
   };
 
   window.shareSingleEntry = async (id) => {
