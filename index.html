@@ -118,14 +118,24 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
         <div class="field" style="margin-bottom:10px"><label>Mobile Number</label><input type="tel" id="auth-mobile" placeholder="e.g. 9876543210"></div>
       </div>
       <div class="field" style="margin-bottom:10px"><label>Email</label><input type="email" id="login-email" placeholder="officer@example.com"></div>
-      <div class="field" style="margin-bottom:20px"><label>Password</label><input type="password" id="login-password"></div>
+      <div class="field" style="margin-bottom:10px"><label>Password</label><input type="password" id="login-password"></div>
+      
+      <div style="text-align: right; margin-bottom: 20px;">
+        <a onclick="window.resetPassword()" style="font-size: 11px; color: var(--blue); cursor: pointer; text-decoration: underline;">Forgot Password?</a>
+      </div>
+
       <button class="btn btn-primary" id="btn-auth" onclick="window.processAuth()">Login securely</button>
       <a class="toggle-link" onclick="window.toggleAuthMode()">Need an account? Sign up here</a>
+
+      <button class="btn btn-success" id="install-app-btn" onclick="window.installApp()" style="display:none; margin-top: 15px;">📱 Install App to Homescreen</button>
     </div>
 
     <div class="card" id="pending-card" style="display:none; text-align:center; padding: 30px 15px;">
-       <h3 style="color: var(--blue); margin-bottom: 10px;">⏳ Account Pending</h3>
-       <p style="color: var(--text2); font-size: 14px; line-height: 1.5;">Your account has been successfully created!<br><br>However, it requires Superadmin approval before you can access the Tour Diary system.</p>
+       <h3 style="color: var(--blue); margin-bottom: 10px;">📧 Verify Your Email</h3>
+       <p style="color: var(--text2); font-size: 14px; line-height: 1.5;">We have sent a verification link to your email address.<br><br>Please click the link in your inbox to automatically activate your account.</p>
+       <button class="btn btn-primary" style="margin-top: 15px;" onclick="window.location.reload()">I have verified my email</button>
+       <button class="btn" style="margin-top: 10px; background: #eceff1; color: #37474f;" onclick="window.resendVerification()">Resend Link</button>
+       <a class="toggle-link" onclick="window.logoutUser()">Logout</a>
     </div>
   </div>
 
@@ -576,7 +586,7 @@ Premium officers enjoy the following exclusive features:
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
   import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, setDoc, getDoc, updateDoc, query, where } 
     from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
   // Added Storage imports
@@ -761,21 +771,53 @@ Premium officers enjoy the following exclusive features:
     const e = document.getElementById('login-email').value;
     const p = document.getElementById('login-password').value;
     if(!e || !p) return window.showToast("Please enter email and password.");
+    
     try {
       if(authMode === 'login') {
-        await signInWithEmailAndPassword(auth, e, p);
         window.showToast("Logging in...");
+        await signInWithEmailAndPassword(auth, e, p);
       } else {
         const name = document.getElementById('auth-name').value;
         const desig = document.getElementById('auth-designation').value;
         const mob = document.getElementById('auth-mobile').value;
         if(!name || !desig || !mob) return window.showToast("Please fill all signup fields.");
+        
+        window.showToast("Creating account...");
         const userCred = await createUserWithEmailAndPassword(auth, e, p);
+        
+        // Send verification email automatically
+        await sendEmailVerification(userCred.user);
+        
         await setDoc(doc(db, "profiles", userCred.user.uid), { email: e, name: name, designation: desig, mobile: mob, status: 'pending', role: 'officer', premium: false });
         await setDoc(doc(db, "settings", userCred.user.uid), { name: name, designation: desig, basicPay: "", reportingAuthority: "", address: "", payLevel: "6", daRate: 500, fareRate: 12 });
-        window.showToast("Account created! Awaiting admin approval.");
+        
+        window.showToast("Account created! Please check your email to verify.");
       }
     } catch(err) { window.showToast(err.message.replace('Firebase: ', '')); }
+  };
+
+  // Forgot Password Function
+  window.resetPassword = async () => {
+      const email = document.getElementById('login-email').value;
+      if (!email) return window.showToast("Please enter your email address first.");
+      try {
+          await sendPasswordResetEmail(auth, email);
+          window.showToast("✅ Password reset link sent to your email!");
+      } catch (err) {
+          window.showToast(err.message.replace('Firebase: ', ''));
+      }
+  };
+
+  // Resend Verification Email
+  window.resendVerification = async () => {
+      if (currentUser) {
+          try {
+              await sendEmailVerification(currentUser);
+              window.showToast("✅ Verification email sent again!");
+          } catch (err) {
+              window.showToast("Please wait a moment before resending.");
+          }
+      }
   };
 
   window.logoutUser = async () => {
@@ -787,18 +829,35 @@ Premium officers enjoy the following exclusive features:
   onAuthStateChanged(auth, async (user) => {
     if (user) {
       currentUser = user;
+      
+      // Block access if email is not verified
+      if (!user.emailVerified) {
+         document.getElementById('login-card').style.display = 'none';
+         document.getElementById('pending-card').style.display = 'block';
+         document.querySelector('.bottom-nav').style.display = 'none';
+         document.getElementById('badge-premium').style.display = 'none';
+         window.switchTab('login');
+         return; // Stop execution to ensure they verify
+      }
+
       const priceSnap = await getDoc(doc(db, "app_config", "pricing"));
       if(priceSnap.exists()) cachedPlanPrice = priceSnap.data().yearly_rate || 199;
 
       const profileSnap = await getDoc(doc(db, "profiles", user.uid));
-      let status = 'approved'; 
+      let status = 'pending'; 
       isAdminUser = false; isPremiumUser = false;
       
       if (profileSnap.exists()) {
          const pData = profileSnap.data();
-         status = pData.status || 'approved';
+         status = pData.status || 'pending';
          isAdminUser = (pData.role === 'admin' || String(pData.role).toLowerCase() === 'superadmin');
          isPremiumUser = (pData.premium === true || String(pData.premium).toLowerCase() === 'true' || pData.premium === 1);
+         
+         // Automatically upgrade to approved if email is verified but DB still says pending
+         if (status === 'pending' && user.emailVerified) {
+             await updateDoc(doc(db, "profiles", user.uid), { status: 'approved' });
+             status = 'approved';
+         }
       }
 
       if (status === 'pending') {
@@ -808,7 +867,7 @@ Premium officers enjoy the following exclusive features:
          document.getElementById('badge-premium').style.display = 'none';
          window.switchTab('login');
       } else {
-         document.getElementById('login-card').style.display = 'block';
+         document.getElementById('login-card').style.display = 'none';
          document.getElementById('pending-card').style.display = 'none';
          document.querySelector('.bottom-nav').style.display = 'flex';
          document.getElementById('btn-logout').style.display = 'block';
@@ -1438,6 +1497,26 @@ Premium officers enjoy the following exclusive features:
   if(document.getElementById('report-from')) {
     document.getElementById('report-from').value = firstDay; document.getElementById('report-to').value = todayDate;
   }
+
+  // PWA Install to Homescreen Logic
+  let deferredPrompt;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    const installBtn = document.getElementById('install-app-btn');
+    if (installBtn) installBtn.style.display = 'block';
+  });
+
+  window.installApp = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+         document.getElementById('install-app-btn').style.display = 'none';
+      }
+      deferredPrompt = null;
+    }
+  };
 </script>
 
 <script>
