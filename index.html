@@ -643,25 +643,66 @@ Premium officers enjoy the following exclusive features:
      document.getElementById('plan-modal').style.display = 'flex';
   };
 
-  // New Razorpay Integration Function
+// Fully Operative Razorpay Integration Function
   window.initiatePayment = async () => {
-      var options = {
-          "key": "YOUR_RAZORPAY_KEY_ID", // Replace with your actual Razorpay Key ID
-          "amount": (cachedPlanPrice * 100).toString(), // Amount in paise
+      if (!currentUser) {
+          window.showToast("Authentication error. Please re-login.");
+          return;
+      }
+
+      const options = {
+          "key": "YOUR_RAZORPAY_KEY_ID", // Replace with your live/test Key ID from Razorpay Dashboard
+          "amount": (cachedPlanPrice * 100).toString(), // Amount converted safely to paise
           "currency": "INR",
           "name": "Tour Diary Premium",
-          "description": "Annual Subscription",
-          "handler": function (response){
-              window.showToast("Payment processing! Please wait a moment for premium activation.");
+          "description": "Annual Professional Officers Plan",
+          "image": "icon-192.png", // Paths to your app icon
+          "handler": async function (response) {
+              if (response.razorpay_payment_id) {
+                  window.showToast("💳 Payment authorized! Finalizing setup...");
+                  
+                  try {
+                      // Automatically update the officer's profile cloud record to Premium
+                      await updateDoc(doc(db, "profiles", currentUser.uid), { 
+                          premium: true,
+                          paymentId: response.razorpay_payment_id,
+                          premiumActivatedAt: Date.now()
+                      });
+                      
+                      window.showToast("🚀 Premium features unlocked successfully!");
+                      
+                      // Close deployment overlay layout modal and refresh context state
+                      document.getElementById('plan-modal').style.display = 'none';
+                      setTimeout(() => { window.location.reload(); }, 1500);
+                      
+                  } catch (error) {
+                      console.error("Premium upgrade error: ", error);
+                      window.showToast("⚠️ Payment successful but database sync failed. Contact admin.");
+                  }
+              }
           },
           "prefill": {
-              "name": globalSettings.name,
-              "email": currentUser.email
+              "name": globalSettings.name || "",
+              "email": currentUser.email || "",
+              "contact": document.getElementById('auth-mobile')?.value || ""
           },
-          "theme": { "color": "#1565C0" }
+          "theme": { 
+              "color": "#1565C0" // Synchronized with your app theme-color
+          },
+          "modal": {
+              "ondismiss": function() {
+                  window.showToast("Payment cancellation captured.");
+              }
+          }
       };
-      var rzp1 = new Razorpay(options);
-      rzp1.open();
+      
+      try {
+          const rzp1 = new Razorpay(options);
+          rzp1.open();
+      } catch (err) {
+          window.showToast("Failed to initialize Razorpay checkout terminal window.");
+          console.error(err);
+      }
   };
 
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
