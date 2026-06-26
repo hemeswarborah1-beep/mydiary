@@ -121,7 +121,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       <div class="field" style="margin-bottom:10px"><label>Password</label><input type="password" id="login-password"></div>
       
       <div style="text-align: right; margin-bottom: 20px;">
-        <a onclick="window.resetPassword()" style="font-size: 11px; color: var(--blue); cursor: pointer; text-decoration: underline;">Forgot Password?</a>
+        <a onclick="document.getElementById('otp-reset-modal').style.display='flex'; window.initRecaptcha();" style="font-size: 11px; color: var(--blue); cursor: pointer; text-decoration: underline;">Forgot Password via Mobile OTP?</a>
       </div>
 
       <button class="btn btn-primary" id="btn-auth" onclick="window.processAuth()">Login securely</button>
@@ -385,6 +385,7 @@ Premium officers enjoy the following exclusive features:
     </div>
     <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px;">
        <button id="btn-pay-upi" class="btn btn-premium" style="line-height: 20px; background: #2E7D32; color: white; border: none; padding: 15px;" onclick="window.initiatePayment()">📱 Pay Securely via Razorpay</button>
+       <a href="https://u.payu.in/PAYUMN/3Ibnm7VGrtrQ" target="_blank" class="btn btn-premium" style="line-height: 20px; background: #FF9800; color: white; border: none; padding: 15px; text-decoration: none; display: block;">🔗 Pay Securely via PayU</a>
     </div>
     <p style="font-size: 11px; color: var(--text3); margin-bottom: 15px;">After successful payment, please drop a message/screenshot to your Superadmin for instant activation.</p>
     <button class="btn" style="background: #eceff1; color: #37474f;" onclick="document.getElementById('plan-modal').style.display='none'">Close Window</button>
@@ -582,14 +583,49 @@ Premium officers enjoy the following exclusive features:
   </div>
 </div>
 
+<!-- Mobile OTP Password Reset Modal -->
+<div class="modal-overlay" id="otp-reset-modal">
+  <div class="modal-content">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+      <h3 style="color: var(--blue-dark);">Reset Password (SMS)</h3>
+      <button onclick="document.getElementById('otp-reset-modal').style.display='none'" style="background:none; border:none; font-size: 20px; cursor:pointer;">&times;</button>
+    </div>
+    
+    <div id="otp-step-1">
+        <p style="font-size:12px; color:var(--text2); margin-bottom:10px;">Enter your registered mobile number including the country code (e.g., +91).</p>
+        <div class="field" style="margin-bottom:10px">
+            <label>Mobile Number</label>
+            <input type="tel" id="reset-phone" placeholder="+919876543210">
+        </div>
+        <div id="recaptcha-container" style="margin-bottom: 10px;"></div>
+        <button class="btn btn-primary" onclick="window.sendOTP()">Send OTP</button>
+    </div>
+    
+    <div id="otp-step-2" style="display:none;">
+        <div class="field" style="margin-bottom:10px">
+            <label>Enter 6-digit OTP</label>
+            <input type="text" id="reset-otp" placeholder="123456">
+        </div>
+        <button class="btn btn-success" onclick="window.verifyOTP()">Verify OTP</button>
+    </div>
+
+    <div id="otp-step-3" style="display:none;">
+        <div class="field" style="margin-bottom:10px">
+            <label>Create New Password</label>
+            <input type="password" id="reset-new-password" placeholder="Min 6 characters">
+        </div>
+        <button class="btn btn-primary" onclick="window.saveNewPassword()">Save New Password</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail, sendEmailVerification, RecaptchaVerifier, signInWithPhoneNumber, updatePassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
   import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, setDoc, getDoc, updateDoc, query, where } 
     from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-  // Added Storage imports
   import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
 
   const firebaseConfig = {
@@ -604,7 +640,7 @@ Premium officers enjoy the following exclusive features:
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
-  const storage = getStorage(app); // Initialized storage
+  const storage = getStorage(app);
 
   let currentUser = null;
   let isAdminUser = false;
@@ -643,17 +679,15 @@ Premium officers enjoy the following exclusive features:
     if (tab === 'summary') window.renderSummary();
     if (tab === 'admin') { 
         window.loadAdminUsers();
-        window.loadAdminMessages(); // Load messages when admin tab is opened
+        window.loadAdminMessages(); 
     }
   };
 
-  // Updated Payment Modal Logic
   window.showPlanModal = () => {
      document.getElementById('modal-plan-price').textContent = `₹${cachedPlanPrice} / Yearly`;
      document.getElementById('plan-modal').style.display = 'flex';
   };
 
-// Fully Operative Razorpay Integration Function
   window.initiatePayment = async () => {
       if (!currentUser) {
           window.showToast("Authentication error. Please re-login.");
@@ -661,18 +695,17 @@ Premium officers enjoy the following exclusive features:
       }
 
       const options = {
-          "key": "YOUR_RAZORPAY_KEY_ID", // Replace with your live/test Key ID from Razorpay Dashboard
-          "amount": (cachedPlanPrice * 100).toString(), // Amount converted safely to paise
+          "key": "YOUR_RAZORPAY_KEY_ID", 
+          "amount": (cachedPlanPrice * 100).toString(), 
           "currency": "INR",
           "name": "Tour Diary Premium",
           "description": "Annual Professional Officers Plan",
-          "image": "icon-192.png", // Paths to your app icon
+          "image": "icon-192.png",
           "handler": async function (response) {
               if (response.razorpay_payment_id) {
                   window.showToast("💳 Payment authorized! Finalizing setup...");
                   
                   try {
-                      // Automatically update the officer's profile cloud record to Premium
                       await updateDoc(doc(db, "profiles", currentUser.uid), { 
                           premium: true,
                           paymentId: response.razorpay_payment_id,
@@ -681,7 +714,6 @@ Premium officers enjoy the following exclusive features:
                       
                       window.showToast("🚀 Premium features unlocked successfully!");
                       
-                      // Close deployment overlay layout modal and refresh context state
                       document.getElementById('plan-modal').style.display = 'none';
                       setTimeout(() => { window.location.reload(); }, 1500);
                       
@@ -697,7 +729,7 @@ Premium officers enjoy the following exclusive features:
               "contact": document.getElementById('auth-mobile')?.value || ""
           },
           "theme": { 
-              "color": "#1565C0" // Synchronized with your app theme-color
+              "color": "#1565C0" 
           },
           "modal": {
               "ondismiss": function() {
@@ -785,7 +817,6 @@ Premium officers enjoy the following exclusive features:
         window.showToast("Creating account...");
         const userCred = await createUserWithEmailAndPassword(auth, e, p);
         
-        // Send verification email automatically
         await sendEmailVerification(userCred.user);
         
         await setDoc(doc(db, "profiles", userCred.user.uid), { email: e, name: name, designation: desig, mobile: mob, status: 'pending', role: 'officer', premium: false });
@@ -796,19 +827,6 @@ Premium officers enjoy the following exclusive features:
     } catch(err) { window.showToast(err.message.replace('Firebase: ', '')); }
   };
 
-  // Forgot Password Function
-  window.resetPassword = async () => {
-      const email = document.getElementById('login-email').value;
-      if (!email) return window.showToast("Please enter your email address first.");
-      try {
-          await sendPasswordResetEmail(auth, email);
-          window.showToast("✅ Password reset link sent to your email!");
-      } catch (err) {
-          window.showToast(err.message.replace('Firebase: ', ''));
-      }
-  };
-
-  // Resend Verification Email
   window.resendVerification = async () => {
       if (currentUser) {
           try {
@@ -826,18 +844,83 @@ Premium officers enjoy the following exclusive features:
     setTimeout(() => { window.location.reload(); }, 800);
   };
 
+  // --- MOBILE OTP PASSWORD RESET LOGIC ---
+
+  window.initRecaptcha = () => {
+      if (!window.recaptchaVerifier) {
+          window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+              'size': 'normal',
+              'callback': (response) => {
+                  // reCAPTCHA solved, allow OTP
+              }
+          });
+      }
+  };
+
+  window.sendOTP = async () => {
+      const phoneNumber = document.getElementById('reset-phone').value.trim();
+      if (!phoneNumber.startsWith('+')) return window.showToast("⚠️ Must include country code (e.g., +91)");
+      
+      window.showToast("Sending OTP...");
+      try {
+          window.confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, window.recaptchaVerifier);
+          window.showToast("✅ OTP sent to mobile!");
+          document.getElementById('otp-step-1').style.display = 'none';
+          document.getElementById('otp-step-2').style.display = 'block';
+      } catch (error) {
+          window.showToast("Error: " + error.message.replace('Firebase: ', ''));
+          if (window.recaptchaVerifier) {
+              window.recaptchaVerifier.render().then(widgetId => grecaptcha.reset(widgetId));
+          }
+      }
+  };
+
+  window.verifyOTP = async () => {
+      const code = document.getElementById('reset-otp').value.trim();
+      if (!code) return window.showToast("Enter the 6-digit OTP");
+      
+      window.showToast("Verifying...");
+      try {
+          const result = await window.confirmationResult.confirm(code);
+          window.tempUserForReset = result.user; 
+          window.showToast("✅ OTP Verified!");
+          document.getElementById('otp-step-2').style.display = 'none';
+          document.getElementById('otp-step-3').style.display = 'block';
+      } catch (error) {
+          window.showToast("❌ Invalid OTP. Try again.");
+      }
+  };
+
+  window.saveNewPassword = async () => {
+      const newPassword = document.getElementById('reset-new-password').value;
+      if (newPassword.length < 6) return window.showToast("Password must be at least 6 characters.");
+      
+      window.showToast("Updating password...");
+      try {
+          await updatePassword(window.tempUserForReset, newPassword);
+          window.showToast("✅ Password updated successfully! Please login.");
+          
+          await signOut(auth); 
+          document.getElementById('otp-reset-modal').style.display = 'none';
+          setTimeout(() => { window.location.reload(); }, 1500);
+      } catch (error) {
+          window.showToast("Error: " + error.message.replace('Firebase: ', ''));
+      }
+  };
+  
+  // ----------------------------------------
+
   onAuthStateChanged(auth, async (user) => {
     if (user) {
       currentUser = user;
       
-      // Block access if email is not verified
       if (!user.emailVerified) {
          document.getElementById('login-card').style.display = 'none';
          document.getElementById('pending-card').style.display = 'block';
          document.querySelector('.bottom-nav').style.display = 'none';
          document.getElementById('badge-premium').style.display = 'none';
          window.switchTab('login');
-         return; // Stop execution to ensure they verify
+         return; 
       }
 
       const priceSnap = await getDoc(doc(db, "app_config", "pricing"));
@@ -853,7 +936,6 @@ Premium officers enjoy the following exclusive features:
          isAdminUser = (pData.role === 'admin' || String(pData.role).toLowerCase() === 'superadmin');
          isPremiumUser = (pData.premium === true || String(pData.premium).toLowerCase() === 'true' || pData.premium === 1);
          
-         // Automatically upgrade to approved if email is verified but DB still says pending
          if (status === 'pending' && user.emailVerified) {
              await updateDoc(doc(db, "profiles", user.uid), { status: 'approved' });
              status = 'approved';
@@ -946,7 +1028,6 @@ Premium officers enjoy the following exclusive features:
     } catch(e) { el.innerHTML = '<p style="text-align:center; color:var(--danger);">Error loading users.</p>'; }
   };
 
-  // New Admin Function to Load Feedback Messages
   window.loadAdminMessages = async () => {
       if(!isAdminUser) return;
       const el = document.getElementById('admin-messages-content');
@@ -980,7 +1061,6 @@ Premium officers enjoy the following exclusive features:
       } catch(e) { el.innerHTML = '<p style="color:var(--danger); text-align:center;">Error loading messages.</p>'; }
   };
 
-  // New Admin Function to Send Reply
   window.sendAdminReply = async (docId) => {
       const replyText = document.getElementById(`reply-${docId}`).value;
       if(!replyText) return window.showToast("Please type a reply.");
@@ -1098,7 +1178,6 @@ Premium officers enjoy the following exclusive features:
     } catch(e) { window.showToast('Error syncing cloud.'); }
   };
   
-  // Updated sendFeedback with File Upload Support
   window.sendFeedback = async () => {
       const msg = document.getElementById('feedback-text').value.trim();
       const fileInput = document.getElementById('feedback-file').files[0];
@@ -1498,7 +1577,6 @@ Premium officers enjoy the following exclusive features:
     document.getElementById('report-from').value = firstDay; document.getElementById('report-to').value = todayDate;
   }
 
-  // PWA Install to Homescreen Logic
   let deferredPrompt;
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
