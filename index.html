@@ -914,6 +914,8 @@ Premium officers enjoy the following exclusive features:
     if (user) {
       currentUser = user;
       
+      // --- TEMPORARILY DISABLED EMAIL VERIFICATION CHECK FOR TESTING ---
+      /*
       if (!user.emailVerified) {
          document.getElementById('login-card').style.display = 'none';
          document.getElementById('pending-card').style.display = 'block';
@@ -922,6 +924,8 @@ Premium officers enjoy the following exclusive features:
          window.switchTab('login');
          return; 
       }
+      */
+      // -----------------------------------------------------------------
 
       const priceSnap = await getDoc(doc(db, "app_config", "pricing"));
       if(priceSnap.exists()) cachedPlanPrice = priceSnap.data().yearly_rate || 199;
