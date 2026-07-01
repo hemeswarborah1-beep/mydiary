@@ -115,7 +115,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       <div id="signup-fields" style="display:none;">
         <div class="field" style="margin-bottom:10px"><label>Full Name</label><input type="text" id="auth-name" placeholder="e.g. Mr. John "></div>
         <div class="field" style="margin-bottom:10px"><label>Designation</label><input type="text" id="auth-designation" placeholder="e.g. Inspector /MR"></div>
-        <div class="field" style="margin-bottom:10px"><label>Mobile Number</label><input type="tel" id="auth-mobile" placeholder="e.g. 98765xxxxx"></div>
+        <div class="field" style="margin-bottom:10px"><label>Mobile Number</label><input type="tel" id="auth-mobile" placeholder="e.g. +9198765xxxxx"></div>
       </div>
       <div class="field" style="margin-bottom:10px"><label>Email</label><input type="email" id="login-email" placeholder="officer@example.com"></div>
       <div class="field" style="margin-bottom:10px"><label>Password</label><input type="password" id="login-password"></div>
@@ -131,10 +131,9 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     </div>
 
     <div class="card" id="pending-card" style="display:none; text-align:center; padding: 30px 15px;">
-       <h3 style="color: var(--blue); margin-bottom: 10px;">📧 Verify Your Email</h3>
-       <p style="color: var(--text2); font-size: 14px; line-height: 1.5;">We have sent a verification link to your email address.<br><br>Please click the link in your inbox to automatically activate your account.</p>
-       <button class="btn btn-primary" style="margin-top: 15px;" onclick="window.location.reload()">I have verified my email</button>
-       <button class="btn" style="margin-top: 10px; background: #eceff1; color: #37474f;" onclick="window.resendVerification()">Resend Link</button>
+       <h3 style="color: var(--blue); margin-bottom: 10px;">⏳ Account Pending Approval</h3>
+       <p style="color: var(--text2); font-size: 14px; line-height: 1.5;">Your mobile number is verified. Your account is now waiting for approval by the administrator.<br><br>You will be able to log in as soon as an admin approves your account.</p>
+       <button class="btn btn-primary" style="margin-top: 15px;" onclick="window.location.reload()">Check Approval Status</button>
        <a class="toggle-link" onclick="window.logoutUser()">Logout</a>
     </div>
   </div>
@@ -583,6 +582,29 @@ Premium officers enjoy the following exclusive features:
   </div>
 </div>
 
+<!-- Signup Mobile OTP Verification Modal -->
+<div class="modal-overlay" id="signup-otp-modal">
+  <div class="modal-content">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+      <h3 style="color: var(--blue-dark);">Verify Your Mobile Number</h3>
+    </div>
+    <p style="font-size:12px; color:var(--text2); margin-bottom:10px;">We've sent (or are about to send) a 6-digit OTP to <b id="signup-otp-phone-display"></b>. Enter it below to verify your account.</p>
+    <div id="signup-recaptcha-container" style="margin-bottom: 10px;"></div>
+    <div id="signup-otp-step-send">
+        <button class="btn btn-primary" onclick="window.sendSignupOTP()">Send OTP</button>
+    </div>
+    <div id="signup-otp-step-verify" style="display:none;">
+        <div class="field" style="margin-bottom:10px">
+            <label>Enter 6-digit OTP</label>
+            <input type="text" id="signup-otp-code" placeholder="123456">
+        </div>
+        <button class="btn btn-success" onclick="window.verifySignupOTP()">Verify & Continue</button>
+        <a class="toggle-link" onclick="window.resendSignupOTP()">Resend OTP</a>
+    </div>
+    <a class="toggle-link" onclick="window.cancelSignupOTP()">Cancel Sign Up</a>
+  </div>
+</div>
+
 <!-- Mobile OTP Password Reset Modal -->
 <div class="modal-overlay" id="otp-reset-modal">
   <div class="modal-content">
@@ -623,7 +645,7 @@ Premium officers enjoy the following exclusive features:
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail, sendEmailVerification, RecaptchaVerifier, signInWithPhoneNumber, updatePassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail, RecaptchaVerifier, signInWithPhoneNumber, PhoneAuthProvider, linkWithCredential, updatePassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
   import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, setDoc, getDoc, updateDoc, query, where } 
     from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
   import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
@@ -811,32 +833,82 @@ Premium officers enjoy the following exclusive features:
       } else {
         const name = document.getElementById('auth-name').value;
         const desig = document.getElementById('auth-designation').value;
-        const mob = document.getElementById('auth-mobile').value;
+        const mob = document.getElementById('auth-mobile').value.trim();
         if(!name || !desig || !mob) return window.showToast("Please fill all signup fields.");
+        if(!mob.startsWith('+')) return window.showToast("⚠️ Mobile number must include country code (e.g., +91).");
         
         window.showToast("Creating account...");
         const userCred = await createUserWithEmailAndPassword(auth, e, p);
         
-        await sendEmailVerification(userCred.user);
-        
-        await setDoc(doc(db, "profiles", userCred.user.uid), { email: e, name: name, designation: desig, mobile: mob, status: 'pending', role: 'officer', premium: false });
+        await setDoc(doc(db, "profiles", userCred.user.uid), { email: e, name: name, designation: desig, mobile: mob, status: 'pending', role: 'officer', premium: false, mobileVerified: false });
         await setDoc(doc(db, "settings", userCred.user.uid), { name: name, designation: desig, basicPay: "", reportingAuthority: "", address: "", payLevel: "6", daRate: 500, fareRate: 12 });
         
-        window.showToast("Account created! Please check your email to verify.");
+        // Instead of an email verification link, we now verify the account via mobile OTP.
+        window.pendingSignupPhone = mob;
+        document.getElementById('signup-otp-phone-display').textContent = mob;
+        document.getElementById('signup-otp-step-send').style.display = 'block';
+        document.getElementById('signup-otp-step-verify').style.display = 'none';
+        document.getElementById('signup-otp-modal').style.display = 'flex';
+        window.initSignupRecaptcha();
       }
     } catch(err) { window.showToast(err.message.replace('Firebase: ', '')); }
   };
 
-  window.resendVerification = async () => {
-      if (currentUser) {
-          try {
-              await sendEmailVerification(currentUser);
-              window.showToast("✅ Verification email sent again!");
-          } catch (err) {
-              window.showToast("Please wait a moment before resending.");
+  // --- SIGNUP MOBILE OTP VERIFICATION ---
+
+  window.initSignupRecaptcha = () => {
+      if (!window.signupRecaptchaVerifier) {
+          window.signupRecaptchaVerifier = new RecaptchaVerifier(auth, 'signup-recaptcha-container', {
+              'size': 'normal',
+              'callback': (response) => { /* reCAPTCHA solved */ }
+          });
+      }
+  };
+
+  window.sendSignupOTP = async () => {
+      if (!auth.currentUser) return window.showToast("Session expired. Please sign up again.");
+      window.showToast("Sending OTP...");
+      try {
+          const provider = new PhoneAuthProvider(auth);
+          window.signupVerificationId = await provider.verifyPhoneNumber(window.pendingSignupPhone, window.signupRecaptchaVerifier);
+          window.showToast("✅ OTP sent to mobile!");
+          document.getElementById('signup-otp-step-send').style.display = 'none';
+          document.getElementById('signup-otp-step-verify').style.display = 'block';
+      } catch (error) {
+          window.showToast("Error: " + error.message.replace('Firebase: ', ''));
+          if (window.signupRecaptchaVerifier) {
+              window.signupRecaptchaVerifier.render().then(widgetId => grecaptcha.reset(widgetId));
           }
       }
   };
+
+  window.resendSignupOTP = () => { window.sendSignupOTP(); };
+
+  window.verifySignupOTP = async () => {
+      const code = document.getElementById('signup-otp-code').value.trim();
+      if (!code) return window.showToast("Enter the 6-digit OTP");
+      window.showToast("Verifying...");
+      try {
+          const credential = PhoneAuthProvider.credential(window.signupVerificationId, code);
+          // Link the verified phone number to the email/password account
+          // without switching the active session away from it.
+          await linkWithCredential(auth.currentUser, credential);
+          await updateDoc(doc(db, "profiles", auth.currentUser.uid), { mobileVerified: true });
+          window.showToast("✅ Mobile number verified!");
+          document.getElementById('signup-otp-modal').style.display = 'none';
+          window.location.reload();
+      } catch (error) {
+          window.showToast("❌ " + error.message.replace('Firebase: ', ''));
+      }
+  };
+
+  window.cancelSignupOTP = async () => {
+      document.getElementById('signup-otp-modal').style.display = 'none';
+      await signOut(auth);
+      window.showToast("Sign up cancelled.");
+  };
+
+  // ----------------------------------------
 
   window.logoutUser = async () => {
     await signOut(auth);
@@ -913,19 +985,6 @@ Premium officers enjoy the following exclusive features:
   onAuthStateChanged(auth, async (user) => {
     if (user) {
       currentUser = user;
-      
-      // --- TEMPORARILY DISABLED EMAIL VERIFICATION CHECK FOR TESTING ---
-      /*
-      if (!user.emailVerified) {
-         document.getElementById('login-card').style.display = 'none';
-         document.getElementById('pending-card').style.display = 'block';
-         document.querySelector('.bottom-nav').style.display = 'none';
-         document.getElementById('badge-premium').style.display = 'none';
-         window.switchTab('login');
-         return; 
-      }
-      */
-      // -----------------------------------------------------------------
 
       const priceSnap = await getDoc(doc(db, "app_config", "pricing"));
       if(priceSnap.exists()) cachedPlanPrice = priceSnap.data().yearly_rate || 199;
@@ -939,10 +998,23 @@ Premium officers enjoy the following exclusive features:
          status = pData.status || 'pending';
          isAdminUser = (pData.role === 'admin' || String(pData.role).toLowerCase() === 'superadmin');
          isPremiumUser = (pData.premium === true || String(pData.premium).toLowerCase() === 'true' || pData.premium === 1);
-         
-         if (status === 'pending' && user.emailVerified) {
-             await updateDoc(doc(db, "profiles", user.uid), { status: 'approved' });
-             status = 'approved';
+
+         // Mobile number verified but account still pending an unverified signup:
+         // send them straight back into the OTP verification flow instead of
+         // blocking them behind a stale "verify your email" screen.
+         if (status === 'pending' && pData.mobileVerified !== true) {
+             document.getElementById('login-card').style.display = 'none';
+             document.getElementById('pending-card').style.display = 'none';
+             document.querySelector('.bottom-nav').style.display = 'none';
+             document.getElementById('badge-premium').style.display = 'none';
+             window.switchTab('login');
+             window.pendingSignupPhone = pData.mobile;
+             document.getElementById('signup-otp-phone-display').textContent = pData.mobile || '';
+             document.getElementById('signup-otp-step-send').style.display = 'block';
+             document.getElementById('signup-otp-step-verify').style.display = 'none';
+             document.getElementById('signup-otp-modal').style.display = 'flex';
+             window.initSignupRecaptcha();
+             return;
          }
       }
 
