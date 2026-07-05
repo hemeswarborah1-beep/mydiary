@@ -98,7 +98,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 </style>
 </head>
 <body>
-
+<div id="install-popup" style="display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#ffffff; box-shadow:0 8px 24px rgba(0,0,0,0.2); border-radius:16px; padding:20px; width:90%; max-width:360px; z-index:9999; text-align:center; font-family:inherit;">
+  <div style="font-size:40px; margin-bottom:8px;">📱</div>
+  <div style="font-weight:600; font-size:16px; color:#1565C0; margin-bottom:6px;">Install Tour Diary Cloud</div>
+  <div style="font-size:13px; color:#555; margin-bottom:16px;">Add it to your home screen for quick, offline-ready access.</div>
+  <div style="display:flex; gap:10px; justify-content:center;">
+    <button onclick="dismissInstallPopup()" style="flex:1; padding:10px; border-radius:8px; border:1px solid #ccc; background:#fff; color:#555; font-weight:500;">Not now</button>
+    <button onclick="window.installApp()" style="flex:1; padding:10px; border-radius:8px; border:none; background:#1565C0; color:#fff; font-weight:600;">Install</button>
+  </div>
+</div>
 <div class="header">
   <div class="header-top">
     <div>
@@ -1700,24 +1708,45 @@ Premium officers enjoy the following exclusive features:
     document.getElementById('report-from').value = firstDay; document.getElementById('report-to').value = todayDate;
   }
 
+  <script>
   let deferredPrompt;
+
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
-    const installBtn = document.getElementById('install-app-btn');
-    if (installBtn) installBtn.style.display = 'block';
+
+    // Don't nag if user already dismissed recently
+    const dismissedAt = localStorage.getItem('installPopupDismissed');
+    const oneDay = 24 * 60 * 60 * 1000;
+    if (dismissedAt && (Date.now() - Number(dismissedAt) < oneDay)) return;
+
+    const popup = document.getElementById('install-popup');
+    if (popup) popup.style.display = 'block';
   });
 
   window.installApp = async () => {
+    const popup = document.getElementById('install-popup');
     if (deferredPrompt) {
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') {
-         document.getElementById('install-app-btn').style.display = 'none';
-      }
+      console.log('Install outcome:', outcome);
       deferredPrompt = null;
     }
+    if (popup) popup.style.display = 'none';
   };
+
+  window.dismissInstallPopup = () => {
+    localStorage.setItem('installPopupDismissed', Date.now().toString());
+    const popup = document.getElementById('install-popup');
+    if (popup) popup.style.display = 'none';
+  };
+
+  window.addEventListener('appinstalled', () => {
+    const popup = document.getElementById('install-popup');
+    if (popup) popup.style.display = 'none';
+    localStorage.removeItem('installPopupDismissed');
+  });
+</script>
 </script>
 
 <script>
