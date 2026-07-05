@@ -412,6 +412,11 @@ Premium officers enjoy the following exclusive features:
     <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px;">
        <button id="btn-pay-upi" class="btn btn-premium" style="line-height: 20px; background: #2E7D32; color: white; border: none; padding: 15px;" onclick="window.initiatePayment()">📱 Pay Securely via Razorpay</button>
        <a href="https://u.payu.in/PAYUMN/3Ibnm7VGrtrQ" target="_blank" class="btn btn-premium" style="line-height: 20px; background: #FF9800; color: white; border: none; padding: 15px; text-decoration: none; display: block;">🔗 Pay Securely via PayU</a>
+       <button class="btn btn-premium" style="line-height: 20px; background: #6A1B9A; color: white; border: none; padding: 15px;" onclick="document.getElementById('qr-pay-box').style.display = document.getElementById('qr-pay-box').style.display === 'none' ? 'block' : 'none';">🏦 Pay via Bank QR Code</button>
+    </div>
+    <div id="qr-pay-box" style="display:none; background: var(--blue-bg); padding: 15px; border-radius: var(--radius-sm); margin-bottom: 15px; text-align:center;">
+       <img src="./payment-qr.png" alt="Scan to pay via UPI" style="width: 220px; max-width: 100%; border-radius: 8px; background:#fff; padding:8px;">
+       <p style="font-size: 12px; color: var(--text2); margin-top: 10px;">Scan this QR with any UPI app (GPay, PhonePe, Paytm, etc.) to pay directly to our bank account.</p>
     </div>
     <p style="font-size: 11px; color: var(--text3); margin-bottom: 15px;">After successful payment, please drop a message/screenshot to your Superadmin for instant activation.</p>
     <button class="btn" style="background: #eceff1; color: #37474f;" onclick="document.getElementById('plan-modal').style.display='none'">Close Window</button>
@@ -694,6 +699,10 @@ Premium officers enjoy the following exclusive features:
   let currentUser = null;
   let isAdminUser = false;
   let isPremiumUser = false;
+  let isActualPremium = false;   // true only if premium was actually purchased/granted
+  let inFreeTrial = false;       // true while user is within the 45-day free-access window
+  let daysSinceSignup = 0;       // calendar days since Firebase account creation
+  const FREE_TRIAL_DAYS = 45;    // change this single number to adjust the trial length
   let authMode = 'login';
   
   let editingId = null;
@@ -1044,13 +1053,28 @@ Premium officers enjoy the following exclusive features:
 
       const profileSnap = await getDoc(doc(db, "profiles", user.uid));
       let status = 'pending'; 
-      isAdminUser = false; isPremiumUser = false;
+      isAdminUser = false; isPremiumUser = false; isActualPremium = false; inFreeTrial = false; daysSinceSignup = 0;
+
+      // Dynamic day counter: Firebase Authentication stores the account's
+      // creation timestamp automatically (user.metadata.creationTime), so
+      // there's no need for a separate "signup date" field anywhere. Every
+      // user, old or new, already has this value the moment their account
+      // exists, which makes the 45-day window self-calculating and reliable.
+      if (user.metadata && user.metadata.creationTime) {
+         const createdMs = new Date(user.metadata.creationTime).getTime();
+         daysSinceSignup = Math.floor((Date.now() - createdMs) / (1000 * 60 * 60 * 24));
+      }
+      inFreeTrial = daysSinceSignup < FREE_TRIAL_DAYS;
       
       if (profileSnap.exists()) {
          const pData = profileSnap.data();
          status = pData.status || 'pending';
          isAdminUser = (pData.role === 'admin' || String(pData.role).toLowerCase() === 'superadmin');
-         isPremiumUser = (pData.premium === true || String(pData.premium).toLowerCase() === 'true' || pData.premium === 1);
+         isActualPremium = (pData.premium === true || String(pData.premium).toLowerCase() === 'true' || pData.premium === 1);
+         // Every user gets full premium-feature access during the 45-day
+         // window regardless of whether they've actually paid; after day 45
+         // it falls back to the real premium flag from Firestore.
+         isPremiumUser = isActualPremium || inFreeTrial;
 
          // Mobile number verified but account still pending an unverified signup:
          // send them straight back into the OTP verification flow instead of
@@ -1356,18 +1380,18 @@ Premium officers enjoy the following exclusive features:
          return (a.date || "").localeCompare(b.date || "");
       });
       
-      if (!isPremiumUser && !isAdminUser) {
-          const uniqueDays = new Set(tourEntries.map(e => e.date)).size;
+      if (!isActualPremium && !isAdminUser) {
           const counterEl = document.getElementById('trial-counter');
-          if (uniqueDays >= 31) {
-              counterEl.innerHTML = `<span style="color:var(--danger); font-weight:700;">Free Trial Expired (31/31 Days). Please Upgrade.</span>`;
+          const daysLeft = Math.max(FREE_TRIAL_DAYS - daysSinceSignup, 0);
+          if (!inFreeTrial) {
+              counterEl.innerHTML = `<span style="color:var(--danger); font-weight:700;">Free Trial Expired (${FREE_TRIAL_DAYS}/${FREE_TRIAL_DAYS} Days). Please Upgrade.</span>`;
           } else {
-              counterEl.innerHTML = `Free Trial: <b>${uniqueDays} / 31</b> Journey Days Logged`;
+              counterEl.innerHTML = `Free Trial: <b>${daysSinceSignup} / ${FREE_TRIAL_DAYS}</b> Days Used (${daysLeft} left)`;
           }
-          if (uniqueDays >= 28) {
-              const statusText = uniqueDays >= 31 ? "TRIAL EXPIRED." : "RENEW NOW.";
-              document.getElementById('modal-trial-text').innerHTML = `<strong style="color:var(--danger); font-size:15px;">${uniqueDays}/31 DAYS FREE USED. ${statusText}</strong><br><br>Unlock the Premium Plan to continue logging your journeys and gain access to official T.R. 25 Auto-Printing.`;
-              setTimeout(() => { window.showPlanModal(); }, 1200);
+          if (daysSinceSignup >= FREE_TRIAL_DAYS - 3) {
+              const statusText = !inFreeTrial ? "TRIAL EXPIRED." : "RENEW NOW.";
+              document.getElementById('modal-trial-text').innerHTML = `<strong style="color:var(--danger); font-size:15px;">${Math.min(daysSinceSignup, FREE_TRIAL_DAYS)}/${FREE_TRIAL_DAYS} DAYS FREE USED. ${statusText}</strong><br><br>Unlock the Premium Plan to continue logging your journeys and gain access to official T.R. 25 Auto-Printing.`;
+              if (!inFreeTrial) setTimeout(() => { window.showPlanModal(); }, 1200);
           }
       } else {
           document.getElementById('trial-counter').style.display = 'none';
