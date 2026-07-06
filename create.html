@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>New tour — Tour Diary Cloud</title>
+<link rel="stylesheet" href="style.css">
+<style>
+.shell{padding:2rem 0 4rem}
+.crumb{font-family:'IBM Plex Mono';font-size:.75rem;color:var(--slate);letter-spacing:.05em;margin-bottom:1rem}
+.crumb b{color:var(--ink)}
+.head-row{display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1.8rem}
+.head-row h1{font-family:'Fraunces';font-weight:600;font-size:clamp(1.8rem,4vw,2.4rem);line-height:1.05}
+.head-row .sub{color:var(--slate);font-size:.95rem;margin-top:.2rem}
+.speed-pill{font-family:'IBM Plex Mono';font-size:.72rem;letter-spacing:.1em;color:var(--teal);
+  border:1.5px solid var(--teal);border-radius:20px;padding:.35rem .8rem;font-weight:600}
+
+.layout{display:grid;grid-template-columns:1.15fr .85fr;gap:1.6rem;align-items:start}
+@media(max-width:900px){.layout{grid-template-columns:1fr}}
+
+/* form card */
+.form-card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:1.6rem}
+.form-card h2{font-family:'Fraunces';font-size:1.15rem;margin-bottom:1.1rem;display:flex;align-items:center;gap:.5rem}
+.form-card h2 .step-dot{width:22px;height:22px;border-radius:50%;background:var(--ink);color:var(--cream);
+  font-family:'IBM Plex Mono';font-size:.72rem;display:grid;place-items:center;font-weight:600}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+@media(max-width:520px){.grid2{grid-template-columns:1fr}}
+.field{margin-bottom:.9rem}
+label{display:block;font-size:.78rem;font-weight:600;margin-bottom:.35rem;letter-spacing:.02em}
+input,select{width:100%;padding:.7rem .8rem;border:1.5px solid var(--line);border-radius:9px;
+  background:#fff;font-size:.95rem;font-family:'IBM Plex Mono';color:var(--ink);outline:none;transition:border-color .15s}
+input:focus,select:focus{border-color:var(--teal)}
+select{font-family:'Inter'}
+.hr{height:1px;background:var(--line);margin:1.3rem 0}
+.purpose{font-family:'Inter'}
+
+/* live bill preview */
+.preview{position:sticky;top:82px}
+.bill{
+  background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);
+  padding:1.5rem 1.5rem 1.7rem;box-shadow:var(--shadow);position:relative;
+  background-image:repeating-linear-gradient(var(--paper) 0 32px,var(--line) 32px 33px);
+}
+.bill::after{content:"TR-25";position:absolute;top:1rem;right:1rem;font-family:'IBM Plex Mono';
+  font-size:.65rem;letter-spacing:.2em;font-weight:600;color:var(--vermilion);
+  border:1.5px solid var(--vermilion);border-radius:6px;padding:.18rem .45rem;transform:rotate(-6deg);opacity:.85}
+.bill h3{font-family:'Fraunces';font-size:1.1rem;margin-bottom:.1rem}
+.bill .route{font-size:.75rem;color:var(--slate);margin-bottom:1.1rem;font-family:'IBM Plex Mono'}
+.brow{display:flex;justify-content:space-between;font-family:'IBM Plex Mono';font-size:.82rem;padding:.3rem 0}
+.brow span:first-child{color:var(--slate)}
+.brow.total{border-top:1.5px solid var(--ink);margin-top:.5rem;padding-top:.55rem;font-weight:600;font-size:1.05rem}
+.brow.total b{color:var(--teal)}
+.actions{display:grid;gap:.6rem;margin-top:1.1rem}
+.row-btns{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+
+/* TOAST / ALERTS */
+.toast-wrap{position:fixed;left:50%;bottom:1.4rem;transform:translateX(-50%);z-index:100;
+  display:flex;flex-direction:column;gap:.6rem;width:min(420px,92vw)}
+.toast{display:flex;gap:.7rem;align-items:flex-start;background:var(--ink);color:var(--cream);
+  border-radius:12px;padding:.85rem 1rem;box-shadow:var(--shadow);
+  animation:toastIn .35s cubic-bezier(.2,.8,.2,1) both;border-left:4px solid var(--teal)}
+.toast.warn{border-left-color:var(--vermilion)}
+.toast.info{border-left-color:#5FD0BE}
+.toast .tic{flex:0 0 auto;width:20px;height:20px;margin-top:1px}
+.toast .tic svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2}
+.toast b{display:block;font-size:.9rem;margin-bottom:.05rem}
+.toast p{font-size:.82rem;color:#C6CEDA}
+.toast .x{margin-left:auto;background:none;border:0;color:#8C97A8;cursor:pointer;font-size:1.1rem;line-height:1;padding:0 .1rem}
+@keyframes toastIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.toast.out{animation:toastOut .3s ease forwards}
+@keyframes toastOut{to{opacity:0;transform:translateY(12px)}}
+
+/* inline field hint */
+.hint{font-size:.72rem;color:var(--slate);margin-top:.3rem;font-family:'IBM Plex Mono'}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap nav-in">
+    <a class="brand" href="index.html"><span class="mark"></span>Tour Diary <span style="color:var(--teal)">Cloud</span></a>
+    <div class="nav-links">
+      <a class="muted hide-sm" href="dashboard.html">Diary</a>
+      <a class="btn btn-ghost" href="dashboard.html" style="padding:.5rem 1rem">Done</a>
+    </div>
+  </div>
+</nav>
+
+<div class="shell">
+  <div class="wrap">
+    <div class="crumb">Diary / <b>New tour</b></div>
+    <div class="head-row">
+      <div>
+        <h1>Log a tour</h1>
+        <p class="sub">Fill three things — the diary entry and TA bill build themselves.</p>
+      </div>
+      <span class="speed-pill">⚡ Ready in seconds</span>
+    </div>
+
+    <div class="layout">
+      <!-- FORM -->
+      <div class="form-card">
+        <h2><span class="step-dot">1</span> The journey</h2>
+        <div class="grid2">
+          <div class="field">
+            <label for="from">From station</label>
+            <select id="from" onchange="recalc()">
+              <option>Guwahati</option><option>Jorhat</option><option>Dibrugarh</option>
+              <option>Silchar</option><option>Tezpur</option><option>Nagaon</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="to">To station</label>
+            <select id="to" onchange="recalc()">
+              <option>Jorhat</option><option>Guwahati</option><option>Dibrugarh</option>
+              <option>Silchar</option><option>Tezpur</option><option>Nagaon</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label for="dep">Departure date</label><input id="dep" type="date" onchange="recalc()"></div>
+          <div class="field"><label for="ret">Return date</label><input id="ret" type="date" onchange="recalc()"></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label for="dist">Round-trip distance (km)</label><input id="dist" type="number" value="620" oninput="recalc()"><div class="hint">Autofilled from saved route</div></div>
+          <div class="field"><label for="level">Pay level (7th CPC)</label>
+            <select id="level" onchange="recalc()">
+              <option value="800">Level 9 — DA ₹800/day</option>
+              <option value="900">Level 11 — DA ₹900/day</option>
+              <option value="1000">Level 12 — DA ₹1000/day</option>
+              <option value="1200">Level 13 — DA ₹1200/day</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+        <h2><span class="step-dot">2</span> Diary details</h2>
+        <div class="field"><label for="purpose">Purpose of tour</label>
+          <input id="purpose" class="purpose" type="text" value="Inspection of division sub-offices" placeholder="e.g. Field inspection, review meeting"></div>
+        <div class="grid2">
+          <div class="field"><label for="stay">Accommodation (₹ total)</label><input id="stay" type="number" value="2250" oninput="recalc()"></div>
+          <div class="field"><label for="local">Local conveyance (₹)</label><input id="local" type="number" value="480" oninput="recalc()"></div>
+        </div>
+      </div>
+
+      <!-- LIVE PREVIEW -->
+      <div class="preview">
+        <div class="bill">
+          <h3>Travelling Allowance Bill</h3>
+          <div class="route" id="p-route">Guwahati → Jorhat · 2 days</div>
+          <div class="brow"><span>Daily allowance <span id="p-days">(2 days)</span></span><span id="p-da">₹ 1,600.00</span></div>
+          <div class="brow"><span>Road mileage <span id="p-km">(620 km)</span></span><span id="p-mile">₹ 7,936.00</span></div>
+          <div class="brow"><span>Accommodation</span><span id="p-stay">₹ 2,250.00</span></div>
+          <div class="brow"><span>Local conveyance</span><span id="p-local">₹ 480.00</span></div>
+          <div class="brow total"><span>Total claim</span><b id="p-total">₹ 12,266.00</b></div>
+        </div>
+        <div class="actions">
+          <button class="btn btn-accent btn-block" onclick="saveTour()">Save & generate bill</button>
+          <div class="row-btns">
+            <button class="btn btn-ghost" onclick="exportBill()">Export Excel</button>
+            <button class="btn btn-ghost" onclick="shareBill()">Share PDF</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toasts" aria-live="polite"></div>
+
+<script>
+const $=s=>document.querySelector(s);
+const fmt=n=>'₹ '+n.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+const MILE=12.80; // ₹/km road mileage
+
+function days(){
+  const a=$('#dep').value,b=$('#ret').value;
+  if(!a||!b) return 2;
+  const d=Math.round((new Date(b)-new Date(a))/864e5)+1;
+  return d>0?d:1;
+}
+function recalc(){
+  const d=days(), da=+$('#level').value*d, km=+$('#dist').value||0,
+        mile=km*MILE, stay=+$('#stay').value||0, local=+$('#local').value||0,
+        total=da+mile+stay+local;
+  $('#p-route').textContent=`${$('#from').value} → ${$('#to').value} · ${d} day${d>1?'s':''}`;
+  $('#p-days').textContent=`(${d} day${d>1?'s':''})`;
+  $('#p-km').textContent=`(${km} km)`;
+  $('#p-da').textContent=fmt(da);
+  $('#p-mile').textContent=fmt(mile);
+  $('#p-stay').textContent=fmt(stay);
+  $('#p-local').textContent=fmt(local);
+  $('#p-total').textContent=fmt(total);
+}
+recalc();
+
+// TOASTS
+const ICONS={
+  ok:'<path d="M20 6L9 17l-5-5"/>',
+  warn:'<path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/>',
+  info:'<circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/>'
+};
+function toast(kind,title,msg){
+  const t=document.createElement('div');
+  t.className='toast '+(kind==='warn'?'warn':kind==='info'?'info':'');
+  t.innerHTML=`<span class="tic"><svg viewBox="0 0 24 24">${ICONS[kind]||ICONS.ok}</svg></span>
+    <div><b>${title}</b><p>${msg}</p></div>
+    <button class="x" aria-label="Dismiss">×</button>`;
+  t.querySelector('.x').onclick=()=>dismiss(t);
+  $('#toasts').appendChild(t);
+  setTimeout(()=>dismiss(t),4200);
+}
+function dismiss(t){t.classList.add('out');setTimeout(()=>t.remove(),300);}
+
+function saveTour(){
+  if(!$('#dep').value||!$('#ret').value){ toast('warn','Add both dates','Departure and return dates are needed to count DA days.'); return; }
+  toast('ok','Tour saved','Diary entry logged and TR-25 bill generated.');
+}
+function exportBill(){ toast('info','Premium feature','Excel export is available on Premium. Upgrade to download.'); }
+function shareBill(){ toast('info','Premium feature','PDF share is available on Premium. Upgrade to share.'); }
+</script>
+</body>
+</html>

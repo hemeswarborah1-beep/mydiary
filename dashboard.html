@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tour diary — Tour Diary Cloud</title>
+<link rel="stylesheet" href="style.css">
+<style>
+.shell{padding:2rem 0 4rem}
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1.6rem}
+.top h1{font-family:'Fraunces';font-weight:600;font-size:clamp(1.8rem,4vw,2.4rem);line-height:1.05}
+.top .sub{color:var(--slate);font-size:.95rem;margin-top:.2rem}
+
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.8rem}
+@media(max-width:760px){.stats{grid-template-columns:1fr 1fr}}
+.stat{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:1.1rem 1.2rem}
+.stat .k{font-family:'IBM Plex Mono';font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--slate)}
+.stat .v{font-family:'Fraunces';font-size:1.7rem;font-weight:600;margin-top:.2rem}
+.stat .v.teal{color:var(--teal)}
+
+.filters{display:flex;gap:.7rem;flex-wrap:wrap;align-items:center;margin-bottom:1.1rem}
+.filters input,.filters select{padding:.55rem .75rem;border:1.5px solid var(--line);border-radius:9px;background:var(--paper);font-family:'IBM Plex Mono';font-size:.85rem;color:var(--ink)}
+.filters .grow{margin-left:auto}
+
+.table{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.trow{display:grid;grid-template-columns:1.6fr 1fr .9fr .9fr auto;gap:1rem;padding:.95rem 1.2rem;align-items:center;border-bottom:1px solid var(--line)}
+.trow:last-child{border-bottom:0}
+.trow.head{background:rgba(18,35,63,.04);font-family:'IBM Plex Mono';font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--slate)}
+.trow .route{font-weight:600}
+.trow .route small{display:block;color:var(--slate);font-weight:400;font-size:.78rem;font-family:'Inter'}
+.trow .mono{font-family:'IBM Plex Mono';font-size:.88rem}
+.amt{font-family:'IBM Plex Mono';font-weight:600}
+.pill{font-family:'IBM Plex Mono';font-size:.66rem;letter-spacing:.08em;padding:.2rem .55rem;border-radius:20px;font-weight:600;justify-self:start}
+.pill.ready{background:rgba(15,123,108,.14);color:var(--teal)}
+.pill.draft{background:rgba(194,69,30,.14);color:var(--vermilion)}
+.mini{background:none;border:1.5px solid var(--line);border-radius:8px;padding:.35rem .6rem;font-size:.75rem;font-weight:600;cursor:pointer;font-family:inherit}
+.mini:hover{border-color:var(--ink)}
+@media(max-width:760px){.trow{grid-template-columns:1.4fr .9fr auto}.trow .hide-m{display:none}}
+
+.fab{position:fixed;right:1.4rem;bottom:1.4rem;z-index:40}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap nav-in">
+    <a class="brand" href="index.html"><span class="mark"></span>Tour Diary <span style="color:var(--teal)">Cloud</span></a>
+    <div class="nav-links">
+      <a class="muted hide-sm" href="dashboard.html">Diary</a>
+      <a class="muted hide-sm" href="index.html#pricing">Premium</a>
+      <a class="btn btn-accent" href="create.html" style="padding:.55rem 1.1rem">+ New tour</a>
+    </div>
+  </div>
+</nav>
+
+<div class="shell">
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <h1>Your tour diary</h1>
+        <p class="sub">Every journey logged, every TA bill in one place.</p>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="k">Tours this year</div><div class="v">18</div></div>
+      <div class="stat"><div class="k">Days on tour</div><div class="v">41</div></div>
+      <div class="stat"><div class="k">Distance</div><div class="v">9,140 <span style="font-size:.9rem;color:var(--slate)">km</span></div></div>
+      <div class="stat"><div class="k">Claimed</div><div class="v teal">₹1.62L</div></div>
+    </div>
+
+    <div class="filters">
+      <input type="date" aria-label="From date">
+      <span style="color:var(--slate)">→</span>
+      <input type="date" aria-label="To date">
+      <select aria-label="Status"><option>All bills</option><option>Ready</option><option>Draft</option></select>
+      <button class="btn btn-ghost grow" style="padding:.55rem 1rem">Export range</button>
+    </div>
+
+    <div class="table">
+      <div class="trow head">
+        <span>Route & purpose</span><span class="hide-m">Dates</span><span class="hide-m">Days</span><span>Claim</span><span>Bill</span>
+      </div>
+
+      <div class="trow">
+        <div class="route">Guwahati → Jorhat → Guwahati<small>Inspection of division sub-offices</small></div>
+        <div class="mono hide-m">12–13 Jun</div>
+        <div class="mono hide-m">2</div>
+        <div class="amt">₹12,266</div>
+        <span class="pill ready">READY</span>
+      </div>
+      <div class="trow">
+        <div class="route">Guwahati → Silchar<small>Regional review meeting</small></div>
+        <div class="mono hide-m">04–06 Jun</div>
+        <div class="mono hide-m">3</div>
+        <div class="amt">₹18,940</div>
+        <span class="pill ready">READY</span>
+      </div>
+      <div class="trow">
+        <div class="route">Guwahati → Tezpur<small>Field verification</small></div>
+        <div class="mono hide-m">28 May</div>
+        <div class="mono hide-m">1</div>
+        <div class="amt">₹4,120</div>
+        <span class="pill draft">DRAFT</span>
+      </div>
+      <div class="trow">
+        <div class="route">Guwahati → Dibrugarh → Guwahati<small>Sub-office audit</small></div>
+        <div class="mono hide-m">19–22 May</div>
+        <div class="mono hide-m">4</div>
+        <div class="amt">₹24,880</div>
+        <span class="pill ready">READY</span>
+      </div>
+      <div class="trow">
+        <div class="route">Guwahati → Nagaon<small>Public grievance camp</small></div>
+        <div class="mono hide-m">11 May</div>
+        <div class="mono hide-m">1</div>
+        <div class="amt">₹3,760</div>
+        <span class="pill ready">READY</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<a class="btn btn-accent fab" href="create.html">+ New tour</a>
+
+</body>
+</html>

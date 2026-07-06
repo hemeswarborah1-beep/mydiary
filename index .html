@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tour Diary Cloud — TA bills & tour diaries in seconds</title>
+<meta name="description" content="Log official tours, generate TR-25 TA bills and tour diaries in seconds. Built on 7th CPC rules for field officers.">
+<link rel="stylesheet" href="style.css">
+<style>
+/* ---------- HERO ---------- */
+.hero{position:relative;overflow:hidden;padding:3.5rem 0 4.5rem}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:3rem;align-items:center}
+@media(max-width:900px){.hero-grid{grid-template-columns:1fr;gap:2.5rem}}
+h1.display{
+  font-family:'Fraunces';font-weight:600;line-height:1.02;
+  font-size:clamp(2.6rem,6vw,4.4rem);letter-spacing:-.02em;margin:.9rem 0 1.1rem;
+}
+h1.display em{font-style:italic;color:var(--vermilion)}
+.lead{font-size:1.12rem;color:var(--slate);max-width:34ch;margin-bottom:1.8rem}
+.hero-cta{display:flex;gap:.8rem;flex-wrap:wrap;margin-bottom:1.6rem}
+.trust{display:flex;gap:1.4rem;flex-wrap:wrap;font-size:.82rem;color:var(--slate)}
+.trust b{color:var(--ink);font-family:'IBM Plex Mono';font-weight:600}
+
+/* journey line */
+.journey{position:absolute;inset:0;pointer-events:none;opacity:.5}
+.journey path{stroke:var(--line);stroke-width:2;stroke-dasharray:3 8;fill:none}
+.journey circle{fill:var(--teal)}
+
+/* bill card */
+.bill{
+  background:var(--paper);border-radius:var(--radius);box-shadow:var(--shadow);
+  border:1px solid var(--line);padding:1.6rem 1.6rem 1.8rem;position:relative;
+  background-image:repeating-linear-gradient(var(--paper) 0 33px,var(--line) 33px 34px);
+  background-attachment:local;
+}
+.bill::after{
+  content:"TR-25";position:absolute;top:1.1rem;right:1.1rem;
+  font-family:'IBM Plex Mono';font-size:.68rem;letter-spacing:.2em;font-weight:600;
+  color:var(--vermilion);border:1.5px solid var(--vermilion);border-radius:6px;
+  padding:.2rem .5rem;transform:rotate(-6deg);opacity:.85;
+}
+.bill h3{font-family:'Fraunces';font-size:1.15rem;margin-bottom:.15rem}
+.bill .sub{font-size:.75rem;color:var(--slate);margin-bottom:1.1rem}
+.bill-row{display:flex;justify-content:space-between;align-items:baseline;
+  font-family:'IBM Plex Mono';font-size:.82rem;padding:.32rem 0}
+.bill-row span:first-child{color:var(--slate)}
+.bill-row.total{border-top:1.5px solid var(--ink);margin-top:.5rem;padding-top:.6rem;font-weight:600;font-size:1rem}
+.bill-row.total b{color:var(--teal)}
+.stamp{
+  position:absolute;bottom:1.3rem;right:1.4rem;width:74px;height:74px;border-radius:50%;
+  border:2px solid var(--teal);color:var(--teal);display:grid;place-items:center;
+  font-family:'IBM Plex Mono';font-size:.55rem;text-align:center;line-height:1.3;
+  letter-spacing:.05em;transform:rotate(-11deg);opacity:.7;
+}
+@keyframes rowIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.bill-row,.bill h3,.bill .sub{animation:rowIn .5s ease both}
+.bill .sub{animation-delay:.08s}
+.bill-row:nth-child(3){animation-delay:.16s}
+.bill-row:nth-child(4){animation-delay:.24s}
+.bill-row:nth-child(5){animation-delay:.32s}
+.bill-row:nth-child(6){animation-delay:.4s}
+.bill-row.total{animation-delay:.5s}
+
+/* ---------- SPEED STRIP ---------- */
+.strip{background:var(--ink);color:var(--cream);padding:3rem 0}
+.strip-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
+@media(max-width:760px){.strip-grid{grid-template-columns:1fr}}
+.step{position:relative;padding-left:3.2rem}
+.step .n{position:absolute;left:0;top:-.1rem;font-family:'Fraunces';font-size:1.5rem;
+  color:var(--vermilion);font-weight:600}
+.step h4{font-size:1.05rem;margin-bottom:.25rem}
+.step p{font-size:.9rem;color:#B9C2D0}
+.strip-head{text-align:center;margin-bottom:2.2rem}
+.strip-head h2{font-family:'Fraunces';font-weight:600;font-size:clamp(1.8rem,4vw,2.6rem)}
+.strip-head .eyebrow{color:#5FD0BE}
+
+/* ---------- FEATURES ---------- */
+.features{padding:4.5rem 0}
+.sec-head{max-width:52ch;margin-bottom:2.6rem}
+.sec-head h2{font-family:'Fraunces';font-weight:600;font-size:clamp(1.9rem,4vw,2.8rem);
+  line-height:1.05;margin:.6rem 0 .6rem;letter-spacing:-.01em}
+.sec-head p{color:var(--slate);font-size:1.05rem}
+.f-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem}
+@media(max-width:860px){.f-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.f-grid{grid-template-columns:1fr}}
+.card{
+  background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);
+  padding:1.5rem;transition:transform .18s ease,box-shadow .2s ease;
+}
+.card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+.ic{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;
+  margin-bottom:1rem;background:rgba(15,123,108,.12)}
+.ic svg{width:22px;height:22px;stroke:var(--teal);fill:none;stroke-width:1.8}
+.card h3{font-family:'Fraunces';font-size:1.15rem;margin-bottom:.4rem}
+.card p{font-size:.9rem;color:var(--slate)}
+.card .tag{display:inline-block;margin-top:.7rem;font-family:'IBM Plex Mono';font-size:.68rem;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--vermilion);font-weight:600}
+
+/* ---------- PRICING ---------- */
+.pricing{padding:1rem 0 4.5rem}
+.p-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;max-width:760px;margin-inline:auto}
+@media(max-width:640px){.p-grid{grid-template-columns:1fr}}
+.plan{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:1.8rem}
+.plan.hi{background:var(--ink);color:var(--cream);border-color:var(--ink);position:relative}
+.plan.hi .badge{position:absolute;top:1.4rem;right:1.4rem;background:var(--vermilion);color:#fff;
+  font-family:'IBM Plex Mono';font-size:.6rem;letter-spacing:.15em;padding:.25rem .55rem;border-radius:20px}
+.plan h3{font-family:'Fraunces';font-size:1.3rem;margin-bottom:.3rem}
+.price{font-family:'IBM Plex Mono';font-size:2rem;font-weight:600;margin:.4rem 0 1.1rem}
+.price small{font-size:.85rem;color:var(--slate);font-weight:400}
+.plan.hi .price small{color:#B9C2D0}
+.plan ul{list-style:none;display:grid;gap:.6rem;margin-bottom:1.4rem;font-size:.92rem}
+.plan li{display:flex;gap:.55rem;align-items:flex-start}
+.plan li::before{content:"✓";color:var(--teal);font-weight:700}
+.plan.hi li::before{color:#5FD0BE}
+
+/* ---------- FOOTER ---------- */
+footer{background:var(--ink);color:#B9C2D0;padding:2.5rem 0;font-size:.85rem}
+.foot-in{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
+.foot-in .brand{color:var(--cream)}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap nav-in">
+    <a class="brand" href="index.html"><span class="mark"></span>Tour Diary <span style="color:var(--teal)">Cloud</span></a>
+    <div class="nav-links">
+      <a class="muted hide-sm" href="#how">How it works</a>
+      <a class="muted hide-sm" href="#features">Features</a>
+      <a class="muted hide-sm" href="#pricing">Pricing</a>
+      <a class="btn btn-primary" href="login.html" style="padding:.55rem 1.1rem">Sign in</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <svg class="journey" viewBox="0 0 1200 600" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M-20 480 C 200 460, 260 300, 460 300 S 720 180, 900 200 S 1160 120, 1240 90"/>
+    <circle cx="150" cy="470" r="5"/><circle cx="460" cy="300" r="5"/>
+    <circle cx="760" cy="205" r="5"/><circle cx="1020" cy="150" r="5"/>
+  </svg>
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow">TR-25 · 7th CPC · Tour Diary</span>
+      <h1 class="display">From station to <em>signed bill</em> in seconds.</h1>
+      <p class="lead">Log a tour once. Tour Diary Cloud builds the diary and the TR-25 TA bill for you — DA, mileage and totals calculated to 7th CPC rules.</p>
+      <div class="hero-cta">
+        <a class="btn btn-accent" href="login.html">Start a tour →</a>
+        <a class="btn btn-ghost" href="#how">See how it works</a>
+      </div>
+      <div class="trust">
+        <span><b>&lt;30s</b> to a ready bill</span>
+        <span><b>7th CPC</b> DA rules built in</span>
+        <span><b>Excel · CSV</b> export</span>
+      </div>
+    </div>
+
+    <!-- live bill card -->
+    <div class="bill" aria-label="Sample TA bill">
+      <h3>Travelling Allowance Bill</h3>
+      <div class="sub">Guwahati → Jorhat → Guwahati · 12–13 Jun 2026</div>
+      <div class="bill-row"><span>Daily Allowance (2 days)</span><span>₹ 1,600.00</span></div>
+      <div class="bill-row"><span>Road mileage · 620 km</span><span>₹ 7,936.00</span></div>
+      <div class="bill-row"><span>Accommodation</span><span>₹ 2,250.00</span></div>
+      <div class="bill-row"><span>Local conveyance</span><span>₹ 480.00</span></div>
+      <div class="bill-row total"><span>Total claim</span><b>₹ 12,266.00</b></div>
+      <div class="stamp">READY TO<br>SUBMIT</div>
+    </div>
+  </div>
+</header>
+
+<!-- HOW IT WORKS -->
+<section class="strip" id="how">
+  <div class="wrap">
+    <div class="strip-head">
+      <span class="eyebrow">Three fields. Nothing else.</span>
+      <h2>The fastest way to close a tour</h2>
+    </div>
+    <div class="strip-grid">
+      <div class="step"><span class="n">01</span><h4>Enter the journey</h4><p>Pick your stations and dates from your own saved list. Departure and arrival times autofill from your last trip.</p></div>
+      <div class="step"><span class="n">02</span><h4>Rates apply themselves</h4><p>DA slabs, road mileage and hotel ceilings are matched to your pay level under 7th CPC — no lookup tables.</p></div>
+      <div class="step"><span class="n">03</span><h4>Export & submit</h4><p>Get the tour diary and TR-25 bill as a clean sheet. Download to Excel or CSV, or share the PDF.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Built for field officers</span>
+      <h2>Everything a tour claim needs, and nothing it doesn't</h2>
+      <p>Tour Diary Cloud knows the forms so you don't have to. Every calculation follows the rules your accounts section checks against.</p>
+    </div>
+    <div class="f-grid">
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h12"/></svg></div>
+        <h3>Instant TA bill</h3><p>A complete TR-25 travelling allowance bill built the moment your tour is saved. Every head totalled and ready.</p></div>
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="9"/></svg></div>
+        <h3>7th CPC DA engine</h3><p>Daily allowance, mileage and accommodation ceilings matched to your pay level automatically.</p></div>
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></div>
+        <h3>Living tour diary</h3><p>Each journey logged with dates, places and purpose — a running diary you can filter by any date range.</p></div>
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5M12 15V3"/></svg></div>
+        <h3>Excel & CSV export</h3><p>Take your diary and bills out as a formatted spreadsheet whenever accounts asks for a record.<span class="tag">Premium</span></p></div>
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M9 9h6v6H9z"/></svg></div>
+        <h3>Saved places & rates</h3><p>Your frequent stations and their distances live in one dropdown, so entry is a tap, not typing.</p></div>
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/></svg></div>
+        <h3>Works offline</h3><p>Install it like an app. Log tours on the road with no signal — everything syncs when you're back online.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div class="wrap">
+    <div class="sec-head" style="text-align:center;margin-inline:auto">
+      <span class="eyebrow">Simple pricing</span>
+      <h2>Free to log. Upgrade to export.</h2>
+    </div>
+    <div class="p-grid">
+      <div class="plan">
+        <h3>Free</h3>
+        <div class="price">₹0<small> / forever</small></div>
+        <ul>
+          <li>Unlimited tour logging</li>
+          <li>TR-25 TA bill generation</li>
+          <li>7th CPC DA calculation</li>
+          <li>Date-range reports</li>
+        </ul>
+        <a class="btn btn-ghost btn-block" href="login.html">Get started</a>
+      </div>
+      <div class="plan hi">
+        <span class="badge">MOST USED</span>
+        <h3>Premium</h3>
+        <div class="price">₹199<small> / year</small></div>
+        <ul>
+          <li>Everything in Free</li>
+          <li>Excel & CSV export</li>
+          <li>Share bills as PDF</li>
+          <li>Ad-free experience</li>
+          <li>Priority sync</li>
+        </ul>
+        <a class="btn btn-accent btn-block" href="login.html">Go Premium</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-in">
+    <a class="brand" href="index.html"><span class="mark"></span>Tour Diary Cloud</a>
+    <span>Built for government field officers · TR-25 · 7th CPC</span>
+    <span class="mono">tourdiary.info</span>
+  </div>
+</footer>
+
+</body>
+</html>
