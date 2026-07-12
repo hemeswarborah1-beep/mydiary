@@ -1,7 +1,9 @@
-const CACHE_NAME = 'tour-diary-v3';
+const CACHE_NAME = 'tour-diary-v4';
 const urlsToCache = [
   './',
   './index.html',
+  './app.html',
+  './style.css',
   './manifest.json',
   './icon-192.png',
   './icon-512.png'
