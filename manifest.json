@@ -1,8 +1,8 @@
 {
   "name": "Tour Diary Cloud",
   "short_name": "Tour Diary",
-  "description": "Log official tours, calculate Daily Allowance, and generate TR-25 TA bills.",
-  "start_url": "./index.html",
+  "description": "Log official tours, calculate Daily Allowance, and generate Fortnightly Diary TA bills.",
+  "start_url": "./app.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
