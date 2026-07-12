@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Tour Diary Cloud — TA bills & tour diaries in seconds</title>
-<meta name="description" content="Log official tours, generate  TA bills and   Diaries in seconds. Built on 7th CPC rules for Govt. officers and Private employeed.">
+<meta name="description" content="Log official tours, generate TR-25 TA bills and tour diaries in seconds. Built on 7th CPC rules for field officers.">
 <link rel="stylesheet" href="style.css">
 <style>
 /* ---------- HERO ---------- */
@@ -34,7 +34,7 @@ h1.display em{font-style:italic;color:var(--vermilion)}
   background-attachment:local;
 }
 .bill::after{
-  content:"TA BILLS";position:absolute;top:1.1rem;right:1.1rem;
+  content:"TR-25";position:absolute;top:1.1rem;right:1.1rem;
   font-family:'IBM Plex Mono';font-size:.68rem;letter-spacing:.2em;font-weight:600;
   color:var(--vermilion);border:1.5px solid var(--vermilion);border-radius:6px;
   padding:.2rem .5rem;transform:rotate(-6deg);opacity:.85;
@@ -96,22 +96,13 @@ h1.display em{font-style:italic;color:var(--vermilion)}
 .card .tag{display:inline-block;margin-top:.7rem;font-family:'IBM Plex Mono';font-size:.68rem;
   letter-spacing:.1em;text-transform:uppercase;color:var(--vermilion);font-weight:600}
 
-/* ---------- PRICING ---------- */
-.pricing{padding:1rem 0 4.5rem}
-.p-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;max-width:760px;margin-inline:auto}
-@media(max-width:640px){.p-grid{grid-template-columns:1fr}}
-.plan{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:1.8rem}
-.plan.hi{background:var(--ink);color:var(--cream);border-color:var(--ink);position:relative}
-.plan.hi .badge{position:absolute;top:1.4rem;right:1.4rem;background:var(--vermilion);color:#fff;
-  font-family:'IBM Plex Mono';font-size:.6rem;letter-spacing:.15em;padding:.25rem .55rem;border-radius:20px}
-.plan h3{font-family:'Fraunces';font-size:1.3rem;margin-bottom:.3rem}
-.price{font-family:'IBM Plex Mono';font-size:2rem;font-weight:600;margin:.4rem 0 1.1rem}
-.price small{font-size:.85rem;color:var(--slate);font-weight:400}
-.plan.hi .price small{color:#B9C2D0}
-.plan ul{list-style:none;display:grid;gap:.6rem;margin-bottom:1.4rem;font-size:.92rem}
-.plan li{display:flex;gap:.55rem;align-items:flex-start}
-.plan li::before{content:"✓";color:var(--teal);font-weight:700}
-.plan.hi li::before{color:#5FD0BE}
+/* ---------- DEMO VIDEO ---------- */
+.demo{padding:1rem 0 4.5rem}
+.demo-frame{
+  max-width:820px;margin:0 auto;border-radius:var(--radius);overflow:hidden;
+  box-shadow:var(--shadow);border:1px solid var(--line);background:#000;
+}
+.demo-frame video{display:block;width:100%;aspect-ratio:16/9;background:#000}
 
 /* ---------- FOOTER ---------- */
 footer{background:var(--ink);color:#B9C2D0;padding:2.5rem 0;font-size:.85rem}
@@ -125,9 +116,9 @@ footer{background:var(--ink);color:#B9C2D0;padding:2.5rem 0;font-size:.85rem}
   <div class="wrap nav-in">
     <a class="brand" href="index.html"><span class="mark"></span>Tour Diary <span style="color:var(--teal)">Cloud</span></a>
     <div class="nav-links">
-      <a class="muted hide-sm" href="#how">How it works</a>
       <a class="muted hide-sm" href="#features">Features</a>
-      <a class="muted hide-sm" href="#pricing">Pricing</a>
+      <a class="muted hide-sm" href="#how">How it works</a>
+      <a class="muted hide-sm" href="#demo">Demo</a>
       <a class="btn btn-primary" href="app.html" style="padding:.55rem 1.1rem">Sign in</a>
     </div>
   </div>
@@ -142,9 +133,9 @@ footer{background:var(--ink);color:#B9C2D0;padding:2.5rem 0;font-size:.85rem}
   </svg>
   <div class="wrap hero-grid">
     <div>
-      <span class="eyebrow">TA BILLS, Tour Diary Add Alerts</span>
+      <span class="eyebrow">TR-25 · 7th CPC · Tour Diary</span>
       <h1 class="display">From station to <em>signed bill</em> in seconds.</h1>
-      <p class="lead">Log a tour once. Tour Diary Cloud builds the diary and the  TA bill for you — DA, mileage and totals calculated to 7th CPC rules.</p>
+      <p class="lead">Log a tour once. Tour Diary Cloud builds the diary and the TR-25 TA bill for you — DA, mileage and totals calculated to 7th CPC rules.</p>
       <div class="hero-cta">
         <a class="btn btn-accent" href="app.html">Start a tour →</a>
         <a class="btn btn-ghost" href="#how">See how it works</a>
@@ -169,21 +160,6 @@ footer{background:var(--ink);color:#B9C2D0;padding:2.5rem 0;font-size:.85rem}
     </div>
   </div>
 </header>
-
-<!-- HOW IT WORKS -->
-<section class="strip" id="how">
-  <div class="wrap">
-    <div class="strip-head">
-      <span class="eyebrow">Three fields. Nothing else.</span>
-      <h2>The fastest way to close a tour</h2>
-    </div>
-    <div class="strip-grid">
-      <div class="step"><span class="n">01</span><h4>Enter the journey</h4><p>Pick your stations and dates from your own saved list. Departure and arrival times autofill from your last trip.</p></div>
-      <div class="step"><span class="n">02</span><h4>Rates apply themselves</h4><p>DA slabs, road mileage and hotel ceilings are matched to your pay level under 7th CPC — no lookup tables.</p></div>
-      <div class="step"><span class="n">03</span><h4>Export & submit</h4><p>Get the tour diary and TA bill as a clean sheet. Download to Excel or CSV, or share the PDF.</p></div>
-    </div>
-  </div>
-</section>
 
 <!-- FEATURES -->
 <section class="features" id="features">
@@ -210,38 +186,34 @@ footer{background:var(--ink);color:#B9C2D0;padding:2.5rem 0;font-size:.85rem}
   </div>
 </section>
 
-<!-- PRICING -->
-<section class="pricing" id="pricing">
+<!-- HOW IT WORKS -->
+<section class="strip" id="how">
+  <div class="wrap">
+    <div class="strip-head">
+      <span class="eyebrow">Three fields. Nothing else.</span>
+      <h2>The fastest way to close a tour</h2>
+    </div>
+    <div class="strip-grid">
+      <div class="step"><span class="n">01</span><h4>Enter the journey</h4><p>Pick your stations and dates from your own saved list. Departure and arrival times autofill from your last trip.</p></div>
+      <div class="step"><span class="n">02</span><h4>Rates apply themselves</h4><p>DA slabs, road mileage and hotel ceilings are matched to your pay level under 7th CPC — no lookup tables.</p></div>
+      <div class="step"><span class="n">03</span><h4>Export & submit</h4><p>Get the tour diary and TR-25 bill as a clean sheet. Download to Excel or CSV, or share the PDF.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO VIDEO -->
+<section class="demo" id="demo">
   <div class="wrap">
     <div class="sec-head" style="text-align:center;margin-inline:auto">
-      <span class="eyebrow">Simple pricing</span>
-      <h2>Free to log. Upgrade to export.</h2>
+      <span class="eyebrow">See it in action</span>
+      <h2>Watch a tour become a signed TA bill</h2>
+      <p>A 60-second walkthrough of the app screens — logging a journey, and the finished TR-25 bill it produces.</p>
     </div>
-    <div class="p-grid">
-      <div class="plan">
-        <h3>Free</h3>
-        <div class="price">₹0<small> / forever</small></div>
-        <ul>
-          <li>Unlimited tour logging</li>
-          <li>TA bill generation</li>
-          <li>7th CPC DA calculation</li>
-          <li>Date-range reports</li>
-        </ul>
-        <a class="btn btn-ghost btn-block" href="app.html">Get started</a>
-      </div>
-      <div class="plan hi">
-        <span class="badge">MOST USED</span>
-        <h3>Premium</h3>
-        <div class="price">₹199<small> / year</small></div>
-        <ul>
-          <li>Everything in Free</li>
-          <li>Excel & CSV export</li>
-          <li>Share bills as PDF</li>
-          <li>Ad-free experience</li>
-          <li>Priority sync</li>
-        </ul>
-        <a class="btn btn-accent btn-block" href="app.html">Go Premium</a>
-      </div>
+    <div class="demo-frame">
+      <video id="demo-video" controls preload="metadata" poster="demo-poster.png">
+        <source src="demo-video.mp4" type="video/mp4">
+        Your browser doesn't support embedded video. <a href="demo-video.mp4">Download the demo instead</a>.
+      </video>
     </div>
   </div>
 </section>
