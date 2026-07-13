@@ -90,8 +90,11 @@ label{display:block;font-size:.8rem;font-weight:600;margin-bottom:.4rem;letter-s
         </div>
         <div class="field">
           <label for="pass">Password</label>
-          <div class="phone-in">
-            <input id="pass" type="password" placeholder="••••••••" autocomplete="current-password" style="padding:.85rem">
+          <div class="phone-in" style="position:relative; display:flex; align-items:center;">
+            <input id="pass" type="password" placeholder="••••••••" autocomplete="current-password" style="padding:.85rem; flex:1; padding-right:2.8rem; border:0; background:transparent; font-size:1rem; outline:none;">
+            <button type="button" onclick="togglePassVis()"
+              style="position:absolute;right:10px;background:none;border:none;cursor:pointer;font-size:18px;color:#5C6B7A;padding:0;line-height:1;"
+              id="pass-eye" title="Show/hide password">👁</button>
           </div>
         </div>
         <button class="btn btn-accent btn-block" id="btn-signin" onclick="window.signIn()">Sign in</button>
@@ -187,6 +190,14 @@ label{display:block;font-size:.8rem;font-weight:600;margin-bottom:.4rem;letter-s
   document.addEventListener('keydown', e => {
     if (e.key === 'Enter') window.signIn();
   });
+
+  window.togglePassVis = () => {
+    const input = document.getElementById('pass');
+    const btn   = document.getElementById('pass-eye');
+    const isHidden = input.type === 'password';
+    input.type  = isHidden ? 'text' : 'password';
+    btn.textContent = isHidden ? '🙈' : '👁';
+  };
 </script>
 </body>
 </html>
