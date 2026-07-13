@@ -77,99 +77,116 @@ label{display:block;font-size:.8rem;font-weight:600;margin-bottom:.4rem;letter-s
   <main class="pane">
     <div class="card-auth">
 
-      <!-- STEP 1: phone -->
-      <section id="step-phone">
+      <!-- Email + Password login -->
+      <section id="step-email">
         <span class="eyebrow">Sign in</span>
-        <h1>Enter your mobile number</h1>
-        <p class="sub">We'll text you a 6-digit code. No passwords to remember.</p>
+        <h1>Welcome back</h1>
+        <p class="sub">Enter your registered email and password to access your Tour Diary.</p>
         <div class="field">
-          <label for="phone">Mobile number</label>
+          <label for="email">Email address</label>
           <div class="phone-in">
-            <span class="cc">+91</span>
-            <input id="phone" type="tel" inputmode="numeric" maxlength="10" placeholder="98765 43210" autocomplete="tel">
+            <input id="email" type="email" inputmode="email" placeholder="officer@example.com" autocomplete="email" style="padding:.85rem">
           </div>
         </div>
-        <button class="btn btn-accent btn-block" onclick="sendCode()">Send code</button>
-        <p class="note">By continuing you agree to the <a href="#">terms</a> and <a href="#">privacy policy</a>.</p>
-      </section>
-
-      <!-- STEP 2: OTP -->
-      <section id="step-otp" class="hidden">
-        <button class="back" onclick="editNumber()">← Change number</button>
-        <span class="eyebrow">Verify</span>
-        <h1>Enter the code</h1>
-        <p class="sub">Sent to <span class="to-num" id="to-num">+91 98765 43210</span></p>
         <div class="field">
-          <div class="otp-boxes" id="otp">
-            <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 1">
-            <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 2">
-            <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 3">
-            <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 4">
-            <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 5">
-            <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 6">
-          </div>
-          <div class="meta">
-            <span id="timer">Resend code in 0:30</span>
-            <button class="link" id="resend" disabled onclick="resend()">Resend</button>
+          <label for="pass">Password</label>
+          <div class="phone-in">
+            <input id="pass" type="password" placeholder="••••••••" autocomplete="current-password" style="padding:.85rem">
           </div>
         </div>
-        <button class="btn btn-accent btn-block" onclick="verify()">Verify & continue</button>
+        <button class="btn btn-accent btn-block" id="btn-signin" onclick="window.signIn()">Sign in</button>
+        <div class="meta" style="margin-top:.9rem">
+          <button class="link" onclick="window.forgotPassword()">Forgot password?</button>
+          <a class="link" href="app.html">New user? Sign up</a>
+        </div>
+        <p class="note">By continuing you agree to the <a href="#">terms</a> and <a href="#">privacy policy</a>.</p>
       </section>
 
     </div>
   </main>
 </div>
 
-<script>
-const $ = s => document.querySelector(s);
-function sendCode(){
-  const p = $('#phone').value.replace(/\D/g,'');
-  if(p.length!==10){ $('#phone').focus(); $('#phone').closest('.phone-in').style.borderColor='var(--vermilion)'; return; }
-  $('#to-num').textContent = '+91 '+p.slice(0,5)+' '+p.slice(5);
-  $('#step-phone').classList.add('hidden');
-  $('#step-otp').classList.remove('hidden');
-  $('#otp').children[0].focus();
-  startTimer();
-}
-function editNumber(){
-  $('#step-otp').classList.add('hidden');
-  $('#step-phone').classList.remove('hidden');
-  $('#phone').focus();
-}
-// OTP box behaviour
-const boxes = [...document.querySelectorAll('#otp input')];
-boxes.forEach((b,i)=>{
-  b.addEventListener('input',()=>{
-    b.value = b.value.replace(/\D/g,'');
-    b.classList.toggle('filled', !!b.value);
-    if(b.value && i<boxes.length-1) boxes[i+1].focus();
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged }
+    from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyB91XxgwSK7WSa2d8iwt3G5mMBwHyEk0YA",
+    authDomain: "my-diary-ad59b.firebaseapp.com",
+    projectId: "my-diary-ad59b",
+    storageBucket: "my-diary-ad59b.firebasestorage.app",
+    messagingSenderId: "222761664690",
+    appId: "1:222761664690:web:341fffd7d573d7a55149ab"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  // If already signed in, go straight to app
+  onAuthStateChanged(auth, (user) => {
+    if (user) window.location.href = 'app.html';
   });
-  b.addEventListener('keydown',e=>{
-    if(e.key==='Backspace' && !b.value && i>0) boxes[i-1].focus();
+
+  const $ = s => document.querySelector(s);
+
+  function showError(msg) {
+    let el = document.getElementById('login-error');
+    if (!el) {
+      el = document.createElement('p');
+      el.id = 'login-error';
+      el.style.cssText = 'color:#C0392B;font-size:.85rem;margin-top:.6rem;text-align:center;font-weight:600;';
+      $('#step-email').appendChild(el);
+    }
+    el.textContent = msg;
+  }
+
+  function clearError() {
+    const el = document.getElementById('login-error');
+    if (el) el.textContent = '';
+  }
+
+  // Sign in with email + password
+  window.signIn = async () => {
+    const email = $('#email').value.trim();
+    const pass  = $('#pass').value;
+    if (!email || !pass) { showError('Please enter your email and password.'); return; }
+    clearError();
+    const btn = document.getElementById('btn-signin');
+    btn.disabled = true; btn.textContent = 'Signing in…';
+    try {
+      await signInWithEmailAndPassword(auth, email, pass);
+      // onAuthStateChanged above handles the redirect
+    } catch(err) {
+      btn.disabled = false; btn.textContent = 'Sign in';
+      const msg = err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password'
+        ? 'Incorrect email or password.'
+        : err.code === 'auth/user-not-found'
+        ? 'No account found with this email.'
+        : err.code === 'auth/too-many-requests'
+        ? 'Too many attempts. Try again later.'
+        : err.message.replace('Firebase: ','');
+      showError(msg);
+    }
+  };
+
+  // Forgot password
+  window.forgotPassword = async () => {
+    const email = $('#email').value.trim();
+    if (!email) { showError('Enter your email first, then click Forgot password.'); return; }
+    try {
+      await sendPasswordResetEmail(auth, email);
+      showError(''); 
+      alert('Password reset email sent to ' + email);
+    } catch(err) {
+      showError(err.message.replace('Firebase: ',''));
+    }
+  };
+
+  // Allow Enter key to submit
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') window.signIn();
   });
-  b.addEventListener('paste',e=>{
-    e.preventDefault();
-    const d=(e.clipboardData.getData('text')||'').replace(/\D/g,'').slice(0,6).split('');
-    d.forEach((v,j)=>{ if(boxes[j]){ boxes[j].value=v; boxes[j].classList.add('filled'); }});
-    boxes[Math.min(d.length,5)].focus();
-  });
-});
-let t;
-function startTimer(){
-  let s=30; const btn=$('#resend'); btn.disabled=true;
-  clearInterval(t);
-  t=setInterval(()=>{
-    s--; $('#timer').textContent=`Resend code in 0:${String(s).padStart(2,'0')}`;
-    if(s<=0){ clearInterval(t); $('#timer').textContent='Didn\u2019t get it?'; btn.disabled=false; }
-  },1000);
-}
-function resend(){ startTimer(); }
-function verify(){
-  const code = boxes.map(b=>b.value).join('');
-  if(code.length<6){ boxes.find(b=>!b.value).focus(); return; }
-  // Firebase confirmationResult.confirm(code) hooks in here
-  window.location.href='dashboard.html';
-}
 </script>
 </body>
 </html>
