@@ -124,7 +124,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       <div id="signup-fields" style="display:none;">
         <div class="field" style="margin-bottom:10px"><label>Full Name</label><input type="text" id="auth-name" placeholder="e.g. Mr. John "></div>
         <div class="field" style="margin-bottom:10px"><label>Designation</label><input type="text" id="auth-designation" placeholder="e.g. Inspector /MR"></div>
-        <div class="field" style="margin-bottom:10px"><label>Mobile Number</label><input type="tel" id="auth-mobile" placeholder="e.g. +9198765xxxxx"></div>
+        <div class="field" style="margin-bottom:10px">
+          <label>Mobile Number</label>
+          <div style="display:flex; border:1.5px solid var(--border); border-radius:var(--radius-sm); overflow:hidden; background:#fff;">
+            <span style="padding:10px 12px; background:var(--blue-bg); color:var(--blue-dark); font-weight:700; font-size:14px; border-right:1.5px solid var(--border); white-space:nowrap;">+91</span>
+            <input type="tel" id="auth-mobile" inputmode="numeric" maxlength="10" placeholder="98765 43210"
+              style="border:0; flex:1; padding:10px; font-size:14px; outline:none; background:transparent;"
+              oninput="this.value=this.value.replace(/\D/g,'').slice(0,10)">
+          </div>
+        </div>
       </div>
       <div class="field" style="margin-bottom:10px"><label>Email</label><input type="email" id="login-email" placeholder="officer@example.com"></div>
       <div class="field" style="margin-bottom:10px"><label>Password</label><input type="password" id="login-password"></div>
@@ -961,14 +969,14 @@ Premium officers enjoy the following exclusive features:
       } else {
         const name = document.getElementById('auth-name').value;
         const desig = document.getElementById('auth-designation').value;
-        const mob = document.getElementById('auth-mobile').value.trim();
-        if(!name || !desig || !mob) return window.showToast("Please fill all signup fields.");
-        if(!mob.startsWith('+')) return window.showToast("⚠️ Mobile number must include country code (e.g., +91).");
+        const mob = '+91' + document.getElementById('auth-mobile').value.replace(/\D/g,'').slice(0,10);
+        if(!name || !desig) return window.showToast("Please fill all signup fields.");
+        if(mob.length !== 13) return window.showToast("⚠️ Please enter a valid 10-digit mobile number.");
         
         window.showToast("Creating account...");
         const userCred = await createUserWithEmailAndPassword(auth, e, p);
         
-        await setDoc(doc(db, "profiles", userCred.user.uid), { email: e, name: name, designation: desig, mobile: mob, status: 'approved', role: 'officer', premium: false, mobileVerified: false });
+        await setDoc(doc(db, "profiles", userCred.user.uid), { email: e, name: name, designation: desig, mobile: mob, status: 'pending', role: 'officer', premium: false, mobileVerified: false });
         await setDoc(doc(db, "settings", userCred.user.uid), { name: name, designation: desig, basicPay: "", reportingAuthority: "", address: "", payLevel: "6", daRate: 500, fareRate: 12 });
         
         // Instead of an email verification link, we now verify the account via mobile OTP.
@@ -1123,6 +1131,7 @@ Premium officers enjoy the following exclusive features:
       }
 
       const profileSnap = await getDoc(doc(db, "profiles", user.uid));
+      let status = 'pending'; 
       isAdminUser = false; isPremiumUser = false; isActualPremium = false; inFreeTrial = false; daysSinceSignup = 0;
 
       // Dynamic day counter: Firebase Authentication stores the account's
@@ -1138,41 +1147,71 @@ Premium officers enjoy the following exclusive features:
       
       if (profileSnap.exists()) {
          const pData = profileSnap.data();
+         status = pData.status || 'pending';
          isAdminUser = (pData.role === 'admin' || String(pData.role).toLowerCase() === 'superadmin');
          isActualPremium = (pData.premium === true || String(pData.premium).toLowerCase() === 'true' || pData.premium === 1);
+         // Every user gets full premium-feature access during the 45-day
+         // window regardless of whether they've actually paid; after day 45
+         // it falls back to the real premium flag from Firestore.
          isPremiumUser = isActualPremium || inFreeTrial;
+
+         // Mobile number verified but account still pending an unverified signup:
+         // send them straight back into the OTP verification flow instead of
+         // blocking them behind a stale "verify your email" screen.
+         if (status === 'pending' && pData.mobileVerified !== true) {
+             document.getElementById('login-card').style.display = 'none';
+             document.getElementById('pending-card').style.display = 'none';
+             document.querySelector('.bottom-nav').style.display = 'none';
+             document.getElementById('badge-premium').style.display = 'none';
+             window.switchTab('login');
+             window.pendingSignupPhone = pData.mobile;
+             document.getElementById('signup-otp-phone-display').textContent = pData.mobile || '';
+             document.getElementById('signup-otp-step-send').style.display = 'block';
+             document.getElementById('signup-otp-step-verify').style.display = 'none';
+             document.getElementById('signup-otp-modal').style.display = 'flex';
+             window.initSignupRecaptcha();
+             return;
+         }
       }
 
-      // No approval gate — all signed-in users go straight to the app.
-      document.getElementById('login-card').style.display = 'none';
-      document.getElementById('pending-card').style.display = 'none';
-      document.querySelector('.bottom-nav').style.display = 'flex';
-      document.getElementById('btn-logout').style.display = 'block';
-      document.getElementById('nav-admin').style.display = isAdminUser ? 'inline-flex' : 'none';
+      if (status === 'pending') {
+         document.getElementById('login-card').style.display = 'none';
+         document.getElementById('pending-card').style.display = 'block';
+         document.querySelector('.bottom-nav').style.display = 'none';
+         document.getElementById('badge-premium').style.display = 'none';
+         window.switchTab('login');
+      } else {
+         document.getElementById('login-card').style.display = 'none';
+         document.getElementById('pending-card').style.display = 'none';
+         document.querySelector('.bottom-nav').style.display = 'flex';
+         document.getElementById('btn-logout').style.display = 'block';
+         document.getElementById('nav-admin').style.display = isAdminUser ? 'inline-flex' : 'none';
+         
+         document.getElementById('badge-premium').style.display = isPremiumUser ? 'inline-block' : 'none';
+         document.getElementById('premium-lock').style.display = isPremiumUser ? 'none' : 'block';
+         document.getElementById('premium-content').style.display = isPremiumUser ? 'block' : 'none';
+         
+         document.getElementById('premium-export-container').style.display = isPremiumUser ? 'block' : 'none';
 
-      document.getElementById('badge-premium').style.display = isPremiumUser ? 'inline-block' : 'none';
-      document.getElementById('premium-lock').style.display = isPremiumUser ? 'none' : 'block';
-      document.getElementById('premium-content').style.display = isPremiumUser ? 'block' : 'none';
-      document.getElementById('premium-export-container').style.display = isPremiumUser ? 'block' : 'none';
+         const csvBtn = document.getElementById('btn-export-csv');
+         const shareBtn = document.getElementById('btn-share-summary');
+         if (!isPremiumUser) {
+             csvBtn.style.opacity = "0.5";
+             shareBtn.style.opacity = "0.5";
+             csvBtn.innerHTML = "🔒 Download CSV / Excel (Premium)";
+             shareBtn.innerHTML = "🔒 Share Summary (Premium)";
+         }
 
-      const csvBtn = document.getElementById('btn-export-csv');
-      const shareBtn = document.getElementById('btn-share-summary');
-      if (!isPremiumUser) {
-          csvBtn.style.opacity = "0.5";
-          shareBtn.style.opacity = "0.5";
-          csvBtn.innerHTML = "🔒 Download CSV / Excel (Premium)";
-          shareBtn.innerHTML = "🔒 Share Summary (Premium)";
+         if (isPremiumUser) { try { (adsbygoogle = window.adsbygoogle || []).pauseAdRequests = 1; } catch(e){} }
+
+         window.initAdSlots();
+
+         window.loadSettings().then(() => {
+           window.fetchEntries();
+           if(isPremiumUser) window.fetchAlerts(); 
+           window.switchTab('add');
+         });
       }
-
-      if (isPremiumUser) { try { (adsbygoogle = window.adsbygoogle || []).pauseAdRequests = 1; } catch(e){} }
-
-      window.initAdSlots();
-
-      window.loadSettings().then(() => {
-        window.fetchEntries();
-        if(isPremiumUser) window.fetchAlerts();
-        window.switchTab('add');
-      });
     } else {
       currentUser = null; window.switchTab('login');
     }
@@ -1220,8 +1259,12 @@ Premium officers enjoy the following exclusive features:
           </div>
           <div class="admin-actions" style="margin-top:8px;">`;
           
-        if(!isUserPremium) html += `<button class="btn btn-premium btn-sm" onclick="window.updateUser('${doc.id}', 'premium', true)">Grant Premium</button>`;
+        if(d.status === 'pending') {
+            html += `<button class="btn btn-primary btn-sm" onclick="window.updateUser('${doc.id}', 'status', 'approved')">Approve Access</button>`;
+        } else {
+            if(!isUserPremium) html += `<button class="btn btn-premium btn-sm" onclick="window.updateUser('${doc.id}', 'premium', true)">Grant Premium</button>`;
             else html += `<button class="btn btn-warning btn-sm" onclick="window.updateUser('${doc.id}', 'premium', false)">Revoke Premium</button>`;
+        }
         html += `</div></div>`;
       });
       el.innerHTML = html;
