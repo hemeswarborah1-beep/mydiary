@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tour-diary-v4';
+const CACHE_NAME = 'tour-diary-v5';
 const urlsToCache = [
   './',
   './index.html',
@@ -10,25 +10,34 @@ const urlsToCache = [
 ];
 
 self.addEventListener('install', event => {
+  self.skipWaiting(); // activate new SW immediately without waiting
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => {
-        return cache.addAll(urlsToCache);
-      })
+      .then(cache => cache.addAll(urlsToCache))
+  );
+});
+
+self.addEventListener('activate', event => {
+  // Delete all old caches so stale files are gone immediately
+  event.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(
+        keys.filter(key => key !== CACHE_NAME)
+            .map(key => caches.delete(key))
+      )
+    ).then(() => self.clients.claim()) // take control of all open tabs immediately
   );
 });
 
 self.addEventListener('fetch', event => {
-  // We don't cache Firestore API calls, only the app shell (HTML/JS)
-  if (event.request.url.includes('firestore.googleapis.com')) {
-    return; 
+  // Never cache Firestore or Firebase API calls
+  if (event.request.url.includes('firestore.googleapis.com') ||
+      event.request.url.includes('firebase') ||
+      event.request.url.includes('googleapis.com')) {
+    return;
   }
-
   event.respondWith(
     caches.match(event.request)
-      .then(response => {
-        // Return cached version or fetch from network
-        return response || fetch(event.request);
-      })
+      .then(response => response || fetch(event.request))
   );
 });
