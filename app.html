@@ -26,7 +26,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .header-sub { font-size: 13px; opacity: 0.85; margin-top: 2px; }
 .logout-btn { background: rgba(255,255,255,0.2); border: none; color: white; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; display: none; }
 .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: var(--surface); border-top: 1px solid var(--border); display: none; z-index: 100; padding-bottom: env(safe-area-inset-bottom); overflow-x: auto; white-space: nowrap; }
-.nav-item { flex: 1; display: inline-flex; flex-direction: column; align-items: center; padding: 10px 8px 8px; cursor: pointer; color: var(--text3); font-size: 10px; gap: 3px; border: none; background: none; min-width: 65px; }
+.nav-item { flex: 1; display: inline-flex; flex-direction: column; align-items: center; padding: 8px 5px 6px; cursor: pointer; color: var(--text3); font-size: 9px; gap: 2px; border: none; background: none; min-width: 55px; }
 .nav-item.active { color: var(--blue); }
 .nav-icon { width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 18px;}
 .main { padding: 12px 12px 80px; min-height: calc(100vh - 140px); }
@@ -122,90 +122,197 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     <div class="card" id="login-card">
       <div class="card-title" id="auth-title">Officer Login</div>
       <div id="signup-fields" style="display:none;">
-        <div class="field" style="margin-bottom:10px"><label>Full Name</label><input type="text" id="auth-name" placeholder="e.g. Mr. John "></div>
+        <div class="field" style="margin-bottom:10px"><label>Full Name</label><input type="text" id="auth-name" placeholder="e.g. Mr. John"></div>
         <div class="field" style="margin-bottom:10px"><label>Designation</label><input type="text" id="auth-designation" placeholder="e.g. Inspector /MR"></div>
         <div class="field" style="margin-bottom:10px">
           <label>Mobile Number</label>
-          <div style="display:flex; border:1.5px solid var(--border); border-radius:var(--radius-sm); overflow:hidden; background:#fff;">
-            <span style="padding:10px 12px; background:var(--blue-bg); color:var(--blue-dark); font-weight:700; font-size:14px; border-right:1.5px solid var(--border); white-space:nowrap;">+91</span>
+          <div style="display:flex;border:1.5px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;background:#fff;">
+            <span style="padding:10px 12px;background:var(--blue-bg);color:var(--blue-dark);font-weight:700;font-size:14px;border-right:1.5px solid var(--border);white-space:nowrap;">+91</span>
             <input type="tel" id="auth-mobile" inputmode="numeric" maxlength="10" placeholder="98765 43210"
-              style="border:0; flex:1; padding:10px; font-size:14px; outline:none; background:transparent;"
+              style="border:0;flex:1;padding:10px;font-size:14px;outline:none;background:transparent;"
               oninput="this.value=this.value.replace(/\D/g,'').slice(0,10)">
           </div>
         </div>
       </div>
-      <div class="field" style="margin-bottom:10px"><label>Email</label><input type="email" id="login-email" placeholder="officer@example.com"></div>
-      <div class="field" style="margin-bottom:10px"><label>Password</label><input type="password" id="login-password"></div>
-      
-      <div style="text-align: right; margin-bottom: 20px;">
-        <a onclick="document.getElementById('otp-reset-modal').style.display='flex'; window.initRecaptcha();" style="font-size: 11px; color: var(--blue); cursor: pointer; text-decoration: underline;">Forgot Password via Mobile OTP?</a>
+      <div class="field" style="margin-bottom:10px"><label>Email</label><input type="email" id="login-email" placeholder="officer@example.com" autocomplete="email"></div>
+      <div class="field" style="margin-bottom:10px">
+        <label>Password</label>
+        <div style="position:relative;display:flex;align-items:center;">
+          <input type="password" id="login-password" style="flex:1;padding-right:2.5rem;" autocomplete="current-password">
+          <button type="button" onclick="window.togglePwd('login-password',this)"
+            style="position:absolute;right:10px;background:none;border:none;cursor:pointer;font-size:18px;color:var(--text2);padding:0;line-height:1;">👁</button>
+        </div>
       </div>
-
+      <div id="forgot-link-row" style="text-align:right;margin-bottom:14px;">
+        <a onclick="window.showForgotModal()" style="font-size:11px;color:var(--blue);cursor:pointer;text-decoration:underline;">Forgot Password?</a>
+      </div>
       <button class="btn btn-primary" id="btn-auth" onclick="window.processAuth()">Login securely</button>
+      <button class="btn" id="btn-biometric" onclick="window.biometricLogin()"
+        style="display:none;margin-top:10px;background:var(--blue-bg);color:var(--blue-dark);border:1.5px solid var(--blue);font-weight:600;">
+        🔒 Login with Fingerprint / Face ID
+      </button>
       <a class="toggle-link" onclick="window.toggleAuthMode()">Need an account? Sign up here</a>
+      <button class="btn btn-success" id="install-app-btn" onclick="window.installApp()" style="display:none;margin-top:15px;">📱 Install App to Homescreen</button>
+    </div>
 
-      <button class="btn btn-success" id="install-app-btn" onclick="window.installApp()" style="display:none; margin-top: 15px;">📱 Install App to Homescreen</button>
+    <div style="text-align:center; margin: 10px 16px 0;">
+      <button onclick="window.shareApp()"
+        style="width:100%;padding:13px;border-radius:12px;border:none;
+               background:#e53935;color:#fff;font-size:15px;font-weight:700;
+               cursor:pointer;letter-spacing:0.3px;">
+        📲 Share Tour Diary with Colleagues
+      </button>
+      <p style="font-size:11px;color:#888;margin-top:6px;">
+        Help your colleagues manage tour entries &amp; TA bills easily
+      </p>
     </div>
 
     <div class="card" id="pending-card" style="display:none; text-align:center; padding: 30px 15px;">
-       <h3 style="color: var(--blue); margin-bottom: 10px;">⏳ Account Pending Approval</h3>
-       <p style="color: var(--text2); font-size: 14px; line-height: 1.5;">Your mobile number is verified. Your account is now waiting for approval by the administrator.<br><br>You will be able to log in as soon as an admin approves your account.</p>
-       <button class="btn btn-primary" style="margin-top: 15px;" onclick="window.location.reload()">Check Approval Status</button>
-       <a class="toggle-link" onclick="window.logoutUser()">Logout</a>
+       <!-- Content is set dynamically by onAuthStateChanged based on account state -->
     </div>
   </div>
 
   <div class="screen" id="screen-admin">
-    <div class="card">
-      <div class="card-title">Global Plan Pricing Configuration</div>
-      <div class="row" style="align-items: flex-end;">
-         <div class="field"><label>Premium Plan Cost (₹ / Year)</label><input type="number" id="admin-plan-price" value="199" min="0" oninput="window.updateNetPayablePreview()"></div>
-         <div class="field"><label>Discount (%)</label><input type="number" id="admin-plan-discount" value="0" min="0" max="100" oninput="window.updateNetPayablePreview()"></div>
+
+    <!-- (A) Collapsible: Global Plan Pricing -->
+    <div class="card" style="margin-bottom:10px;">
+      <div onclick="window.toggleAdminSection('section-pricing',this)"
+        style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;">
+        <div class="card-title" style="margin:0;">💰 Global Plan Pricing Configuration</div>
+        <span id="icon-section-pricing" style="font-size:18px;color:var(--blue);">▼</span>
       </div>
-      <div class="row" style="align-items:center; margin-top:6px;">
-         <div style="flex:1; font-size:13px; color:var(--text2);">Net Payable Amount: <b id="admin-net-payable-preview" style="color:var(--blue-dark); font-size:15px;">₹199</b></div>
-         <button class="btn btn-primary" style="width:auto; padding:11px 20px;" onclick="window.saveGlobalPrice()">Save Price</button>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-title">User Management (Superadmin)</div>
-      <div id="admin-content"><p style="text-align:center; color: var(--text3); font-size: 13px;">Loading users...</p></div>
-    </div>
-    
-    <div class="card" style="margin-top: 20px;">
-      <div class="card-title">User Messages & Feedback</div>
-      <div id="admin-messages-content">
-          <p style="text-align:center; color: var(--text3); font-size: 13px;">Loading messages...</p>
+      <div id="section-pricing" style="margin-top:14px;">
+        <div class="row" style="align-items:flex-end;">
+          <div class="field"><label>Premium Plan Cost (₹ / Year)</label><input type="number" id="admin-plan-price" value="199" min="0" oninput="window.updateNetPayablePreview()"></div>
+          <div class="field"><label>Discount (%)</label><input type="number" id="admin-plan-discount" value="0" min="0" max="100" oninput="window.updateNetPayablePreview()"></div>
+        </div>
+        <div class="row" style="align-items:flex-end;margin-top:6px;">
+          <div class="field">
+            <label>Free Trial Period (Days)</label>
+            <input type="number" id="admin-trial-days" value="45" min="1" max="365"
+              style="width:100%;">
+          </div>
+          <div style="flex:1;font-size:12px;color:var(--text2);padding-bottom:10px;padding-left:10px;">
+            New users get full premium access free for this many days after signup. After this period they revert to free tier automatically.
+          </div>
+        </div>
+        <div class="row" style="align-items:center;margin-top:6px;">
+          <div style="flex:1;font-size:13px;color:var(--text2);">Net Payable: <b id="admin-net-payable-preview" style="color:var(--blue-dark);font-size:15px;">₹199</b></div>
+          <button class="btn btn-primary" style="width:auto;padding:11px 20px;" onclick="window.saveGlobalPrice()">Save Price & Trial</button>
+        </div>
       </div>
     </div>
 
-    <div class="card" style="margin-top: 20px;">
-      <div class="card-title">Enrolled Users Report (Superadmin)</div>
-      <div class="row" style="margin-bottom:10px; gap:8px;">
-        <button class="btn btn-primary btn-sm" style="width:auto; padding:8px 14px;" onclick="window.loadEnrolledReport()">🔄 Refresh Report</button>
-        <button class="btn btn-sm" style="width:auto; padding:8px 14px; background:#2E7D32; color:#fff;" onclick="window.exportEnrolledReportCSV()">⬇️ Export CSV</button>
+    <!-- (B+C) Revenue Summary Card -->
+    <div class="card" style="margin-bottom:10px;">
+      <div onclick="window.toggleAdminSection('section-revenue',this)"
+        style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;">
+        <div class="card-title" style="margin:0;">📈 Revenue & Summary</div>
+        <span id="icon-section-revenue" style="font-size:18px;color:var(--blue);">▶</span>
       </div>
-      <div id="admin-report-summary" style="font-size:12px; color:var(--text2); margin-bottom:10px;"></div>
-      <div style="overflow-x:auto;">
-        <table id="admin-report-table" style="width:100%; border-collapse:collapse; font-size:12px;">
-          <thead>
-            <tr style="background:var(--blue-bg); text-align:left;">
-              <th style="padding:6px;">Name</th>
-              <th style="padding:6px;">Email</th>
-              <th style="padding:6px;">Mobile</th>
-              <th style="padding:6px;">Designation</th>
-              <th style="padding:6px;">Status</th>
-              <th style="padding:6px;">Premium</th>
-              <th style="padding:6px;">Amount Paid</th>
-              <th style="padding:6px;">Discount</th>
-              <th style="padding:6px;">Payment ID</th>
-              <th style="padding:6px;">Activated On</th>
-            </tr>
-          </thead>
-          <tbody id="admin-report-body">
-            <tr><td colspan="10" style="text-align:center; padding:10px; color:var(--text3);">Click "Refresh Report" to load data.</td></tr>
-          </tbody>
-        </table>
+      <div id="section-revenue" style="display:none;margin-top:14px;">
+        <div id="revenue-cards" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+          <div style="background:var(--blue-bg);border-radius:var(--radius-sm);padding:14px;text-align:center;">
+            <div style="font-size:11px;color:var(--text2);margin-bottom:4px;">Total Users</div>
+            <div id="rev-total-users" style="font-size:24px;font-weight:700;color:var(--blue-dark);">—</div>
+          </div>
+          <div style="background:#E8F5E9;border-radius:var(--radius-sm);padding:14px;text-align:center;">
+            <div style="font-size:11px;color:var(--text2);margin-bottom:4px;">Premium Users</div>
+            <div id="rev-premium-users" style="font-size:24px;font-weight:700;color:#2E7D32;">—</div>
+          </div>
+          <div style="background:#FFF3E0;border-radius:var(--radius-sm);padding:14px;text-align:center;">
+            <div style="font-size:11px;color:var(--text2);margin-bottom:4px;">Free Trial Users</div>
+            <div id="rev-trial-users" style="font-size:24px;font-weight:700;color:#E65100;">—</div>
+          </div>
+          <div style="background:#F3E5F5;border-radius:var(--radius-sm);padding:14px;text-align:center;">
+            <div style="font-size:11px;color:var(--text2);margin-bottom:4px;">Total Revenue</div>
+            <div id="rev-total-revenue" style="font-size:24px;font-weight:700;color:#6A1B9A;">—</div>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-sm" style="width:auto;padding:8px 14px;" onclick="window.loadRevenueSummary()">🔄 Refresh Stats</button>
+      </div>
+    </div>
+
+    <!-- (A+B) Collapsible: User Management with Delete -->
+    <div class="card" style="margin-bottom:10px;">
+      <div onclick="window.toggleAdminSection('section-users',this)"
+        style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;">
+        <div class="card-title" style="margin:0;">👥 User Management (Superadmin)</div>
+        <span id="icon-section-users" style="font-size:18px;color:var(--blue);">▶</span>
+      </div>
+      <div id="section-users" style="display:none;margin-top:14px;">
+        <div id="admin-content"><p style="text-align:center;color:var(--text3);font-size:13px;">Click to expand and load users.</p></div>
+      </div>
+    </div>
+
+    <!-- (A) Collapsible: Feedback -->
+    <div class="card" style="margin-bottom:10px;">
+      <div onclick="window.toggleAdminSection('section-feedback',this)"
+        style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;">
+        <div class="card-title" style="margin:0;">💬 User Messages & Feedback</div>
+        <span id="icon-section-feedback" style="font-size:18px;color:var(--blue);">▶</span>
+      </div>
+      <div id="section-feedback" style="display:none;margin-top:14px;">
+        <div id="admin-messages-content">
+          <p style="text-align:center;color:var(--text3);font-size:13px;">Click to expand and load messages.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- (A+D) Collapsible: Enrolled Users Report with Filters -->
+    <div class="card" style="margin-bottom:10px;">
+      <div onclick="window.toggleAdminSection('section-report',this)"
+        style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;">
+        <div class="card-title" style="margin:0;">📋 Enrolled Users Report (Superadmin)</div>
+        <span id="icon-section-report" style="font-size:18px;color:var(--blue);">▶</span>
+      </div>
+      <div id="section-report" style="display:none;margin-top:14px;">
+        <!-- Filter bar -->
+        <div style="background:var(--blue-bg);border-radius:var(--radius-sm);padding:12px;margin-bottom:12px;">
+          <div style="font-size:12px;font-weight:700;color:var(--blue-dark);margin-bottom:8px;">🔍 Filter Report</div>
+          <div class="row" style="gap:8px;flex-wrap:wrap;">
+            <select id="filter-status" style="flex:1;min-width:120px;padding:8px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;">
+              <option value="all">All Users</option>
+              <option value="premium">Premium Only</option>
+              <option value="free">Free / Trial</option>
+            </select>
+            <select id="filter-sort" style="flex:1;min-width:120px;padding:8px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;">
+              <option value="name">Sort by Name</option>
+              <option value="date">Sort by Date</option>
+              <option value="amount">Sort by Amount</option>
+            </select>
+            <input type="text" id="filter-search" placeholder="Search name/email/mobile"
+              style="flex:2;min-width:160px;padding:8px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;"
+              oninput="window.applyReportFilter()">
+          </div>
+          <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
+            <button class="btn btn-primary btn-sm" style="width:auto;padding:8px 14px;" onclick="window.loadEnrolledReport()">🔄 Refresh</button>
+            <button class="btn btn-sm" style="width:auto;padding:8px 14px;background:#2E7D32;color:#fff;" onclick="window.exportEnrolledReportCSV()">⬇️ Export CSV</button>
+            <button class="btn btn-sm" style="width:auto;padding:8px 14px;background:#5C6BC0;color:#fff;" onclick="window.applyReportFilter()">✅ Apply Filter</button>
+          </div>
+        </div>
+        <div id="admin-report-summary" style="font-size:12px;color:var(--text2);margin-bottom:10px;"></div>
+        <div style="overflow-x:auto;">
+          <table id="admin-report-table" style="width:100%;border-collapse:collapse;font-size:12px;">
+            <thead>
+              <tr style="background:var(--blue-bg);text-align:left;">
+                <th style="padding:6px;">Name</th>
+                <th style="padding:6px;">Email</th>
+                <th style="padding:6px;">Mobile</th>
+                <th style="padding:6px;">Designation</th>
+                <th style="padding:6px;">Status</th>
+                <th style="padding:6px;">Premium</th>
+                <th style="padding:6px;">Amount Paid</th>
+                <th style="padding:6px;">Discount</th>
+                <th style="padding:6px;">Payment ID</th>
+                <th style="padding:6px;">Activated On</th>
+              </tr>
+            </thead>
+            <tbody id="admin-report-body">
+              <tr><td colspan="10" style="text-align:center;padding:10px;color:var(--text3);">Click "Refresh" to load data.</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -311,69 +418,154 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     </div>
   </div>
 
+  <!-- ★ MERGED PREMIUM TAB: Prepare TA Bill + Alerts ★ -->
   <div class="screen" id="screen-summary">
-    <div class="card">
-      <div class="card-title">Filter & Search</div>
-      <div class="row">
-        <div class="field"><label>From Date</label><input type="date" id="report-from" onchange="window.renderSummary()"></div>
-        <div class="field"><label>To Date</label><input type="date" id="report-to" onchange="window.renderSummary()"></div>
-      </div>
-      <div class="field" style="margin-top: 10px;"><label>Search Keyword (Dest, Route, Date)</label><input type="text" id="report-search" placeholder="🔍 Search destination or date..." onkeyup="window.renderSummary()"></div>
-    </div>
 
-    <div class="stats-grid">
-      <div class="stat"><div class="stat-label">Total Journeys</div><div class="stat-value blue" id="s-count">0</div></div>
-      <div class="stat"><div class="stat-label">Distance (km)</div><div class="stat-value" id="s-km">0</div></div>
-      <div class="stat"><div class="stat-label">Fare Paid</div><div class="stat-value" id="s-fare">₹0</div></div>
-      <div class="stat"><div class="stat-label">DA Claimed</div><div class="stat-value green" id="s-da">₹0</div></div>
-    </div>
-
-    <div class="section-head">Detailed View & Edit</div>
-    <div class="report-table-container" id="report-details"></div>
-
-    <div id="premium-export-container" style="margin-bottom: 10px; display: none;">
-       <div class="field" style="margin-bottom:10px;">
-           <label>TA Advance Taken (₹) - For TR-25</label>
-           <input type="number" id="ta-advance" placeholder="e.g. 5000">
-       </div>
-       <button class="export-btn btn-premium" id="btn-tr25-print" onclick="window.printTR25()" style="border:none; margin-bottom:10px;">🖨️ Generate Official TR-25 TA Bill</button>
-    </div>
-
-    <button class="export-btn"
-id="btn-export-csv"
-style="border: 2px solid var(--blue); color: var(--blue);"
-onclick="window.exportCSV()">
-⬇️ Download CSV / Excel
-</button>
-<button class="export-btn"
-id="btn-share-summary"
-onclick="window.shareText()">
-📤 Share Summary
-</button>
-  </div>
-
-  <div class="screen" id="screen-alerts">
-    <div id="premium-lock" style="display: none; text-align: center; padding: 40px 20px;">
-      <div style="font-size: 50px; margin-bottom: 15px;">🔒</div>
-      <h3 style="color: var(--blue); margin-bottom: 10px;">Premium Feature</h3>
-      <p style="color: var(--text2); font-size: 14px; line-height: 1.5;">The "Alert Me" notification system is reserved for Premium officers.</p>
+    <!-- Non-premium lock banner -->
+    <div id="premium-lock" style="display:none;text-align:center;padding:40px 20px;">
+      <div style="font-size:50px;margin-bottom:15px;">🔒</div>
+      <h3 style="color:var(--blue);margin-bottom:10px;">Premium Features</h3>
+      <p style="color:var(--text2);font-size:14px;line-height:1.5;">Prepare TA Bill, Download CSV, Share Summary and Alerts are reserved for Premium officers.</p>
       <button class="btn btn-premium" style="margin-top:15px;" onclick="window.showPlanModal()">View Premium Plans</button>
     </div>
 
-    <div id="premium-content" style="display: none;">
-      <div class="card">
-        <div class="card-title">Create New Alert</div>
-        <div class="field" style="margin-bottom:10px"><label>Alert Title / Purpose</label><input type="text" id="alert-title" placeholder="e.g. Audit Meeting, Court Hearing"></div>
-        <div class="row">
-          <div class="field"><label>Due Date</label><input type="date" id="alert-date"></div>
-          <div class="field"><label>Time</label><input type="time" id="alert-time" value="10:00"></div>
-        </div>
-        <button class="btn btn-premium" onclick="window.saveAlert()" style="margin-top: 5px;">➕ Add Alert</button>
+    <!-- Premium content wrapper -->
+    <div id="premium-content" style="display:none;">
+
+      <!-- ── FEATURE GRID ─────────────────────────────────────────────── -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 12px 4px;">
+
+        <!-- Prepare TA Bill tile -->
+        <button onclick="window.togglePremiumSection('sec-tabill')"
+          style="background:#1565C0;color:#fff;border:none;border-radius:12px;
+                 padding:16px 10px;cursor:pointer;text-align:center;font-size:13px;font-weight:700;line-height:1.4;">
+          <div style="font-size:26px;margin-bottom:6px;">📄</div>
+          Prepare<br>TA Bill
+        </button>
+
+        <!-- Download CSV tile -->
+        <button id="btn-export-csv" onclick="window.exportCSV()"
+          style="background:#1565C0;color:#e53935;border:none;border-radius:12px;
+                 padding:16px 10px;cursor:pointer;text-align:center;font-size:13px;font-weight:700;line-height:1.4;">
+          <div style="font-size:26px;margin-bottom:6px;">⬇️</div>
+          Download<br>CSV / Excel
+        </button>
+
+        <!-- Share Summary tile -->
+        <button id="btn-share-summary" onclick="window.shareText()"
+          style="background:#1565C0;color:#e53935;border:none;border-radius:12px;
+                 padding:16px 10px;cursor:pointer;text-align:center;font-size:13px;font-weight:700;line-height:1.4;">
+          <div style="font-size:26px;margin-bottom:6px;">📤</div>
+          Share<br>Summary
+        </button>
+
+        <!-- Alerts tile -->
+        <button onclick="window.togglePremiumSection('sec-alerts')"
+          style="background:#1565C0;color:#fff;border:none;border-radius:12px;
+                 padding:16px 10px;cursor:pointer;text-align:center;font-size:13px;font-weight:700;line-height:1.4;">
+          <div style="font-size:26px;margin-bottom:6px;">🔔</div>
+          Alerts &amp;<br>Reminders
+        </button>
+
       </div>
-      <div class="section-head">Your Scheduled Alerts</div>
-      <div id="alerts-list">Loading alerts...</div>
-    </div>
+      <!-- ── END FEATURE GRID ─────────────────────────────────────────── -->
+
+      <!-- ── UPGRADE BUTTON (shown only during trial, hidden after purchase) ── -->
+      <div id="upgrade-banner" style="display:none;padding:0 12px 8px;">
+        <button onclick="window.showPlanModal()"
+          style="width:100%;padding:14px;border:none;border-radius:12px;
+                 background:linear-gradient(135deg,#FFD700,#FFA000);
+                 color:#000;font-size:14px;font-weight:800;cursor:pointer;
+                 box-shadow:0 3px 10px rgba(255,160,0,0.4);letter-spacing:0.3px;">
+          ⭐ Upgrade to Premium
+          <span id="upgrade-days-left" style="font-size:12px;font-weight:600;opacity:0.8;"></span>
+        </button>
+        <p style="text-align:center;font-size:11px;color:#888;margin-top:5px;">
+          Lock in your premium access before your trial ends
+        </p>
+      </div>
+      <!-- ── END UPGRADE BUTTON ──────────────────────────────────────── -->
+
+      <!-- ── TA BILL COLLAPSIBLE ──────────────────────────────────────── -->
+      <div id="sec-tabill" style="display:none;margin-top:4px;">
+        <div class="card">
+          <div class="card-title" style="color:#1565C0;">📄 Prepare TA Bill</div>
+          <div class="row">
+            <div class="field"><label>From Date</label><input type="date" id="report-from" onchange="window.renderSummary()"></div>
+            <div class="field"><label>To Date</label><input type="date" id="report-to" onchange="window.renderSummary()"></div>
+          </div>
+          <div class="field" style="margin-top:10px;">
+            <label>Search Keyword (Dest, Route, Date)</label>
+            <input type="text" id="report-search" placeholder="🔍 Search destination or date..." onkeyup="window.renderSummary()">
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat"><div class="stat-label">Total Journeys</div><div class="stat-value blue" id="s-count">0</div></div>
+          <div class="stat"><div class="stat-label">Distance (km)</div><div class="stat-value" id="s-km">0</div></div>
+          <div class="stat"><div class="stat-label">Fare Paid</div><div class="stat-value" id="s-fare">₹0</div></div>
+          <div class="stat"><div class="stat-label">DA Claimed</div><div class="stat-value green" id="s-da">₹0</div></div>
+        </div>
+
+        <div class="section-head">Detailed View & Edit</div>
+        <div class="report-table-container" id="report-details"></div>
+
+        <div id="premium-export-container" style="margin-bottom:10px;">
+          <div class="field" style="margin-bottom:10px;">
+            <label>TA Advance Taken (₹) — For TR-25</label>
+            <input type="number" id="ta-advance" placeholder="e.g. 5000">
+          </div>
+          <button class="export-btn btn-premium" id="btn-tr25-print" onclick="window.printTR25()"
+            style="border:none;margin-bottom:10px;">
+            🖨️ Generate Official TR-25 TA Bill
+          </button>
+        </div>
+      </div>
+      <!-- ── END TA BILL ──────────────────────────────────────────────── -->
+
+      <!-- ── ALERTS COLLAPSIBLE ───────────────────────────────────────── -->
+      <div id="sec-alerts" style="display:none;margin-top:4px;">
+        <div class="card">
+          <div class="card-title" style="color:#1565C0;">🔔 Create New Alert</div>
+          <div class="field" style="margin-bottom:10px">
+            <label>Alert Title / Purpose</label>
+            <input type="text" id="alert-title" placeholder="e.g. Audit Meeting, Court Hearing">
+          </div>
+          <div class="row">
+            <div class="field"><label>Due Date</label><input type="date" id="alert-date"></div>
+            <div class="field"><label>Time</label><input type="time" id="alert-time" value="10:00"></div>
+          </div>
+          <button class="btn btn-premium" onclick="window.saveAlert()" style="margin-top:5px;">➕ Add Alert</button>
+        </div>
+
+        <div class="card" style="margin-top:10px;">
+          <div class="card-title" style="color:#1565C0;">📥 Bulk Import / Export Alerts</div>
+          <p style="font-size:12px;color:var(--text2);margin-bottom:12px;">Download the CSV template, fill in your alerts, then upload to add them all at once.</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn btn-primary" style="flex:1;min-width:140px;" onclick="window.downloadAlertTemplate()">
+              ⬇️ Download Template
+            </button>
+            <label style="flex:1;min-width:140px;background:var(--success);color:#fff;cursor:pointer;
+                          text-align:center;padding:12px;border-radius:var(--radius);font-weight:600;font-size:14px;">
+              ⬆️ Upload & Import
+              <input type="file" id="alert-csv-upload" accept=".csv" style="display:none;" onchange="window.importAlertsCSV(this)">
+            </label>
+          </div>
+          <p style="font-size:11px;color:var(--text3);margin-top:8px;">
+            CSV format: <b>Title, Date (YYYY-MM-DD), Time (HH:MM)</b><br>
+            Example: Annual Inspection, 2026-08-15, 10:00
+          </p>
+        </div>
+
+        <div class="section-head">Your Scheduled Alerts</div>
+        <div id="alerts-list">Loading alerts...</div>
+      </div>
+      <!-- ── END ALERTS ───────────────────────────────────────────────── -->
+
+    </div><!-- end premium-content -->
   </div>
+  <!-- keep screen-alerts as an empty alias so existing switchTab('alerts') calls don't break -->
+  <div class="screen" id="screen-alerts" style="display:none;"></div>
 
   <div class="screen" id="screen-settings">
     <div class="card">
@@ -415,10 +607,10 @@ onclick="window.shareText()">
 <nav class="bottom-nav">
   <button class="nav-item active" onclick="window.switchTab('add')" id="nav-add"><div class="nav-icon">➕</div>Add</button>
   <button class="nav-item" onclick="window.switchTab('records')" id="nav-records"><div class="nav-icon">📋</div>Records</button>
-  <button class="nav-item" onclick="window.switchTab('summary')" id="nav-summary"><div class="nav-icon">📊</div>Reports</button>
-  <button class="nav-item" onclick="window.switchTab('alerts')" id="nav-alerts"><div class="nav-icon">🔔</div>Alerts</button>
+  <button class="nav-item" onclick="window.switchTab('summary')" id="nav-summary" style="color:#e53935;font-weight:700;"><div class="nav-icon">⭐</div>Premium</button>
   <button class="nav-item" onclick="window.switchTab('settings')" id="nav-settings"><div class="nav-icon">⚙️</div>Settings</button>
   <button class="nav-item" onclick="window.switchTab('admin')" id="nav-admin" style="display:none;"><div class="nav-icon">🛡️</div>Admin</button>
+  <button class="nav-item" onclick="window.shareApp()" id="nav-share" style="color:#e53935;"><div class="nav-icon">📲</div>Share</button>
 </nav>
 
 <div class="modal-overlay" id="notification-modal">
@@ -658,61 +850,43 @@ Premium officers enjoy the following exclusive features:
   </div>
 </div>
 
-<!-- Signup Mobile OTP Verification Modal -->
-<div class="modal-overlay" id="signup-otp-modal">
-  <div class="modal-content">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-      <h3 style="color: var(--blue-dark);">Verify Your Mobile Number</h3>
+<!-- Forgot Password Modal -->
+<div class="modal-overlay" id="otp-reset-modal">
+  <div class="modal-content" style="text-align:center;">
+    <div style="font-size:36px;margin-bottom:8px;">🔑</div>
+    <h3 style="color:var(--blue-dark);margin-bottom:6px;">Reset Password</h3>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:16px;">Enter your registered email — we'll send a password reset link instantly.</p>
+    <div class="field" style="margin-bottom:14px;text-align:left;">
+      <label>Registered Email</label>
+      <input type="email" id="reset-email-input" placeholder="officer@example.com"
+        style="width:100%;padding:10px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;box-sizing:border-box;">
     </div>
-    <p style="font-size:12px; color:var(--text2); margin-bottom:10px;">We've sent (or are about to send) a 6-digit OTP to <b id="signup-otp-phone-display"></b>. Enter it below to verify your account.</p>
-    <div id="signup-recaptcha-container" style="margin-bottom: 10px;"></div>
-    <div id="signup-otp-step-send">
-        <button class="btn btn-primary" onclick="window.sendSignupOTP()">Send OTP</button>
-    </div>
-    <div id="signup-otp-step-verify" style="display:none;">
-        <div class="field" style="margin-bottom:10px">
-            <label>Enter 6-digit OTP</label>
-            <input type="text" id="signup-otp-code" placeholder="123456">
-        </div>
-        <button class="btn btn-success" onclick="window.verifySignupOTP()">Verify & Continue</button>
-        <a class="toggle-link" onclick="window.resendSignupOTP()">Resend OTP</a>
-    </div>
-    <a class="toggle-link" onclick="window.cancelSignupOTP()">Cancel Sign Up</a>
+    <button class="btn btn-primary" onclick="window.sendResetEmail()" style="margin-bottom:10px;">📧 Send Reset Link</button>
+    <br>
+    <a class="toggle-link" onclick="document.getElementById('otp-reset-modal').style.display='none'">Cancel</a>
   </div>
 </div>
 
-<!-- Mobile OTP Password Reset Modal -->
-<div class="modal-overlay" id="otp-reset-modal">
-  <div class="modal-content">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-      <h3 style="color: var(--blue-dark);">Reset Password (SMS)</h3>
-      <button onclick="document.getElementById('otp-reset-modal').style.display='none'" style="background:none; border:none; font-size: 20px; cursor:pointer;">&times;</button>
+<!-- Email OTP Verification Modal (Signup) -->
+<div class="modal-overlay" id="email-otp-modal">
+  <div class="modal-content" style="text-align:center;">
+    <div style="font-size:36px;margin-bottom:8px;">📧</div>
+    <h3 style="color:var(--blue-dark);margin-bottom:6px;">Verify Your Email</h3>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:4px;">A 6-digit code was sent to</p>
+    <p style="font-weight:700;color:var(--text);margin-bottom:4px;" id="email-otp-display"></p>
+    <p style="font-size:12px;color:var(--text2);margin-bottom:16px;">Don't see it? Please check your <b>Spam / Junk</b> folder too.</p>
+    <div class="field" style="margin-bottom:8px;text-align:left;">
+      <label>Enter OTP</label>
+      <input type="text" id="email-otp-input" inputmode="numeric" maxlength="6"
+        placeholder="_ _ _ _ _ _"
+        style="text-align:center;font-size:24px;font-weight:700;letter-spacing:8px;width:100%;padding:12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);box-sizing:border-box;"
+        oninput="this.value=this.value.replace(/\D/g,'').slice(0,6)">
     </div>
-    
-    <div id="otp-step-1">
-        <p style="font-size:12px; color:var(--text2); margin-bottom:10px;">Enter your registered mobile number including the country code (e.g., +91).</p>
-        <div class="field" style="margin-bottom:10px">
-            <label>Mobile Number</label>
-            <input type="tel" id="reset-phone" placeholder="+919876543210">
-        </div>
-        <div id="recaptcha-container" style="margin-bottom: 10px;"></div>
-        <button class="btn btn-primary" onclick="window.sendOTP()">Send OTP</button>
-    </div>
-    
-    <div id="otp-step-2" style="display:none;">
-        <div class="field" style="margin-bottom:10px">
-            <label>Enter 6-digit OTP</label>
-            <input type="text" id="reset-otp" placeholder="123456">
-        </div>
-        <button class="btn btn-success" onclick="window.verifyOTP()">Verify OTP</button>
-    </div>
-
-    <div id="otp-step-3" style="display:none;">
-        <div class="field" style="margin-bottom:10px">
-            <label>Create New Password</label>
-            <input type="password" id="reset-new-password" placeholder="Min 6 characters">
-        </div>
-        <button class="btn btn-primary" onclick="window.saveNewPassword()">Save New Password</button>
+    <p style="font-size:12px;color:var(--text3);margin-bottom:14px;">Expires in <b id="email-otp-countdown">10:00</b></p>
+    <button class="btn btn-primary" onclick="window.verifyEmailOTP()" style="margin-bottom:10px;">✅ Verify & Create Account</button>
+    <div style="display:flex;justify-content:space-between;margin-top:4px;">
+      <a class="toggle-link" onclick="window.resendEmailOTP()">Resend code</a>
+      <a class="toggle-link" onclick="window.cancelEmailOTP()" style="color:var(--danger);">Cancel</a>
     </div>
   </div>
 </div>
@@ -721,7 +895,8 @@ Premium officers enjoy the following exclusive features:
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail, RecaptchaVerifier, signInWithPhoneNumber, PhoneAuthProvider, linkWithCredential, updatePassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-functions.js";
   import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, setDoc, getDoc, updateDoc, query, where } 
     from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
   import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
@@ -739,14 +914,186 @@ Premium officers enjoy the following exclusive features:
   const auth = getAuth(app);
   const db = getFirestore(app);
   const storage = getStorage(app);
+  const functions = getFunctions(app); // Cloud Functions for server-side OTP email (Brevo key never reaches the browser)
 
   let currentUser = null;
   let isAdminUser = false;
   let isPremiumUser = false;
   let isActualPremium = false;   // true only if premium was actually purchased/granted
-  let inFreeTrial = false;       // true while user is within the 45-day free-access window
+  let inFreeTrial = false;       // true while user is within the free-access window
   let daysSinceSignup = 0;       // calendar days since Firebase account creation
-  const FREE_TRIAL_DAYS = 45;    // change this single number to adjust the trial length
+  let FREE_TRIAL_DAYS = 45;      // default — overridden by app_config/pricing.trial_days on login
+
+  // ── Email OTP ──────────────────────────────────────────────────────────
+  // Sending is now handled by a Cloud Function (sendOtpEmail). The Brevo API
+  // key lives only in server-side Secret Manager and never reaches the
+  // browser, so it can no longer be scraped from config.js or page source.
+  // ─────────────────────────────────────────────────────────────────────────
+
+  let _pendingSignup     = null;
+  let _otpCountdownTimer = null;
+  const BIOMETRIC_KEY    = 'td_biometric_uid';
+
+  function _generateOTP() {
+    return String(Math.floor(100000 + Math.random() * 900000));
+  }
+
+  const _sendOtpEmailFn = httpsCallable(functions, 'sendOtpEmail');
+
+  async function _sendOTPEmail(toEmail, toName, otp) {
+    try {
+      await _sendOtpEmailFn({ email: toEmail, name: toName, otp });
+    } catch (err) {
+      throw new Error(err.message || 'Email send failed');
+    }
+  }
+
+  function _startOTPCountdown() {
+    clearInterval(_otpCountdownTimer);
+    let secs = 600;
+    const el = document.getElementById('email-otp-countdown');
+    _otpCountdownTimer = setInterval(() => {
+      secs--;
+      const m = Math.floor(secs/60), s = String(secs%60).padStart(2,'0');
+      if (el) el.textContent = `${m}:${s}`;
+      if (secs <= 0) { clearInterval(_otpCountdownTimer); if(el) el.textContent='Expired'; sessionStorage.removeItem('_td_otp'); }
+    }, 1000);
+  }
+
+  window.initiateEmailOTP = async (signupData) => {
+    const otp = _generateOTP();
+    sessionStorage.setItem('_td_otp', JSON.stringify({ code: otp, expires: Date.now() + 600000 }));
+    _pendingSignup = signupData;
+    try {
+      await _sendOTPEmail(signupData.email, signupData.name, otp);
+      document.getElementById('email-otp-display').textContent = signupData.email;
+      document.getElementById('email-otp-input').value = '';
+      document.getElementById('email-otp-modal').style.display = 'flex';
+      _startOTPCountdown();
+      window.showToast('✅ OTP sent! Check your email inbox — and your Spam/Junk folder if you don\'t see it within a minute.');
+    } catch(err) {
+      sessionStorage.removeItem('_td_otp'); _pendingSignup = null;
+      window.showToast('❌ Could not send OTP: ' + err.message);
+    }
+  };
+
+  window.verifyEmailOTP = async () => {
+    const entered = document.getElementById('email-otp-input').value.trim();
+    if (entered.length !== 6) return window.showToast('Enter all 6 digits.');
+    const stored = JSON.parse(sessionStorage.getItem('_td_otp') || 'null');
+    if (!stored) return window.showToast('OTP expired. Please resend.');
+    if (Date.now() > stored.expires) { sessionStorage.removeItem('_td_otp'); return window.showToast('OTP expired. Please resend.'); }
+    if (entered !== stored.code) return window.showToast('❌ Incorrect code. Try again.');
+    sessionStorage.removeItem('_td_otp');
+    clearInterval(_otpCountdownTimer);
+    document.getElementById('email-otp-modal').style.display = 'none';
+    window.showToast('✅ Verified! Creating your account…');
+    try {
+      const { email, password, name, desig, mob } = _pendingSignup;
+      const userCred = await createUserWithEmailAndPassword(auth, email, password);
+
+      // Mobile duplicate check — must happen AFTER auth, since Firestore rules
+      // require request.auth to be set before allowing a read on 'profiles'.
+      const mobCheck = await getDocs(query(collection(db,"profiles"), where("mobile","==",mob)));
+      if (!mobCheck.empty) {
+        // Roll back the just-created auth account so it doesn't linger as an orphan.
+        await userCred.user.delete();
+        _pendingSignup = null;
+        return window.showToast('⚠️ This mobile number is already registered. Please login.');
+      }
+
+      try {
+        await setDoc(doc(db,'profiles',userCred.user.uid), {
+          email, name, designation:desig, mobile:mob,
+          status:'approved', role:'officer', premium:false,
+          emailVerified:true, trialStarted:Date.now()
+        });
+      } catch(profileErr) {
+        console.error('Profile write failed:', profileErr);
+        // Delete the orphaned auth account so the user can retry cleanly
+        await userCred.user.delete();
+        _pendingSignup = null;
+        return window.showToast('❌ Account setup failed: ' + profileErr.message + '. Please try again.');
+      }
+
+      try {
+        await setDoc(doc(db,'settings',userCred.user.uid), {
+          name, designation:desig, basicPay:'', reportingAuthority:'',
+          address:'', payLevel:'6', daRate:500, fareRate:12
+        });
+      } catch(settingsErr) {
+        console.error('Settings write failed:', settingsErr);
+        // Non-fatal — profile was created, settings can be saved later in app
+      }
+
+      _pendingSignup = null;
+      window.showToast('✅ Account created! Welcome to Tour Diary.');
+    } catch(err) {
+      console.error('Signup error:', err);
+      window.showToast('❌ ' + err.message.replace('Firebase: ',''));
+    }
+  };
+
+  window.resendEmailOTP = async () => { if(_pendingSignup) { window.showToast('Resending…'); await window.initiateEmailOTP(_pendingSignup); } };
+  window.cancelEmailOTP = () => {
+    sessionStorage.removeItem('_td_otp'); clearInterval(_otpCountdownTimer);
+    _pendingSignup = null;
+    document.getElementById('email-otp-modal').style.display = 'none';
+    window.showToast('Signup cancelled.');
+  };
+
+  // ── Biometric (WebAuthn) ──────────────────────────────────────────────────
+  window.checkBiometricAvailable = () => {
+    const enrolled = localStorage.getItem(BIOMETRIC_KEY);
+    const btn = document.getElementById('btn-biometric');
+    if (btn && enrolled && window.PublicKeyCredential) btn.style.display = 'block';
+  };
+  window.offerBiometricEnrolment = async () => {
+    if (!window.PublicKeyCredential || localStorage.getItem(BIOMETRIC_KEY)) return;
+    if (!confirm('Enable Fingerprint / Face ID login on this device?')) return;
+    await window.enrollBiometric();
+  };
+  window.enrollBiometric = async () => {
+    try {
+      const enc = new TextEncoder();
+      const cred = await navigator.credentials.create({ publicKey: {
+        challenge: enc.encode('td-enrol-'+currentUser.uid+'-'+Date.now()),
+        rp: { name:'Tour Diary Cloud', id:location.hostname },
+        user: { id:enc.encode(currentUser.uid), name:currentUser.email, displayName:globalSettings.name||currentUser.email },
+        pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],
+        authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required'},
+        timeout:60000
+      }});
+      localStorage.setItem(BIOMETRIC_KEY, JSON.stringify({ credentialId:Array.from(new Uint8Array(cred.rawId)), email:currentUser.email }));
+      const btn = document.getElementById('btn-biometric');
+      if(btn) btn.style.display='block';
+      window.showToast('✅ Biometric login enabled!');
+    } catch(err) { if(err.name!=='NotAllowedError') window.showToast('Biometric setup failed: '+err.message); }
+  };
+  window.biometricLogin = async () => {
+    const stored = JSON.parse(localStorage.getItem(BIOMETRIC_KEY)||'null');
+    if (!stored) return window.showToast('No biometric enrolled on this device.');
+    try {
+      const enc = new TextEncoder();
+      await navigator.credentials.get({ publicKey: {
+        challenge: enc.encode('td-auth-'+Date.now()),
+        rpId: location.hostname,
+        allowCredentials:[{type:'public-key',id:new Uint8Array(stored.credentialId)}],
+        userVerification:'required', timeout:60000
+      }});
+      window.showToast('✅ Biometric verified! Enter password once to complete.');
+      const pass = prompt('One-time confirmation — enter your password:');
+      if (!pass) return;
+      await signInWithEmailAndPassword(auth, stored.email, pass);
+    } catch(err) { if(err.name!=='NotAllowedError') window.showToast('Biometric login failed: '+err.message); }
+  };
+  window.removeBiometric = () => {
+    localStorage.removeItem(BIOMETRIC_KEY);
+    const btn = document.getElementById('btn-biometric');
+    if(btn) btn.style.display='none';
+    window.showToast('Biometric login removed.');
+  };
+  // ─────────────────────────────────────────────────────────────────────────
   let authMode = 'login';
   
   let editingId = null;
@@ -780,7 +1127,13 @@ Premium officers enjoy the following exclusive features:
     document.getElementById('screen-' + tab).classList.add('active');
     const navBtn = document.getElementById('nav-' + tab);
     if(navBtn) navBtn.classList.add('active');
-    if (tab === 'summary') window.renderSummary();
+    if (tab === 'summary') {
+      // premium tab opened — render summary if TA Bill section is visible
+      if (document.getElementById('sec-tabill') && document.getElementById('sec-tabill').style.display !== 'none') {
+        window.renderSummary();
+      }
+      if (typeof isPremiumUser !== 'undefined' && isPremiumUser) window.fetchAlerts();
+    }
     if (tab === 'admin') { 
         window.loadAdminUsers();
         window.loadAdminMessages(); 
@@ -955,7 +1308,11 @@ Premium officers enjoy the following exclusive features:
     document.getElementById('btn-auth').textContent = authMode === 'login' ? 'Login securely' : 'Sign Up';
     document.querySelector('.toggle-link').textContent = authMode === 'login' ? 'Need an account? Sign up here' : 'Already have an account? Login';
     document.getElementById('signup-fields').style.display = authMode === 'login' ? 'none' : 'block';
+    document.getElementById('forgot-link-row').style.display = authMode === 'login' ? 'block' : 'none';
+    const biometricBtn = document.getElementById('btn-biometric');
+    if (biometricBtn) biometricBtn.style.display = authMode === 'login' && localStorage.getItem(BIOMETRIC_KEY) ? 'block' : 'none';
   };
+  window.checkBiometricAvailable();
 
   window.processAuth = async () => {
     const e = document.getElementById('login-email').value;
@@ -969,82 +1326,115 @@ Premium officers enjoy the following exclusive features:
       } else {
         const name = document.getElementById('auth-name').value;
         const desig = document.getElementById('auth-designation').value;
-        const mob = '+91' + document.getElementById('auth-mobile').value.replace(/\D/g,'').slice(0,10);
         if(!name || !desig) return window.showToast("Please fill all signup fields.");
+
+        const mob = '+91' + document.getElementById('auth-mobile').value.replace(/\D/g,'').slice(0,10);
         if(mob.length !== 13) return window.showToast("⚠️ Please enter a valid 10-digit mobile number.");
-        
-        window.showToast("Creating account...");
-        const userCred = await createUserWithEmailAndPassword(auth, e, p);
-        
-        await setDoc(doc(db, "profiles", userCred.user.uid), { email: e, name: name, designation: desig, mobile: mob, status: 'pending', role: 'officer', premium: false, mobileVerified: false });
-        await setDoc(doc(db, "settings", userCred.user.uid), { name: name, designation: desig, basicPay: "", reportingAuthority: "", address: "", payLevel: "6", daRate: 500, fareRate: 12 });
-        
-        // Instead of an email verification link, we now verify the account via mobile OTP.
-        window.pendingSignupPhone = mob;
-        document.getElementById('signup-otp-phone-display').textContent = mob;
-        document.getElementById('signup-otp-step-send').style.display = 'block';
-        document.getElementById('signup-otp-step-verify').style.display = 'none';
-        document.getElementById('signup-otp-modal').style.display = 'flex';
-        window.initSignupRecaptcha();
+        // Email duplicate check is handled by Firebase Auth itself (auth/email-already-in-use)
+        // when createUserWithEmailAndPassword runs. Mobile duplicate check is deferred to
+        // verifyEmailOTP, after the user is authenticated (Firestore rules require auth).
+        await window.initiateEmailOTP({ email:e, password:p, name, desig, mob });
       }
     } catch(err) { window.showToast(err.message.replace('Firebase: ', '')); }
   };
 
-  // --- SIGNUP MOBILE OTP VERIFICATION ---
-
-  window.initSignupRecaptcha = () => {
-      if (!window.signupRecaptchaVerifier) {
-          window.signupRecaptchaVerifier = new RecaptchaVerifier(auth, 'signup-recaptcha-container', {
-              'size': 'normal',
-              'callback': (response) => { /* reCAPTCHA solved */ }
-          });
-      }
-  };
-
-  window.sendSignupOTP = async () => {
-      if (!auth.currentUser) return window.showToast("Session expired. Please sign up again.");
-      window.showToast("Sending OTP...");
-      try {
-          const provider = new PhoneAuthProvider(auth);
-          window.signupVerificationId = await provider.verifyPhoneNumber(window.pendingSignupPhone, window.signupRecaptchaVerifier);
-          window.showToast("✅ OTP sent to mobile!");
-          document.getElementById('signup-otp-step-send').style.display = 'none';
-          document.getElementById('signup-otp-step-verify').style.display = 'block';
-      } catch (error) {
-          window.showToast("Error: " + error.message.replace('Firebase: ', ''));
-          if (window.signupRecaptchaVerifier) {
-              window.signupRecaptchaVerifier.render().then(widgetId => grecaptcha.reset(widgetId));
-          }
-      }
-  };
-
-  window.resendSignupOTP = () => { window.sendSignupOTP(); };
-
-  window.verifySignupOTP = async () => {
-      const code = document.getElementById('signup-otp-code').value.trim();
-      if (!code) return window.showToast("Enter the 6-digit OTP");
-      window.showToast("Verifying...");
-      try {
-          const credential = PhoneAuthProvider.credential(window.signupVerificationId, code);
-          // Link the verified phone number to the email/password account
-          // without switching the active session away from it.
-          await linkWithCredential(auth.currentUser, credential);
-          await updateDoc(doc(db, "profiles", auth.currentUser.uid), { mobileVerified: true });
-          window.showToast("✅ Mobile number verified!");
-          document.getElementById('signup-otp-modal').style.display = 'none';
-          window.location.reload();
-      } catch (error) {
-          window.showToast("❌ " + error.message.replace('Firebase: ', ''));
-      }
-  };
-
-  window.cancelSignupOTP = async () => {
-      document.getElementById('signup-otp-modal').style.display = 'none';
-      await signOut(auth);
-      window.showToast("Sign up cancelled.");
-  };
-
   // ----------------------------------------
+
+  // --- ADMIN COLLAPSIBLE SECTIONS ---
+  window.toggleAdminSection = (sectionId, headerEl) => {
+    const section = document.getElementById(sectionId);
+    const icon    = document.getElementById('icon-' + sectionId);
+    const isOpen  = section.style.display !== 'none';
+    section.style.display = isOpen ? 'none' : 'block';
+    if (icon) icon.textContent = isOpen ? '▶' : '▼';
+    if (!isOpen) {
+      if (sectionId === 'section-users')    window.loadAdminUsers();
+      if (sectionId === 'section-feedback') window.loadAdminMessages();
+      if (sectionId === 'section-report')   window.loadEnrolledReport();
+      if (sectionId === 'section-revenue')  window.loadRevenueSummary();
+    }
+  };
+
+  // --- REVENUE SUMMARY ---
+  window.loadRevenueSummary = async () => {
+    if (!isAdminUser) return;
+    ['rev-total-users','rev-premium-users','rev-trial-users','rev-total-revenue']
+      .forEach(id => { document.getElementById(id).textContent = '…'; });
+    try {
+      const snap = await getDocs(collection(db, 'profiles'));
+      let total = 0, premium = 0, trial = 0, revenue = 0;
+      snap.docs.forEach(d => {
+        const p = d.data(); total++;
+        const isPrem = (p.premium === true || String(p.premium||'').toLowerCase() === 'true' || p.premium === 1);
+        if (isPrem) { premium++; revenue += Number(p.amountPaid)||0; }
+        else {
+          const days = Math.floor((Date.now() - (p.trialStarted||0)) / 86400000);
+          if (days < FREE_TRIAL_DAYS) trial++;
+        }
+      });
+      document.getElementById('rev-total-users').textContent   = total;
+      document.getElementById('rev-premium-users').textContent = premium;
+      document.getElementById('rev-trial-users').textContent   = trial;
+      document.getElementById('rev-total-revenue').textContent = '₹' + revenue;
+    } catch(e) { document.getElementById('rev-total-revenue').textContent = 'Error'; }
+  };
+
+  // --- DELETE USER ---
+  window.deleteUser = async (uid, name) => {
+    if (!isAdminUser) return;
+    if (!confirm(`Delete user "${name}"?\n\nThis removes their profile and settings. Tour entries remain orphaned.\n\nThis CANNOT be undone.`)) return;
+    try {
+      await deleteDoc(doc(db, 'profiles', uid));
+      try { await deleteDoc(doc(db, 'settings', uid)); } catch(e) {}
+      window.showToast(`🗑 "${name}" deleted.`);
+      window.loadAdminUsers();
+    } catch(e) { window.showToast('❌ Could not delete. Check Firestore rules.'); }
+  };
+
+  // --- REPORT FILTER ---
+  window.applyReportFilter = () => {
+    const rows   = window._enrolledReportRows || [];
+    const status = document.getElementById('filter-status').value;
+    const sort   = document.getElementById('filter-sort').value;
+    const search = (document.getElementById('filter-search').value||'').toLowerCase();
+    let filtered = rows.filter(d => {
+      const isPrem = (d.premium === true || String(d.premium||'').toLowerCase() === 'true' || d.premium === 1);
+      if (status === 'premium' && !isPrem) return false;
+      if (status === 'free'    &&  isPrem) return false;
+      if (search) {
+        if (!`${d.name||''} ${d.email||''} ${d.mobile||''}`.toLowerCase().includes(search)) return false;
+      }
+      return true;
+    });
+    filtered.sort((a,b) => {
+      if (sort === 'name')   return (a.name||'').localeCompare(b.name||'');
+      if (sort === 'amount') return (Number(b.amountPaid)||0)-(Number(a.amountPaid)||0);
+      if (sort === 'date')   return (b.premiumActivatedAt||0)-(a.premiumActivatedAt||0);
+      return 0;
+    });
+    const body = document.getElementById('admin-report-body');
+    if (!filtered.length) {
+      body.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:10px;color:var(--text3);">No matching users.</td></tr>';
+      return;
+    }
+    let html = '';
+    filtered.forEach(d => {
+      const isPrem = (d.premium===true||String(d.premium||'').toLowerCase()==='true'||d.premium===1);
+      const amount = Number(d.amountPaid)||0;
+      const activatedDate = d.premiumActivatedAt ? new Date(d.premiumActivatedAt).toLocaleDateString():'—';
+      html += `<tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:6px;">${d.name||'N/A'}</td><td style="padding:6px;">${d.email||'N/A'}</td>
+        <td style="padding:6px;">${d.mobile||'N/A'}</td><td style="padding:6px;">${d.designation||'N/A'}</td>
+        <td style="padding:6px;">${d.status||'N/A'}</td><td style="padding:6px;">${isPrem?'★ Premium':'Free'}</td>
+        <td style="padding:6px;">${amount?'₹'+amount:(isPrem?'Manual':'—')}</td>
+        <td style="padding:6px;">${d.discountApplied?d.discountApplied+'%':'—'}</td>
+        <td style="padding:6px;font-size:10px;">${d.paymentId||'—'}</td>
+        <td style="padding:6px;">${activatedDate}</td></tr>`;
+    });
+    body.innerHTML = html;
+    document.getElementById('admin-report-summary').innerHTML =
+      `Showing <b>${filtered.length}</b> of <b>${rows.length}</b> users`;
+  };
 
   window.logoutUser = async () => {
     await signOut(auth);
@@ -1052,70 +1442,121 @@ Premium officers enjoy the following exclusive features:
     setTimeout(() => { window.location.reload(); }, 800);
   };
 
-  // --- MOBILE OTP PASSWORD RESET LOGIC ---
-
-  window.initRecaptcha = () => {
-      if (!window.recaptchaVerifier) {
-          window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-              'size': 'normal',
-              'callback': (response) => {
-                  // reCAPTCHA solved, allow OTP
-              }
-          });
+  window.togglePremiumSection = (sectionId) => {
+    const sections = ['sec-tabill', 'sec-alerts'];
+    sections.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (id === sectionId) {
+        const isOpen = el.style.display !== 'none';
+        el.style.display = isOpen ? 'none' : 'block';
+        if (!isOpen && id === 'sec-tabill') window.renderSummary();
+        if (!isOpen && id === 'sec-alerts') window.fetchAlerts();
+      } else {
+        el.style.display = 'none'; // close others
       }
+    });
+    // Scroll to the opened section smoothly
+    const target = document.getElementById(sectionId);
+    if (target && target.style.display !== 'none') {
+      setTimeout(() => target.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+    }
   };
 
-  window.sendOTP = async () => {
-      const phoneNumber = document.getElementById('reset-phone').value.trim();
-      if (!phoneNumber.startsWith('+')) return window.showToast("⚠️ Must include country code (e.g., +91)");
-      
-      window.showToast("Sending OTP...");
+  window.shareApp = async () => {
+    const shareData = {
+      title: 'Tour Diary Cloud',
+      text: '📋 Tour Diary Cloud — Manage your government tour entries & TA bills online. Free trial available!',
+      url: 'https://tourdiary.info'
+    };
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        // Fallback for desktop — copy link to clipboard
+        await navigator.clipboard.writeText('📋 Tour Diary Cloud — Manage your government tour entries & TA bills online. Try it free: https://tourdiary.info');
+        window.showToast('✅ Link copied to clipboard! Share it with your colleagues.');
+      }
+    } catch(e) {
+      if (e.name !== 'AbortError') {
+        // User cancelled share — silently ignore. Any other error → copy fallback.
+        try {
+          await navigator.clipboard.writeText('https://tourdiary.info');
+          window.showToast('✅ Link copied! Share https://tourdiary.info with colleagues.');
+        } catch(_) { window.showToast('Share: https://tourdiary.info'); }
+      }
+    }
+  };
+
+  window.togglePwd = (inputId, btn) => {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    input.type = input.type === 'password' ? 'text' : 'password';
+    btn.textContent = input.type === 'password' ? '👁' : '🙈';
+  };
+
+  // --- FORGOT PASSWORD ---
+  window.showForgotModal = () => {
+    const el = document.getElementById('reset-email-input');
+    if (el) el.value = document.getElementById('login-email').value || '';
+    document.getElementById('otp-reset-modal').style.display = 'flex';
+  };
+
+  window.sendResetEmail = async () => {
+    const email = document.getElementById('reset-email-input').value.trim();
+    if (!email) return window.showToast('Please enter your email address.');
+    try {
+      await sendPasswordResetEmail(auth, email);
+      window.showToast('✅ Reset link sent! Check your inbox.');
+      document.getElementById('otp-reset-modal').style.display = 'none';
+    } catch(err) {
+      window.showToast(err.code === 'auth/user-not-found' ? '❌ No account found with this email.' : err.message.replace('Firebase: ',''));
+    }
+  };
+
+  // --- ALERT TEMPLATE DOWNLOAD ---
+  window.downloadAlertTemplate = () => {
+    const header = 'Title,Date (YYYY-MM-DD),Time (HH:MM)';
+    const examples = [
+      'Annual Inspection,2026-08-15,10:00',
+      'Court Hearing,2026-09-01,11:30',
+      'Audit Meeting,2026-09-20,09:00'
+    ].join('\n');
+    const csv = header + '\n' + examples;
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url; a.download = 'alerts_template.csv';
+    a.click(); URL.revokeObjectURL(url);
+    window.showToast('✅ Template downloaded!');
+  };
+
+  // --- ALERT CSV IMPORT ---
+  window.importAlertsCSV = async (input) => {
+    const file = input.files[0];
+    if (!file) return;
+    const text = await file.text();
+    const lines = text.trim().split('\n').slice(1); // skip header
+    let added = 0, skipped = 0;
+    for (const line of lines) {
+      const parts = line.split(',').map(p => p.trim().replace(/^"|"$/g,''));
+      const [title, date, time] = parts;
+      if (!title || !date) { skipped++; continue; }
+      // Validate date format YYYY-MM-DD
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) { skipped++; continue; }
       try {
-          window.confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, window.recaptchaVerifier);
-          window.showToast("✅ OTP sent to mobile!");
-          document.getElementById('otp-step-1').style.display = 'none';
-          document.getElementById('otp-step-2').style.display = 'block';
-      } catch (error) {
-          window.showToast("Error: " + error.message.replace('Firebase: ', ''));
-          if (window.recaptchaVerifier) {
-              window.recaptchaVerifier.render().then(widgetId => grecaptcha.reset(widgetId));
-          }
-      }
+        await addDoc(collection(db, 'alerts'), {
+          uid: currentUser.uid, title, date,
+          time: time || '09:00', timestamp: Date.now()
+        });
+        added++;
+      } catch(e) { skipped++; }
+    }
+    input.value = ''; // reset file input
+    window.showToast(`✅ Imported ${added} alerts${skipped ? ` (${skipped} skipped)` : ''}.`);
+    window.fetchAlerts();
   };
 
-  window.verifyOTP = async () => {
-      const code = document.getElementById('reset-otp').value.trim();
-      if (!code) return window.showToast("Enter the 6-digit OTP");
-      
-      window.showToast("Verifying...");
-      try {
-          const result = await window.confirmationResult.confirm(code);
-          window.tempUserForReset = result.user; 
-          window.showToast("✅ OTP Verified!");
-          document.getElementById('otp-step-2').style.display = 'none';
-          document.getElementById('otp-step-3').style.display = 'block';
-      } catch (error) {
-          window.showToast("❌ Invalid OTP. Try again.");
-      }
-  };
-
-  window.saveNewPassword = async () => {
-      const newPassword = document.getElementById('reset-new-password').value;
-      if (newPassword.length < 6) return window.showToast("Password must be at least 6 characters.");
-      
-      window.showToast("Updating password...");
-      try {
-          await updatePassword(window.tempUserForReset, newPassword);
-          window.showToast("✅ Password updated successfully! Please login.");
-          
-          await signOut(auth); 
-          document.getElementById('otp-reset-modal').style.display = 'none';
-          setTimeout(() => { window.location.reload(); }, 1500);
-      } catch (error) {
-          window.showToast("Error: " + error.message.replace('Firebase: ', ''));
-      }
-  };
-  
   // ----------------------------------------
 
   onAuthStateChanged(auth, async (user) => {
@@ -1128,90 +1569,64 @@ Premium officers enjoy the following exclusive features:
         cachedBaseRate = pricing.yearly_rate || 199;
         cachedDiscountPercent = pricing.discount_percent || 0;
         cachedPlanPrice = window.computeNetPayable(cachedBaseRate, cachedDiscountPercent);
+        FREE_TRIAL_DAYS = pricing.trial_days || 45; // admin-configurable trial period
       }
 
       const profileSnap = await getDoc(doc(db, "profiles", user.uid));
-      let status = 'pending'; 
       isAdminUser = false; isPremiumUser = false; isActualPremium = false; inFreeTrial = false; daysSinceSignup = 0;
 
-      // Dynamic day counter: Firebase Authentication stores the account's
-      // creation timestamp automatically (user.metadata.creationTime), so
-      // there's no need for a separate "signup date" field anywhere. Every
-      // user, old or new, already has this value the moment their account
-      // exists, which makes the 45-day window self-calculating and reliable.
-      if (user.metadata && user.metadata.creationTime) {
-         const createdMs = new Date(user.metadata.creationTime).getTime();
-         daysSinceSignup = Math.floor((Date.now() - createdMs) / (1000 * 60 * 60 * 24));
-      }
-      inFreeTrial = daysSinceSignup < FREE_TRIAL_DAYS;
-      
-      if (profileSnap.exists()) {
-         const pData = profileSnap.data();
-         status = pData.status || 'pending';
-         isAdminUser = (pData.role === 'admin' || String(pData.role).toLowerCase() === 'superadmin');
-         isActualPremium = (pData.premium === true || String(pData.premium).toLowerCase() === 'true' || pData.premium === 1);
-         // Every user gets full premium-feature access during the 45-day
-         // window regardless of whether they've actually paid; after day 45
-         // it falls back to the real premium flag from Firestore.
-         isPremiumUser = isActualPremium || inFreeTrial;
+      // Hide login card always — user is authenticated
+      document.getElementById('login-card').style.display  = 'none';
+      document.getElementById('pending-card').style.display = 'none';
 
-         // Mobile number verified but account still pending an unverified signup:
-         // send them straight back into the OTP verification flow instead of
-         // blocking them behind a stale "verify your email" screen.
-         if (status === 'pending' && pData.mobileVerified !== true) {
-             document.getElementById('login-card').style.display = 'none';
-             document.getElementById('pending-card').style.display = 'none';
-             document.querySelector('.bottom-nav').style.display = 'none';
-             document.getElementById('badge-premium').style.display = 'none';
-             window.switchTab('login');
-             window.pendingSignupPhone = pData.mobile;
-             document.getElementById('signup-otp-phone-display').textContent = pData.mobile || '';
-             document.getElementById('signup-otp-step-send').style.display = 'block';
-             document.getElementById('signup-otp-step-verify').style.display = 'none';
-             document.getElementById('signup-otp-modal').style.display = 'flex';
-             window.initSignupRecaptcha();
-             return;
-         }
+      if (!profileSnap.exists()) {
+        // Profile doc missing — likely a write failure during signup.
+        // Show a clear, actionable message instead of the old "pending approval" text.
+        const pc = document.getElementById('pending-card');
+        pc.innerHTML = `
+          <h3 style="color:var(--blue);margin-bottom:10px;">⚠️ Account Setup Incomplete</h3>
+          <p style="color:var(--text2);font-size:14px;line-height:1.6;">
+            Your account was created but your profile was not saved correctly.<br><br>
+            Please <b>sign out and sign up again</b> with the same email — your previous
+            registration attempt will be detected and you will be logged in directly.
+          </p>
+          <button class="btn btn-primary" style="margin-top:15px;" onclick="window.logoutUser()">Sign Out & Try Again</button>`;
+        pc.style.display = 'block';
+        return; // stop here — don't load the app for a profileless user
       }
 
-      if (status === 'pending') {
-         document.getElementById('login-card').style.display = 'none';
-         document.getElementById('pending-card').style.display = 'block';
-         document.querySelector('.bottom-nav').style.display = 'none';
-         document.getElementById('badge-premium').style.display = 'none';
-         window.switchTab('login');
-      } else {
-         document.getElementById('login-card').style.display = 'none';
-         document.getElementById('pending-card').style.display = 'none';
-         document.querySelector('.bottom-nav').style.display = 'flex';
-         document.getElementById('btn-logout').style.display = 'block';
-         document.getElementById('nav-admin').style.display = isAdminUser ? 'inline-flex' : 'none';
-         
-         document.getElementById('badge-premium').style.display = isPremiumUser ? 'inline-block' : 'none';
-         document.getElementById('premium-lock').style.display = isPremiumUser ? 'none' : 'block';
-         document.getElementById('premium-content').style.display = isPremiumUser ? 'block' : 'none';
-         
-         document.getElementById('premium-export-container').style.display = isPremiumUser ? 'block' : 'none';
+      const pData = profileSnap.data();
+      isAdminUser     = (pData.role === 'admin' || String(pData.role).toLowerCase() === 'superadmin');
+      isActualPremium = (pData.premium === true || String(pData.premium).toLowerCase() === 'true' || pData.premium === 1);
+      const trialOrigin = pData.trialStarted || new Date(user.metadata.creationTime).getTime();
+      daysSinceSignup = Math.floor((Date.now() - trialOrigin) / (1000 * 60 * 60 * 24));
+      inFreeTrial   = daysSinceSignup < FREE_TRIAL_DAYS;
+      isPremiumUser = isActualPremium || inFreeTrial;
 
-         const csvBtn = document.getElementById('btn-export-csv');
-         const shareBtn = document.getElementById('btn-share-summary');
-         if (!isPremiumUser) {
-             csvBtn.style.opacity = "0.5";
-             shareBtn.style.opacity = "0.5";
-             csvBtn.innerHTML = "🔒 Download CSV / Excel (Premium)";
-             shareBtn.innerHTML = "🔒 Share Summary (Premium)";
-         }
+      document.querySelector('.bottom-nav').style.display    = 'flex';
+      document.getElementById('btn-logout').style.display    = 'block';
+      document.getElementById('nav-admin').style.display     = isAdminUser ? 'inline-flex' : 'none';
+      document.getElementById('badge-premium').style.display         = isPremiumUser ? 'inline-block' : 'none';
+      document.getElementById('premium-lock').style.display          = isPremiumUser ? 'none' : 'block';
+      document.getElementById('premium-content').style.display       = isPremiumUser ? 'block' : 'none';
+      document.getElementById('premium-export-container').style.display = isPremiumUser ? 'block' : 'none';
 
-         if (isPremiumUser) { try { (adsbygoogle = window.adsbygoogle || []).pauseAdRequests = 1; } catch(e){} }
-
-         window.initAdSlots();
-
-         window.loadSettings().then(() => {
-           window.fetchEntries();
-           if(isPremiumUser) window.fetchAlerts(); 
-           window.switchTab('add');
-         });
+      const csvBtn = document.getElementById('btn-export-csv');
+      const shareBtn = document.getElementById('btn-share-summary');
+      if (!isPremiumUser) {
+        csvBtn.style.opacity = "0.5"; shareBtn.style.opacity = "0.5";
+        csvBtn.innerHTML = "🔒 Download CSV / Excel (Premium)";
+        shareBtn.innerHTML = "🔒 Share Summary (Premium)";
       }
+      if (isPremiumUser) { try { (adsbygoogle = window.adsbygoogle || []).pauseAdRequests = 1; } catch(e){} }
+      window.initAdSlots();
+      window.checkBiometricAvailable();
+      // Use try/catch so a settings-load failure never blocks the app from opening
+      try { await window.loadSettings(); } catch(e) { console.warn('Settings load failed:', e); }
+      window.fetchEntries();
+      if(isPremiumUser) window.fetchAlerts();
+      window.switchTab('add');
+      setTimeout(() => window.offerBiometricEnrolment(), 2000);
     } else {
       currentUser = null; window.switchTab('login');
     }
@@ -1219,56 +1634,74 @@ Premium officers enjoy the following exclusive features:
 
   window.saveGlobalPrice = async () => {
      if(!isAdminUser) return;
-     const newBaseRate = Number(document.getElementById('admin-plan-price').value) || 199;
-     const newDiscount = Math.min(100, Math.max(0, Number(document.getElementById('admin-plan-discount').value) || 0));
-     const netPayable = window.computeNetPayable(newBaseRate, newDiscount);
+     const newBaseRate  = Number(document.getElementById('admin-plan-price').value) || 199;
+     const newDiscount  = Math.min(100, Math.max(0, Number(document.getElementById('admin-plan-discount').value) || 0));
+     const newTrialDays = Math.min(365, Math.max(1, Number(document.getElementById('admin-trial-days').value) || 45));
+     const netPayable   = window.computeNetPayable(newBaseRate, newDiscount);
      try {
-       await setDoc(doc(db, "app_config", "pricing"), { yearly_rate: newBaseRate, discount_percent: newDiscount });
-       cachedBaseRate = newBaseRate;
+       await setDoc(doc(db, "app_config", "pricing"), {
+         yearly_rate:      newBaseRate,
+         discount_percent: newDiscount,
+         trial_days:       newTrialDays
+       });
+       cachedBaseRate        = newBaseRate;
        cachedDiscountPercent = newDiscount;
-       cachedPlanPrice = netPayable;
-       window.showToast(`✅ Pricing saved — Net Payable ₹${netPayable}${newDiscount > 0 ? ` (${newDiscount}% off ₹${newBaseRate})` : ''}`);
-     } catch(e) { window.showToast("Error updating price."); }
+       cachedPlanPrice       = netPayable;
+       FREE_TRIAL_DAYS       = newTrialDays;
+       window.showToast(`✅ Saved — Trial: ${newTrialDays} days | Net Payable ₹${netPayable}${newDiscount > 0 ? ` (${newDiscount}% off ₹${newBaseRate})` : ''}`);
+     } catch(e) { window.showToast("Error saving settings: " + e.message); }
   };
 
   window.loadAdminUsers = async () => {
     if(!isAdminUser) return;
     const el = document.getElementById('admin-content');
-    el.innerHTML = '<p style="text-align:center; color:var(--text3); font-size:13px;">Loading users...</p>';
-    const priceSnap = await getDoc(doc(db, "app_config", "pricing"));
+    el.innerHTML = '<p style="text-align:center;color:var(--text3);font-size:13px;">Loading users...</p>';
+    const priceSnap = await getDoc(doc(db,"app_config","pricing"));
     if(priceSnap.exists()) {
       const pricing = priceSnap.data();
       document.getElementById('admin-plan-price').value = pricing.yearly_rate || 199;
       document.getElementById('admin-plan-discount').value = pricing.discount_percent || 0;
+      document.getElementById('admin-trial-days').value = pricing.trial_days || 45;
       window.updateNetPayablePreview();
     }
-
     try {
-      const snapshot = await getDocs(collection(db, "profiles"));
-      if(snapshot.empty) { el.innerHTML = '<p>No users found.</p>'; return; }
+      const snapshot = await getDocs(collection(db,"profiles"));
+      if(snapshot.empty) { el.innerHTML='<p>No users found.</p>'; return; }
       let html = '';
-      snapshot.docs.forEach(doc => {
-        const d = doc.data();
-        if(doc.id === currentUser.uid) return; 
-        const isUserPremium = (d.premium === true || String(d.premium).toLowerCase() === 'true' || d.premium === 1);
-        
+      snapshot.docs.forEach(docSnap => {
+        const d = docSnap.data();
+        if(docSnap.id === currentUser.uid) return;
+        const isUserPremium = (d.premium===true||String(d.premium||'').toLowerCase()==='true'||d.premium===1);
+        const trialDays = d.trialStarted ? Math.floor((Date.now()-d.trialStarted)/86400000) : null;
+        const trialInfo = trialDays!==null
+          ? `<span style="font-size:10px;color:${trialDays>=FREE_TRIAL_DAYS?'var(--danger)':'var(--success)'};">⏱ Trial: ${Math.min(trialDays,FREE_TRIAL_DAYS)}/${FREE_TRIAL_DAYS} days</span>`
+          : '';
         html += `<div class="pending-user-card">
           <div>
-            <div class="pending-email" style="display:block;"><b>👤 ${d.name || 'N/A'}</b> ${isUserPremium ? '<span style="color:var(--premium);font-size:12px;float:right; font-weight:700;">★ Premium</span>' : ''}</div>
-            <div style="font-size:11px; color:var(--text2); margin-top:6px;">${d.designation ? `💼 ${d.designation} <br>` : ''}${d.mobile ? `📱 ${d.mobile} <br>` : ''}✉️ ${d.email}</div>
+            <div class="pending-email" style="display:block;">
+              <b>👤 ${d.name||'N/A'}</b>
+              ${isUserPremium?'<span style="color:var(--premium);font-size:12px;float:right;font-weight:700;">★ Premium</span>':''}
+            </div>
+            <div style="font-size:11px;color:var(--text2);margin-top:4px;line-height:1.8;">
+              ${d.designation?`💼 ${d.designation}<br>`:''}
+              ${d.mobile?`📱 ${d.mobile}<br>`:''}
+              ✉️ ${d.email||'N/A'}<br>${trialInfo}
+            </div>
           </div>
-          <div class="admin-actions" style="margin-top:8px;">`;
-          
-        if(d.status === 'pending') {
-            html += `<button class="btn btn-primary btn-sm" onclick="window.updateUser('${doc.id}', 'status', 'approved')">Approve Access</button>`;
-        } else {
-            if(!isUserPremium) html += `<button class="btn btn-premium btn-sm" onclick="window.updateUser('${doc.id}', 'premium', true)">Grant Premium</button>`;
-            else html += `<button class="btn btn-warning btn-sm" onclick="window.updateUser('${doc.id}', 'premium', false)">Revoke Premium</button>`;
-        }
-        html += `</div></div>`;
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
+            ${!isUserPremium
+              ? `<button class="btn btn-premium btn-sm" onclick="window.updateUser('${docSnap.id}','premium',true)">⭐ Grant Premium</button>`
+              : `<button class="btn btn-warning btn-sm" onclick="window.updateUser('${docSnap.id}','premium',false)">↩ Revoke Premium</button>`
+            }
+            <button class="btn btn-sm" style="background:#C62828;color:#fff;"
+              onclick="window.deleteUser('${docSnap.id}','${(d.name||'this user').replace(/'/g,"\\'")}')">
+              🗑 Delete
+            </button>
+          </div>
+        </div>`;
       });
-      el.innerHTML = html;
-    } catch(e) { el.innerHTML = '<p style="text-align:center; color:var(--danger);">Error loading users.</p>'; }
+      el.innerHTML = html || '<p style="text-align:center;color:var(--text3);">No other users found.</p>';
+    } catch(e) { el.innerHTML='<p style="text-align:center;color:var(--danger);">Error loading users.</p>'; console.error(e); }
   };
 
   // Builds the superadmin's enrolled-users report: every profile document
@@ -1537,10 +1970,36 @@ Premium officers enjoy the following exclusive features:
       if (!isActualPremium && !isAdminUser) {
           const counterEl = document.getElementById('trial-counter');
           const daysLeft = Math.max(FREE_TRIAL_DAYS - daysSinceSignup, 0);
+
+          // Show upgrade banner on Premium tab
+          const upgradeBanner = document.getElementById('upgrade-banner');
+          const upgradeDaysEl = document.getElementById('upgrade-days-left');
+          if (upgradeBanner) {
+            upgradeBanner.style.display = 'block';
+            if (upgradeDaysEl) {
+              upgradeDaysEl.textContent = inFreeTrial
+                ? ` — ${daysLeft} day${daysLeft===1?'':'s'} left in trial`
+                : ' — Trial Expired';
+            }
+          }
+
           if (!inFreeTrial) {
-              counterEl.innerHTML = `<span style="color:var(--danger); font-weight:700;">Free Trial Expired (${FREE_TRIAL_DAYS}/${FREE_TRIAL_DAYS} Days). Please Upgrade.</span>`;
+              counterEl.innerHTML = `
+                <span style="color:var(--danger);font-weight:700;">
+                  ⚠️ Free Trial Expired —
+                  <a onclick="window.showPlanModal()" style="color:var(--danger);text-decoration:underline;cursor:pointer;font-weight:800;">
+                    Upgrade Now →
+                  </a>
+                </span>`;
           } else {
-              counterEl.innerHTML = `Free Trial: <b>${daysSinceSignup} / ${FREE_TRIAL_DAYS}</b> Days Used (${daysLeft} left)`;
+              const urgency = daysLeft <= 5
+                ? `<span style="color:#e53935;font-weight:700;"> ⚠️ Only ${daysLeft} day${daysLeft===1?'':'s'} left!</span>`
+                : '';
+              counterEl.innerHTML = `
+                Free Trial: <b>${daysSinceSignup} / ${FREE_TRIAL_DAYS}</b> days used (${daysLeft} left) —
+                <a onclick="window.showPlanModal()" style="color:var(--blue);text-decoration:underline;cursor:pointer;font-weight:700;">
+                  Upgrade Now →
+                </a>${urgency}`;
           }
           if (daysSinceSignup >= FREE_TRIAL_DAYS - 3) {
               const statusText = !inFreeTrial ? "TRIAL EXPIRED." : "RENEW NOW.";
@@ -1549,6 +2008,9 @@ Premium officers enjoy the following exclusive features:
           }
       } else {
           document.getElementById('trial-counter').style.display = 'none';
+          // Hide upgrade banner for actual premium users and admins
+          const ub = document.getElementById('upgrade-banner');
+          if (ub) ub.style.display = 'none';
       }
       window.renderRecords(); window.renderSummary();
     } catch(e) { console.error(e); }
